@@ -4,7 +4,7 @@ require "nt_ldap/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "nt_ldap"
-  spec.version       = NtLdap::VERSION
+  spec.version       = ModuleNtLdap::VERSION
   spec.authors       = ["Tsutomu Nakamura"]
   spec.email         = ["tsuna.0x00@gmail.com"]
 
