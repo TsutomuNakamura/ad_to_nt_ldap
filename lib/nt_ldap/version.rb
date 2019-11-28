@@ -1,3 +1,3 @@
-module AdToNtLdap
+module NtLdap
   VERSION = "0.0.1"
 end
