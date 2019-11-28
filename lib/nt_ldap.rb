@@ -1,5 +1,5 @@
-require "ad_to_nt_ldap/version"
-require "ad_to_nt_ldap/ad_to_nt_ldap.rb"
+require "nt_ldap/version"
+require "nt_ldap/nt_ldap.rb"
 
 module AdToNtLdap
   class Error < StandardError; end
