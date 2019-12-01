@@ -1,16 +1,16 @@
 lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "nt_ldap/version"
+require "ad_nt_ldap/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "nt_ldap"
-  spec.version       = ModuleNtLdap::VERSION
+  spec.name          = "ad_nt_ldap"
+  spec.version       = ModAdNtLdap::VERSION
   spec.authors       = ["Tsutomu Nakamura"]
   spec.email         = ["tsuna.0x00@gmail.com"]
 
   spec.summary       = %q{LDAP migration tool from AD to NT schema}
   spec.description   = %q{This tool migrate AD LDAP entries to NT LDAP entries.}
-  spec.homepage      = "https://github.com/TsutomuNakamura/nt_ldap"
+  spec.homepage      = "https://github.com/TsutomuNakamura/ad_nt_ldap"
 
   spec.metadata["homepage_uri"] = spec.homepage
 
