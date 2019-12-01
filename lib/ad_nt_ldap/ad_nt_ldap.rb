@@ -1,4 +1,4 @@
-class NtLdap
+class AdNtLdap
   def display
     "Hello world"
   end
