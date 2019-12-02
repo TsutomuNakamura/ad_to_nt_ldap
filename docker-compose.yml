@@ -5,9 +5,11 @@ services:
     container_name: ad
     hostname: ad
     image: tsutomu/docker-samba-ad
+    privileged: true
 
   nt:
     container_name: nt
     hostname: nt
     image: tsutomu/docker-samba-nt
+    privileged: true
 
