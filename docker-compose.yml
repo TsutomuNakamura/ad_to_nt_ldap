@@ -9,5 +9,5 @@ services:
   nt:
     container_name: nt
     hostname: nt
-    image: tsutomu/docker-samba/nt
+    image: tsutomu/docker-samba-nt
 
