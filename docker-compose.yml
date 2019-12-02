@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  ad:
+    container_name: ad
+    hostname: ad
+    image: tsutomu/docker-samba-ad
+
+  nt:
+    container_name: nt
+    hostname: nt
+    image: tsutomu/docker-samba/nt
+
