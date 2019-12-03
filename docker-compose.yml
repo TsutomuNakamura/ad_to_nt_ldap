@@ -1,6 +1,20 @@
 version: '3'
 
 services:
+  ruby:
+    container_name: ruby
+    hostname: ruby
+  build:
+    context: ./docker/rack
+    dockerfile: Dockerfile
+  depends_on:
+    - ad
+    - nt
+  entrypoint:
+    - tail -f /dev/null
+  volumes:
+    - .:/opt/app
+
   ad:
     container_name: ad
     hostname: ad
