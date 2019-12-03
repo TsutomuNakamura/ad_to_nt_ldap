@@ -1,14 +1,9 @@
-FROM ubuntu:18.04
+FROM tsutomu/docker-samba-ad
 LABEL maintainer "Tsutomu Nakamura<tsuna.0x00@gmail.com>"
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get -y install \
-        curl pkg-config attr acl samba smbclient ldap-utils \
-        winbind libnss-winbind libpam-winbind \
-        supervisor openvpn inetutils-ping \
-        libpam-krb5 krb5-config krb5-user \
-        python3 python3-pip \
-        ruby-full ruby-bundler \
+        curl ruby-full ruby-bundler \
     && apt-get clean
 
 ENV LC_ALL=C.UTF-8
