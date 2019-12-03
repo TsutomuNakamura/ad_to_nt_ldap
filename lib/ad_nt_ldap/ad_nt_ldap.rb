@@ -28,6 +28,8 @@ class AdNtLdap
     #@nt_port
   end
 
+  def sync
+
   def display
     "Hello world"
   end

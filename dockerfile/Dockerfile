@@ -14,6 +14,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-COPY entrypoint.sh /opt/
-RUN chmod u+x /opt/entrypoint.sh
+#COPY entrypoint.sh /opt/
+#RUN chmod u+x /opt/entrypoint.sh
 
