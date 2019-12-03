@@ -2,7 +2,7 @@ version: '3'
 
 services:
   ruby:
-    container_name: ruby
+    container_name: ad-ruby
     hostname: ruby
     build:
       context: ./dockerfile
@@ -16,12 +16,6 @@ services:
       - /dev/null
     volumes:
       - .:/opt/app
-
-  ad:
-    container_name: ad
-    hostname: ad
-    image: tsutomu/docker-samba-ad
-    privileged: true
 
   nt:
     container_name: nt
