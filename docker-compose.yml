@@ -4,16 +4,18 @@ services:
   ruby:
     container_name: ruby
     hostname: ruby
-  build:
-    context: ./docker/rack
-    dockerfile: Dockerfile
-  depends_on:
-    - ad
-    - nt
-  entrypoint:
-    - tail -f /dev/null
-  volumes:
-    - .:/opt/app
+    build:
+      context: ./dockerfile
+      dockerfile: Dockerfile
+    depends_on:
+      - ad
+      - nt
+    entrypoint:
+      - tail
+      - -f
+      - /dev/null
+    volumes:
+      - .:/opt/app
 
   ad:
     container_name: ad
