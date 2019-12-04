@@ -8,7 +8,6 @@ services:
       context: ./dockerfile
       dockerfile: Dockerfile
     depends_on:
-      - ad
       - nt
     entrypoint:
       - tail
@@ -16,6 +15,7 @@ services:
       - /dev/null
     volumes:
       - .:/opt/app
+    privileged: true
 
   nt:
     container_name: nt
