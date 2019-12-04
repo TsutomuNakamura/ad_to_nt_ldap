@@ -9,6 +9,6 @@ ldapsearch -x -LLL -o 'ldif-wrap=no' -h ad -w "p@ssword0" \
 ```
 
 ```
-samba-tool user getpassword taro-suzuki --attribute virtualCryptSHA512 -H ldap://ad:389 --username Administrator --password p@ssword0
+samba-tool user getpassword taro-suzuki --attribute virtualCryptSHA512
 ```
 
