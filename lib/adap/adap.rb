@@ -38,7 +38,9 @@ class Adap
     #@nt_port
   end
 
-  def sync
+  def sync_user(uid)
+    
+  end
 
   def display
     "Hello world"
