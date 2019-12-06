@@ -24,15 +24,15 @@ class Adap
       raise 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"' if !params.key?(k)
     }
 
-    @ad_host = params['ad_host']
-    @ad_port = (params['ad_port'] ? params['ad_port'] : '389')
-    @ad_binddn = params['ad_binddn']
-    @ad_basedn = params['ad_basedn']
-    @ad_password = (params['ad_password'] ? params['ad_password'] : nil)
-    @ldap_host = params['ldap_host']
-    @ldap_binddn = params['ldap_binddn']
-    @ldap_basedn = params['basedn']
-    @ldap_password = (params['ldap_password'] ? params['ldap_password'] : nil)
+    @ad_host        = params['ad_host']
+    @ad_port        = (params['ad_port'] ? params['ad_port'] : '389')
+    @ad_binddn      = params['ad_binddn']
+    @ad_basedn      = params['ad_basedn']
+    @ad_password    = (params['ad_password'] ? params['ad_password'] : nil)
+    @ldap_host      = params['ldap_host']
+    @ldap_binddn    = params['ldap_binddn']
+    @ldap_basedn    = params['basedn']
+    @ldap_password  = (params['ldap_password'] ? params['ldap_password'] : nil)
 
     #@nt_host (params['nt_host'])
     #@nt_port
