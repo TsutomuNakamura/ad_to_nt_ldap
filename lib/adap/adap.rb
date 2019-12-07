@@ -1,9 +1,9 @@
 require 'net-ldap'
 
 class Adap
-  def initialize()
-    puts "no arguments"
-  end
+
+  REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :homedirectory, :unixhomedirectory, :loginshell, :gecos, :givenname]
+  #REQUIRED_ATTRIBUTES = ['cn', 'sn', 'uid', 'uidNumber', 'gidNumber', 'homeDirectory', 'loginShell', 'gecos', 'givenName']
 
   #
   # params {
@@ -33,6 +33,7 @@ class Adap
     @ad_auth            = (params.has_key?(:ad_password) ? { :method => :simple, :username => @ad_binddn, :password => params[:ad_password] } : nil)
     @ldap_host          = params[:ldap_host]
     @ldap_binddn        = params[:ldap_binddn]
+    @ldap_basedn        = params[:ldap_basedn]
     @ldap_user_basedn   = params[:ldap_user_basedn]
     @ldap_auth          = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_binddn, :password => params[:ldap_password] } : nil )
 
@@ -59,11 +60,22 @@ class Adap
     "uid=#{username},ou=Users,#{@ldap_basedn}"
   end
 
-  def get_attributes(entry)
-    attributes {}
+  def create_ldap_attributes(entry)
+    attributes = {
+      :objectclass => ["top", "person", "organizationalPerson", "inetOrgPerson", "posixAccount", "shadowAccount"]
+    }
     entry.each do |attribute, values|
+      #puts "#{attribute} --- #{values}" if REQUIRED_ATTRIBUTES.include?(attribute)
+      if REQUIRED_ATTRIBUTES.include?(attribute) then
+        if attribute == :unixhomedirectory then
+          attributes[:homedirectory] = values
+        else
+          attributes[attribute] = values
+        end
+      end
     end
 
+    attributes
   end
 
   def sync_user(username)
@@ -88,6 +100,7 @@ class Adap
     if !ad_entry.nil? and ldap_entry.nil? then
       # Create new user
       puts "Create a new user"
+      add_user(username, create_ldap_attributes(ad_entry))
     elsif ad_entry.nil? and !ldap_entry.nil? then
       # Delete a user
       puts "Delete a user"
@@ -100,14 +113,15 @@ class Adap
   end
 
   def add_user(username, attributes)
+    puts get_ldap_dn(username)
+    puts attributes
     @ldap_client.add(
       :dn => get_ldap_dn(username),
-      :attributes => {
-        :objectclass => ["top", "person", "organizationalPerson", "posixAccount", "shadowAccount", "inetOrgPerson"],
-        :cn => username,
-        :sn => username,
-      }
+      :attributes => attributes
     )
+
+    puts @ldap_client.get_operation_result
+    puts @ldap_client.get_operation_result.code
   end
 
 #  def delete_user(username)
