@@ -10,9 +10,7 @@ services:
     depends_on:
       - nt
     entrypoint:
-      - tail
-      - -f
-      - /dev/null
+      - /opt/entrypoint.sh
     volumes:
       - .:/opt/app
     privileged: true
