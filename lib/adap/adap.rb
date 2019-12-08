@@ -78,19 +78,37 @@ class Adap
     attributes
   end
 
+  def get_password(username)
+    output = nil
+    ret = nil
+
+    ["SHA512", "SHA256"].each{ |hash_method|
+      output=`samba-tool user getpassword #{username} --attribute virtualCrypt#{hash_method} 2> /dev/null | grep -E '^virtualCrypt' -A 1 | tr -d ' \n' | cut -d ':' -f 2`
+      break if !output.empty?
+    }
+
+    if output.empty?
+      raise "Failed to get password of #{username} from AD. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?"
+    end
+
+    output
+  end
+
   def sync_user(username)
 
     # filter = Net::LDAP::Filter.eq("cn",cn)
-    ad_entry = nil
-    ldap_entry = nil
+    ad_entry    = nil
+    ldap_entry  = nil
+    ad_dn       = get_ad_dn(username)
+    ldap_dn     = get_ldap_dn(username)
 
     # dn: CN=user-name,CN=Users,DC=mysite,DC=example,DC=com
-    @ad_client.search( :base => get_ad_dn(username) ) do |entry|
+    @ad_client.search( :base => ad_dn ) do |entry|
       ad_entry = entry
     end
 
     # dn: uid=tsutomu-nakamura,ou=Users,dc=teraintl,dc=co,dc=jp
-    @ldap_client.search( :base => get_ldap_dn(username) ) do |entry|
+    @ldap_client.search( :base => ldap_dn ) do |entry|
       ldap_entry = entry
     end
 
@@ -100,7 +118,7 @@ class Adap
     if !ad_entry.nil? and ldap_entry.nil? then
       # Create new user
       puts "Create a new user"
-      add_user(username, create_ldap_attributes(ad_entry))
+      add_user(ldap_dn, create_ldap_attributes(ad_entry), get_password(username))
     elsif ad_entry.nil? and !ldap_entry.nil? then
       # Delete a user
       puts "Delete a user"
@@ -112,16 +130,30 @@ class Adap
 
   end
 
-  def add_user(username, attributes)
-    puts get_ldap_dn(username)
+  def add_user(ldap_user_dn, attributes, password)
+    puts ldap_user_dn
     puts attributes
     @ldap_client.add(
-      :dn => get_ldap_dn(username),
+      :dn => ldap_user_dn,
       :attributes => attributes
     )
 
     puts @ldap_client.get_operation_result
     puts @ldap_client.get_operation_result.code
+
+    puts password
+
+    @ldap_client.modify(
+      :dn => ldap_user_dn,
+      :operations => [
+        [:add, :userPassword, password]
+      ]
+    )
+
+    puts @ldap_client.get_operation_result
+    puts @ldap_client.get_operation_result.code
+
+    return @ldap_client.get_operation_result.code
   end
 
 #  def delete_user(username)
