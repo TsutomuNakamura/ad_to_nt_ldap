@@ -160,7 +160,7 @@ class Adap
   end
 
   def update_user(ldap_uesr_dn, ad_entry, ldap_entry, password)
-    #operations = create_update_operations(ad_entry, user_password)
+    operations = create_update_operations(ad_entry, user_entry, password)
 
     #@ldap_client.modify(
     #  :dn => ldap_user_dn,
@@ -168,8 +168,24 @@ class Adap
     #)
   end
 
-  def create_update_operations(ad_entry, user_password, password)
-    
+  def create_update_operations(ad_entry, ldap_entry, password)
+    operations = []
+
+    ad_entry.each do |key, value|
+      if REQUIRED_ATTRIBUTES.include?(key)
+        operations.push((ldap_entry.key?(key) ? [:replace, key, value] : [:add, key, value]))
+      end
+    end
+
+    ldap_entry.each_key do |key|
+      if REQUIRED_ATTRIBUTES.include?(key)
+        operations.push([:delete, key, nil]) if !ad_entry.key?(key)
+      end
+    end
+
+    # AD does not have password as simple ldap attribute.
+    # So password will always be updated for the reason.
+    operasions.push([:replace, :userPassword, password])
   end
 
 #  def delete_user(username)
