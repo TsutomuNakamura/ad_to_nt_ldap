@@ -2,7 +2,7 @@ require 'net-ldap'
 
 class Adap
 
-  REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :homedirectory, :unixhomedirectory, :loginshell, :gecos, :givenname]
+  REQUIRED_ATTRIBUTES = [:objectClass, :cn, :sn, :uid, :uidnumber, :gidnumber, :homedirectory, :unixhomedirectory, :loginshell, :gecos, :givenname]
   #REQUIRED_ATTRIBUTES = ['cn', 'sn', 'uid', 'uidNumber', 'gidNumber', 'homeDirectory', 'loginShell', 'gecos', 'givenName']
 
   #
@@ -61,9 +61,10 @@ class Adap
   end
 
   def create_ldap_attributes(entry)
-    attributes = {
-      :objectclass => ["top", "person", "organizationalPerson", "inetOrgPerson", "posixAccount", "shadowAccount"]
-    }
+    attributes = {}
+    #attributes = {
+    #  :objectclass => ["top", "person", "organizationalPerson", "inetOrgPerson", "posixAccount", "shadowAccount"]
+    #}
     entry.each do |attribute, values|
       #puts "#{attribute} --- #{values}" if REQUIRED_ATTRIBUTES.include?(attribute)
       if REQUIRED_ATTRIBUTES.include?(attribute) then
@@ -126,6 +127,7 @@ class Adap
     elsif !ad_entry.nil? and !ldap_entry.nil? then
       # Update a user
       puts "Update a user"
+      update_user(ldap_dn, ad_entry, ldap_entry, get_password(username))
     end
     # Do nothing if (ad_entry.nil? and ldap_entry.nil?)
 
@@ -155,6 +157,19 @@ class Adap
     puts @ldap_client.get_operation_result.code
 
     return @ldap_client.get_operation_result.code
+  end
+
+  def update_user(ldap_uesr_dn, ad_entry, ldap_entry, password)
+    #operations = create_update_operations(ad_entry, user_password)
+
+    #@ldap_client.modify(
+    #  :dn => ldap_user_dn,
+    #  :operations => operations
+    #)
+  end
+
+  def create_update_operations(ad_entry, user_password, password)
+    
   end
 
 #  def delete_user(username)
