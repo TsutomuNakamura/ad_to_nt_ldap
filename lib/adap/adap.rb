@@ -84,6 +84,7 @@ class Adap
 
     ["SHA512", "SHA256"].each{ |hash_method|
       output=`samba-tool user getpassword #{username} --attribute virtualCrypt#{hash_method} 2> /dev/null | grep -E '^virtualCrypt' -A 1 | tr -d ' \n' | cut -d ':' -f 2`
+      output = output.chomp
       break if !output.empty?
     }
 
