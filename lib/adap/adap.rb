@@ -134,18 +134,15 @@ class Adap
   end
 
   def add_user(ldap_user_dn, attributes, password)
-    puts ldap_user_dn
-    puts attributes
     @ldap_client.add(
       :dn => ldap_user_dn,
       :attributes => attributes
     )
 
-    puts @ldap_client.get_operation_result
-    puts @ldap_client.get_operation_result.code
-    puts @ldap_client.get_operation_result.error_message
-
-    #return {:ret => 1, } if @ldap_client.get_operation_result.code != 0
+    return {
+      :code => @ldap_client.get_operation_result.code,
+      :message => "ERROR: Failed to ldap add - " + @ldap_client.get_operation_result.error_message
+    } if @ldap_client.get_operation_result.code != 0
 
     puts password
 
