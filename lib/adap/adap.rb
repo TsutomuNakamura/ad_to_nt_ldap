@@ -62,9 +62,9 @@ class Adap
 
   def create_ldap_attributes(entry)
     attributes = {}
-    #attributes = {
-    #  :objectclass => ["top", "person", "organizationalPerson", "inetOrgPerson", "posixAccount", "shadowAccount"]
-    #}
+    attributes = {
+      :objectclass => ["top", "person", "organizationalPerson", "inetOrgPerson", "posixAccount", "shadowAccount"]
+    }
     entry.each do |attribute, values|
       #puts "#{attribute} --- #{values}" if REQUIRED_ATTRIBUTES.include?(attribute)
       if REQUIRED_ATTRIBUTES.include?(attribute) then
@@ -143,6 +143,9 @@ class Adap
 
     puts @ldap_client.get_operation_result
     puts @ldap_client.get_operation_result.code
+    puts @ldap_client.get_operation_result.error_message
+
+    #return {:ret => 1, } if @ldap_client.get_operation_result.code != 0
 
     puts password
 
