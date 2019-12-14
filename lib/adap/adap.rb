@@ -120,14 +120,12 @@ class Adap
 
     if !ad_entry.nil? and ldap_entry.nil? then
       # Create new user
-      puts "Create a new user"
       add_user(ldap_dn, ad_entry, get_password(username))
     elsif ad_entry.nil? and !ldap_entry.nil? then
       # Delete a user
-      puts "Delete a user"
+      delete_user(ldap_dn)
     elsif !ad_entry.nil? and !ldap_entry.nil? then
       # Update a user
-      puts "Update a user"
       update_user(ldap_dn, ad_entry, ldap_entry, get_password(username))
     end
     # Do nothing if (ad_entry.nil? and ldap_entry.nil?)
@@ -202,9 +200,16 @@ class Adap
     operations
   end
 
-#  def delete_user(username)
-#
-#  end
+  def delete_user(ldap_user_dn)
+    @ldap_client.delete(:dn => ldap_user_dn)
+
+    return {
+      :code => @ldap_client.get_operation_result.code,
+      :message => "Failed to delete a user #{ldap_user_dn} in delete_user() - " + @ldap_client.get_operation_result.error_message
+    } if @ldap_client.get_operation_result.code != 0
+
+    return {:code => @ldap_client.get_operation_result.code, :message => nil}
+  end
 
   def display
     "Hello world"
