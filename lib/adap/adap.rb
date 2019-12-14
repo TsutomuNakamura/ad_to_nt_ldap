@@ -119,7 +119,7 @@ class Adap
     end
 
     return {
-      :code => 1,
+      :code => @ldap_client.get_operation_result.code,
       :message => "Failed to get a user #{ldap_dn} from LDAP - " + @ldap_client.get_operation_result.error_message
     } if @ldap_client.get_operation_result.code != 0
 
