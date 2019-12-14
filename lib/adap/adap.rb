@@ -2,7 +2,7 @@ require 'net-ldap'
 
 class Adap
 
-  REQUIRED_ATTRIBUTES = [:objectClass, :cn, :sn, :uid, :uidnumber, :gidnumber, :homedirectory, :unixhomedirectory, :loginshell, :gecos, :givenname]
+  REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :homedirectory, :unixhomedirectory, :loginshell, :gecos, :givenname]
   #REQUIRED_ATTRIBUTES = ['cn', 'sn', 'uid', 'uidNumber', 'gidNumber', 'homeDirectory', 'loginShell', 'gecos', 'givenName']
 
   #
@@ -120,7 +120,7 @@ class Adap
     if !ad_entry.nil? and ldap_entry.nil? then
       # Create new user
       puts "Create a new user"
-      add_user(ldap_dn, create_ldap_attributes(ad_entry), get_password(username))
+      add_user(ldap_dn, ad_entry, get_password(username))
     elsif ad_entry.nil? and !ldap_entry.nil? then
       # Delete a user
       puts "Delete a user"
@@ -133,7 +133,9 @@ class Adap
 
   end
 
-  def add_user(ldap_user_dn, attributes, password)
+  def add_user(ldap_user_dn, ad_entry, password)
+    attributes = create_ldap_attributes(ad_entry)
+
     @ldap_client.add(
       :dn => ldap_user_dn,
       :attributes => attributes
