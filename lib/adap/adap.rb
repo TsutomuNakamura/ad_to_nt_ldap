@@ -163,6 +163,7 @@ class Adap
   end
 
   def modify_user(ldap_user_dn, ad_entry, ldap_entry, password)
+    # An attribute objectClass will not be sync because it assumed already added by add_user() function or another method in LDAP.
     operations = create_modify_operations(ad_entry, ldap_entry, password)
 
     @ldap_client.modify(
