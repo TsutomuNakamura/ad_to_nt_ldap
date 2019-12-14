@@ -141,10 +141,8 @@ class Adap
 
     return {
       :code => @ldap_client.get_operation_result.code,
-      :message => "ERROR: Failed to ldap add - " + @ldap_client.get_operation_result.error_message
+      :message => "ERROR: Failed to ldap add a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
     } if @ldap_client.get_operation_result.code != 0
-
-    puts password
 
     @ldap_client.modify(
       :dn => ldap_user_dn,
@@ -153,10 +151,12 @@ class Adap
       ]
     )
 
-    puts @ldap_client.get_operation_result
-    puts @ldap_client.get_operation_result.code
+    return {
+      :code => @ldap_client.get_operation_result.code,
+      :message => "ERROR: Failed to modify a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
+    } if @ldap_client.get_operation_result.code != 0
 
-    return @ldap_client.get_operation_result.code
+    return {:code => @ldap_client.get_operation_result.code, :message => nil}
   end
 
   def update_user(ldap_uesr_dn, ad_entry, ldap_entry, password)

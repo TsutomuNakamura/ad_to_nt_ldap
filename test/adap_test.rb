@@ -74,6 +74,36 @@ class ModAdapTest < Minitest::Test
       mock.verify
       mock_get_operation_result.verify
     end
+  end
+
+  def test_add_user_should_failed_if_ldap_modify_was_failed
+    mock = MiniTest::Mock.new
+    mock_get_operation_result = MiniTest::Mock.new
+
+    # @ldap_client.add
+    mock.expect(
+      :add, true, [{
+        :dn => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com",
+        :attributes => {
+          :objectclass => ["top", "person"],
+          :cn => "foo"
+        }
+      }]
+    )
+    # @ldap_client.get_operation_result.code of @ldap_client.add
+    mock_get_operation_result.expect(:code, 0, [])
+    # @ldap_client.modify
+    mock.expect(
+      :modify, true, [{
+        :dn => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com",
+        :attributes => {
+          :objectclass => ["top", "person"],
+          :cn => "foo"
+        }
+      }]
+    )
+
+    # @ldap_client.modify
 
   end
 
