@@ -141,7 +141,7 @@ class Adap
 
     return {
       :code => @ldap_client.get_operation_result.code,
-      :message => "ERROR: Failed to ldap add a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
+      :message => "Failed to add a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
     } if @ldap_client.get_operation_result.code != 0
 
     @ldap_client.modify(
@@ -153,7 +153,7 @@ class Adap
 
     return {
       :code => @ldap_client.get_operation_result.code,
-      :message => "ERROR: Failed to modify a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
+      :message => "Failed to modify a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
     } if @ldap_client.get_operation_result.code != 0
 
     return {:code => @ldap_client.get_operation_result.code, :message => nil}
