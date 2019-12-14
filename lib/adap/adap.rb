@@ -32,6 +32,7 @@ class Adap
     @ad_basedn          = params[:ad_basedn]
     @ad_auth            = (params.has_key?(:ad_password) ? { :method => :simple, :username => @ad_binddn, :password => params[:ad_password] } : nil)
     @ldap_host          = params[:ldap_host]
+    @ldap_port          = (params[:ldap_port] ? params[:ldap_port] : '389')
     @ldap_binddn        = params[:ldap_binddn]
     @ldap_basedn        = params[:ldap_basedn]
     @ldap_user_basedn   = params[:ldap_user_basedn]
