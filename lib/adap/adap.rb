@@ -98,38 +98,33 @@ class Adap
   end
 
   def sync_user(username)
-
-    # filter = Net::LDAP::Filter.eq("cn",cn)
     ad_entry    = nil
     ldap_entry  = nil
     ad_dn       = get_ad_dn(username)
     ldap_dn     = get_ldap_dn(username)
 
     # dn: CN=user-name,CN=Users,DC=mysite,DC=example,DC=com
-    @ad_client.search( :base => ad_dn ) do |entry|
+    @ad_client.search(:base => ad_dn) do |entry|
       ad_entry = entry
     end
 
     # dn: uid=tsutomu-nakamura,ou=Users,dc=teraintl,dc=co,dc=jp
-    @ldap_client.search( :base => ldap_dn ) do |entry|
+    @ldap_client.search(:base => ldap_dn) do |entry|
       ldap_entry = entry
     end
 
-    puts "AD DN: " + (ad_entry.nil? ? "(nil)" : ad_entry.dn)
-    puts "Ldap DN: " + (ldap_entry.nil? ? "(nil)" : ldap_entry.dn )
+    ret = nil
 
     if !ad_entry.nil? and ldap_entry.nil? then
-      # Create new user
-      add_user(ldap_dn, ad_entry, get_password(username))
+      ret = add_user(ldap_dn, ad_entry, get_password(username))
     elsif ad_entry.nil? and !ldap_entry.nil? then
-      # Delete a user
-      delete_user(ldap_dn)
+      ret = delete_user(ldap_dn)
     elsif !ad_entry.nil? and !ldap_entry.nil? then
-      # Update a user
-      update_user(ldap_dn, ad_entry, ldap_entry, get_password(username))
+      ret =update_user(ldap_dn, ad_entry, ldap_entry, get_password(username))
     end
     # Do nothing if (ad_entry.nil? and ldap_entry.nil?)
 
+    return (ret != nil ? ret : {:code => 1, :message => "There are not any data of #{username} to sync."})
   end
 
   def add_user(ldap_user_dn, ad_entry, password)
