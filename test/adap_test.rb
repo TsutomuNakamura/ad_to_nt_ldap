@@ -5,39 +5,35 @@ class ModAdapTest < Minitest::Test
   #  refute_nil ::ModAdap::VERSION
   #end
 
-#  def test_raise_error_if_params_is_nil
-#    exception = assert_raises RuntimeError do
-#      Adap.new(nil)
-#    end
-#    assert_equal(exception.message, "Initialize Adap was failed. params must not be nil")
-#  end
-#
-#  def test_raise_error_if_params_doesnt_have_ad_host
-#    exception = assert_raises RuntimeError do
-#      Adap.new({
-#        :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-#        :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-#        :nt_host   => "192.168.1.12",
-#        :nt_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-#        :nt_basedn => "dc=mysite,dc=example,dc=com"
-#      })
-#    end
-#  end
+  def test_raise_error_if_params_is_nil
+    exception = assert_raises RuntimeError do
+      Adap.new(nil)
+    end
+    assert_equal(exception.message, "Initialize Adap was failed. params must not be nil")
+  end
 
-  # get_operation_result will returns...
-  #   if success:
-  #     #<OpenStruct extended_response=nil, code=0, error_message="", matched_dn="", message="Success">
-  #   else if failed:
-  #     #<OpenStruct extended_response=nil, code=65, error_message="no objectClass attribute", matched_dn="", message="Object Class Violation">
+  def test_raise_error_if_params_doesnt_have_ad_host
+    exception = assert_raises RuntimeError do
+      Adap.new({
+        :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+        :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
+        :nt_host   => "ldap_server",
+        :nt_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+        :nt_basedn => "dc=mysite,dc=example,dc=com"
+      })
+    end
+    assert_equal(exception.message, 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"')
+  end
 
   def test_add_user_should_failed_if_ldap_add_was_failed
+    # get_operation_result will returns...
+    #   if success:
+    #     #<OpenStruct extended_response=nil, code=0, error_message="", matched_dn="", message="Success">
+    #   else if failed:
+    #     #<OpenStruct extended_response=nil, code=65, error_message="no objectClass attribute", matched_dn="", message="Object Class Violation">
 
     mock = MiniTest::Mock.new
     mock_get_operation_result = MiniTest::Mock.new
-
-    def mock_get_operation_result
-      return 1
-    end
 
     # @ldap_client.add
     mock.expect(
@@ -65,7 +61,7 @@ class ModAdapTest < Minitest::Test
         :ad_host   => "localhost",
         :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
         :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-        :ldap_host   => "192.168.1.12",
+        :ldap_host   => "ldap_server",
         :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
         :ldap_basedn => "dc=mysite,dc=example,dc=com"
       })
@@ -75,6 +71,8 @@ class ModAdapTest < Minitest::Test
         "secret"
       )
       assert_equal({:code => 1, :message => "ERROR: Failed to ldap add - Some error"}, ret)
+      mock.verify
+      mock_get_operation_result.verify
     end
 
   end
