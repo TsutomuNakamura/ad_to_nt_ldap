@@ -73,6 +73,33 @@ class ModAdapTest < Minitest::Test
     end
   end
 
+  def test_create_modify_operations_should_create_operation_that_has_duplicated_attributes
+    mock_ldap = MiniTest::Mock.new
+
+    Net::LDAP.stub :new, mock_ldap do
+      adap = Adap.new({
+        :ad_host => "localhost",
+        :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+        :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
+        :ldap_host   => "ldap_server",
+        :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+        :ldap_basedn => "dc=mysite,dc=example,dc=com"
+      })
+
+      operations = adap.create_modify_operations(
+        {:cn => "cn_ad",  :sn => "foo"},
+        {:cn => "cn_ldap", :sn => "foo"},
+        "secret"
+      )
+
+      assert_equal([
+        [:replace, :cn, "cn_ad"],
+        [:replace, :userpassword, "secret"]
+      ], operations)
+
+    end
+  end
+
   def test_create_modify_operations_should_create_operation_that_delete_cn
     mock_ldap = MiniTest::Mock.new
 
@@ -128,5 +155,4 @@ class ModAdapTest < Minitest::Test
       assert_equal([:delete, :displayname, nil], operations.select{|x, _| x == :delete}[0])
     end
   end
-
 end
