@@ -183,6 +183,7 @@ class Adap
 
     ad_entry.each do |key, value|
       if REQUIRED_ATTRIBUTES.include?(key)
+        next if value == ldap_entry[key]
         operations.push((ldap_entry.key?(key) ? [:replace, key, value] : [:add, key, value]))
       end
     end
