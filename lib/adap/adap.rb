@@ -38,19 +38,16 @@ class Adap
     @ldap_user_basedn   = params[:ldap_user_basedn]
     @ldap_auth          = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_binddn, :password => params[:ldap_password] } : nil )
 
-    @ad_client = Net::LDAP.new(
-      :host => @ad_host,
-      :port => @ad_port,
-      :auth => @ad_auth
-    )
-    #raise "Failed to connect AD at ldap://#{@ad_host}:#{@ad_port} with bindDn #{@ad_binddn}" if !ad.bind
+    @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
+    @ldap_client  = Adap::get_ldap_client_instance(@ldap_host, @ldap_port, @ldap_auth)
+  end
 
-    @ldap_client = Net::LDAP.new(
-      :host => @ldap_host,
-      :port => @ldap_port,
-      :auth => @ldap_auth
-    )
-    #raise "Failed to connect Ldap at ldap://#{@ldap_host}:#{@ldap_port} with bindDn #{@ldap_binddn}" if !ldap.bind
+  def self.get_ad_client_instance(ad_host, ad_port, ad_auth)
+    ad_client = Net::LDAP.new(:host => ad_host, :port => ad_port, :auth => ad_auth)
+  end
+
+  def self.get_ldap_client_instance(ldap_host, ldap_port, ldap_auth)
+    ldap_client = Net::LDAP.new(:host => ldap_host, :port => ldap_port, :auth => ldap_auth)
   end
 
   def get_ad_dn(username)
