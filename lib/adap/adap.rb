@@ -127,7 +127,7 @@ class Adap
     elsif ad_entry.nil? and !ldap_entry.nil? then
       ret = delete_user(ldap_dn)
     elsif !ad_entry.nil? and !ldap_entry.nil? then
-      ret =update_user(ldap_dn, ad_entry, ldap_entry, get_password(username))
+      ret = modify_user(ldap_dn, ad_entry, ldap_entry, get_password(username))
     end
     # Do nothing if (ad_entry.nil? and ldap_entry.nil?)
 
