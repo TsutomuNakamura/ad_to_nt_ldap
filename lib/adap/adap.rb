@@ -38,9 +38,6 @@ class Adap
     @ldap_user_basedn   = params[:ldap_user_basedn]
     @ldap_auth          = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_binddn, :password => params[:ldap_password] } : nil )
 
-    puts "ooooooooooooooooooooooooooooooooooooooooooooooooo"
-    puts ":ad_host -> #{@ad_host}, :ad_port -> #{@ad_port} :ad_auth -> #{@ad_auth}"
-    puts "ooooooooooooooooooooooooooooooooooooooooooooooooo"
     @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
     @ldap_client  = Adap::get_ldap_client_instance(@ldap_host, @ldap_port, @ldap_auth)
   end
