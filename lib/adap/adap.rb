@@ -27,17 +27,20 @@ class Adap
     }
 
     @ad_host            = params[:ad_host]
-    @ad_port            = (params[:ad_port] ? params[:ad_port] : '389')
+    @ad_port            = (params[:ad_port] ? params[:ad_port] : 389)
     @ad_binddn          = params[:ad_binddn]
     @ad_basedn          = params[:ad_basedn]
     @ad_auth            = (params.has_key?(:ad_password) ? { :method => :simple, :username => @ad_binddn, :password => params[:ad_password] } : nil)
     @ldap_host          = params[:ldap_host]
-    @ldap_port          = (params[:ldap_port] ? params[:ldap_port] : '389')
+    @ldap_port          = (params[:ldap_port] ? params[:ldap_port] : 389)
     @ldap_binddn        = params[:ldap_binddn]
     @ldap_basedn        = params[:ldap_basedn]
     @ldap_user_basedn   = params[:ldap_user_basedn]
     @ldap_auth          = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_binddn, :password => params[:ldap_password] } : nil )
 
+    puts "ooooooooooooooooooooooooooooooooooooooooooooooooo"
+    puts ":ad_host -> #{@ad_host}, :ad_port -> #{@ad_port} :ad_auth -> #{@ad_auth}"
+    puts "ooooooooooooooooooooooooooooooooooooooooooooooooo"
     @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
     @ldap_client  = Adap::get_ldap_client_instance(@ldap_host, @ldap_port, @ldap_auth)
   end
