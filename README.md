@@ -89,9 +89,8 @@ olcPasswordCryptSaltFormat: $5$%.16s
 EOF
 ```
 
-This instruction allows us to save password as sha256 with a salt that length is 16 character.
-Or you can store user's password as sha512 witha salt that length is 16 character like below.
-There is a difference from `olcPasswordCryptSaltFormat` attribute of sha256.
+This instruction allows us to save password as sha256 with a salt that length is 16 characters.
+Or you can store user's password as sha512 with a salt that length is 16 characters like below.
 
 ```
 $ ldapmodify -Y EXTERNAL -H ldapi:/// << 'EOF'
@@ -103,6 +102,8 @@ add: olcPasswordCryptSaltFormat
 olcPasswordCryptSaltFormat: $6$%.16s
 EOF
 ```
+
+As I said, this algorithm must be same as an AD's one to synchronize user information.
 
 ## Development
 
