@@ -1,6 +1,5 @@
 # Adap
-Adap is a program that synchronize user data on AD to LDAP.
-Data synchronized to LDAP are limited such as dn, cn uid and uidNumber etc.
+Adap is a program that synchronize user data on Samba Active Directory (AD) to LDAP.
 
 ## Installation
 
@@ -42,11 +41,18 @@ adap = Adap.new({
   :ldap_password => "ldap_secret"                                           # Password of your LDAP's bind dn
 })
 
-// This operation will synchronize a user taro-suzuki to LDAP from AD
+# This operation will synchronize a user taro-suzuki to LDAP from AD
 adap.sync_user("taro-suzuki")
 ```
 
 ## Requirements and limitations
+
+This program has some requirements and limitations like below.
+
+### Attributes to synchronized
+
+Data synchronized to LDAP from AD are limited such as dn, cn uid and uidNumber etc.
+These attributes are enough to authenticate users to login to Unix-like systems that used an LDAP for authenticating users. 
 
 ## Development
 
