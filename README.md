@@ -65,6 +65,45 @@ ldap server require strong auth = no
 
 This program will fail to get user data from AD if you did not allow this setting.
 
+### AD must allow storing password as CryptSHA256 or CryptSHA512 and it's have to same as storing method in LDAP
+
+AD must allow storing password as CryptSHA256 or CryptSHA512 by setting smb.conf like below.
+
+* your AD's smb.conf
+```
+    password hash userPassword schemes = CryptSHA256 CryptSHA512
+```
+
+And LDAP have to be configured to store password as sha256 or sha512.
+
+For example, you use OpneLDAP, you have to set configuration like below when you store password as sha256.
+
+```
+$ ldapmodify -Y EXTERNAL -H ldapi:/// << 'EOF'
+dn: cn=config
+add: olcPasswordHash
+olcPasswordHash: {CRYPT}
+-
+add: olcPasswordCryptSaltFormat
+olcPasswordCryptSaltFormat: $5$%.16s
+EOF
+```
+
+This instruction allows us to save password as sha256 with a salt that length is 16 character.
+Or you can store user's password as sha512 witha salt that length is 16 character like below.
+There is a difference from `olcPasswordCryptSaltFormat` attribute of sha256.
+
+```
+$ ldapmodify -Y EXTERNAL -H ldapi:/// << 'EOF'
+dn: cn=config
+add: olcPasswordHash
+olcPasswordHash: {CRYPT}
+-
+add: olcPasswordCryptSaltFormat
+olcPasswordCryptSaltFormat: $6$%.16s
+EOF
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
