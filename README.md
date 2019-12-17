@@ -52,7 +52,18 @@ This program has some requirements and limitations like below.
 ### Attributes to synchronized
 
 Data synchronized to LDAP from AD are limited such as dn, cn uid and uidNumber etc.
-These attributes are enough to authenticate users to login to Unix-like systems that used an LDAP for authenticating users. 
+These attributes are enough to authenticate users to login to Unix-like systems that used an LDAP for authenticating users.
+
+### AD must allow 
+
+AD must allow setting `ldap server require strong auth = no` for getting user data.
+
+* smb.conf of your AD
+```
+ldap server require strong auth = no
+```
+
+This program will fail to get user data from AD if you did not allow this setting.
 
 ## Development
 
