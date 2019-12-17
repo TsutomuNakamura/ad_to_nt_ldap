@@ -26,6 +26,28 @@ To build this modules, run the command like below.
 gem build adap.gemspec
 ```
 
+Then include this module and use it like below.
+
+```ruby
+require "adap"
+
+adap = Adap.new({
+  :ad_host   => "localhost",                                                # Host name or IP of your Active Directory(AD)
+  :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",    # Bind dn of your AD
+  :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",                     # Base dn of your AD
+  :ad_password => "ad_secret",                                              # Password of your AD's bind dn
+  :ldap_host   => "ldap_server",                                            # Host name or IP of your LDAP
+  :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com", # Bind dn of your LDAP
+  :ldap_basedn => "dc=mysite,dc=example,dc=com",                            # Base dn of your LDAP
+  :ldap_password => "ldap_secret"                                           # Password of your LDAP's bind dn
+})
+
+// This operation will synchronize a user taro-suzuki to LDAP from AD
+adap.sync_user("taro-suzuki")
+```
+
+## Requirements and limitations
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -34,4 +56,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/adap.
+Bug reports and pull requests are welcome on GitHub at https://github.com/TsutomuNakamura/adap.
