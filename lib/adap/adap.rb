@@ -37,52 +37,52 @@ class Adap
     @ldap_basedn              = params[:ldap_basedn]
     @ldap_user_basedn         = params[:ldap_user_basedn]
     @ldap_auth                = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_binddn, :password => params[:ldap_password] } : nil )
-    @password_hash_algorithm  = (param[:password_hash_algorithm] ? params[:password_hash_algorithm] : 'virtualCryptSHA512')
+    @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : 'virtualCryptSHA512')
 
-    @algorithmad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
-    @algorithmldap_client  = Adap::get_ldap_client_instance(@ldap_host, @ldap_port, @ldap_auth)
-  endalgorithm
+    @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
+    @ldap_client  = Adap::get_ldap_client_instance(@ldap_host, @ldap_port, @ldap_auth)
+  end
 
-  defalgorithm self.get_ad_client_instance(ad_host, ad_port, ad_auth)
-    aalgorithmd_client = Net::LDAP.new(:host => ad_host, :port => ad_port, :auth => ad_auth)
-  endalgorithm
+  def self.get_ad_client_instance(ad_host, ad_port, ad_auth)
+    ad_client = Net::LDAP.new(:host => ad_host, :port => ad_port, :auth => ad_auth)
+  end
 
-  defalgorithm self.get_ldap_client_instance(ldap_host, ldap_port, ldap_auth)
-    lalgorithmdap_client = Net::LDAP.new(:host => ldap_host, :port => ldap_port, :auth => ldap_auth)
-  endalgorithm
+  def self.get_ldap_client_instance(ldap_host, ldap_port, ldap_auth)
+    ldap_client = Net::LDAP.new(:host => ldap_host, :port => ldap_port, :auth => ldap_auth)
+  end
 
-  defalgorithm get_ad_dn(username)
-    "algorithmCN=#{username},CN=Users,#{@ad_basedn}"
-  endalgorithm
+  def get_ad_dn(username)
+    "CN=#{username},CN=Users,#{@ad_basedn}"
+  end
 
-  defalgorithm get_ldap_dn(username)
-    "algorithmuid=#{username},ou=Users,#{@ldap_basedn}"
-  endalgorithm
+  def get_ldap_dn(username)
+    "uid=#{username},ou=Users,#{@ldap_basedn}"
+  end
 
-  defalgorithm create_ldap_attributes(entry)
-    aalgorithmttributes = {}
-    aalgorithmttributes = {
-     algorithm :objectclass => ["top", "person", "organizationalPerson", "inetOrgPerson", "posixAccount", "shadowAccount"]
-    }algorithm
-    ealgorithmntry.each do |attribute, values|
-     algorithm #puts "#{attribute} --- #{values}" if REQUIRED_ATTRIBUTES.include?(attribute)
-     algorithm if REQUIRED_ATTRIBUTES.include?(attribute) then
-     algorithm   if attribute == :unixhomedirectory then
-     algorithm     attributes[:homedirectory] = values
-     algorithm   else
-     algorithm     attributes[attribute] = values
-     algorithm   end
-     algorithm end
-    ealgorithmnd
+  def create_ldap_attributes(entry)
+    attributes = {}
+    attributes = {
+      :objectclass => ["top", "person", "organizationalPerson", "inetOrgPerson", "posixAccount", "shadowAccount"]
+    }
+    entry.each do |attribute, values|
+      #puts "#{attribute} --- #{values}" if REQUIRED_ATTRIBUTES.include?(attribute)
+      if REQUIRED_ATTRIBUTES.include?(attribute) then
+        if attribute == :unixhomedirectory then
+          attributes[:homedirectory] = values
+        else
+          attributes[attribute] = values
+        end
+      end
+    end
 
-    aalgorithmttributes
-  endalgorithm
+    attributes
+  end
 
-  defalgorithm get_password(username)
-    oalgorithmutput = nil
-    ralgorithmet = nil
+  def get_password(username)
+    output = nil
+    ret = nil
 
-    algorithm output=`samba-tool user getpassword #{username} --attribute #{@password_hash_algorithm} 2> /dev/null | grep -E '^virtualCrypt' -A 1 | tr -d ' \n' | cut -d ':' -f 2`
+    output=`samba-tool user getpassword #{username} --attribute #{@password_hash_algorithm} 2> /dev/null | grep -E '^virtualCrypt' -A 1 | tr -d ' \n' | cut -d ':' -f 2`
     output = output.chomp
 
     if output.empty?

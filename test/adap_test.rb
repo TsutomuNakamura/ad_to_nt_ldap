@@ -1,10 +1,6 @@
 require "test_helper"
 
 class ModAdapTest < Minitest::Test
-  #def test_that_it_has_a_version_number
-  #  refute_nil ::ModAdap::VERSION
-  #end
-
   def test_raise_error_if_params_is_nil
     exception = assert_raises RuntimeError do
       Adap.new(nil)
