@@ -27,7 +27,12 @@ class ModAdapTest < Minitest::Test
     })
     adap.expects(:get_raw_password).with("foo").returns("secret")
 
-    result = adap.get_password("foo")
+    result = adap.get_password("foo", 'virtualCryptSHA512')  # It's a default
     assert_equal("secret", result)
   end
+
+  def test_get_password_should_return
+
+  end
+
 end

@@ -79,8 +79,7 @@ class Adap
   end
 
   def get_password(username)
-
-    password = get_raw_password(username)
+    password = get_raw_password(username, @password_hash_algorithm)
     password = password.chomp
 
     if password.empty?
@@ -90,8 +89,8 @@ class Adap
     password
   end
 
-  def get_raw_password(username)
-    output = `samba-tool user getpassword #{username} --attribute #{@password_hash_algorithm} 2> /dev/null | grep -E '^virtualCrypt' -A 1 | tr -d ' \n' | cut -d ':' -f 2`
+  def get_raw_password(username, algo)
+    output = `samba-tool user getpassword #{username} --attribute #{algo} 2> /dev/null | grep -E '^virtualCrypt' -A 1 | tr -d ' \n' | cut -d ':' -f 2`
   end
 
   def sync_user(username)
