@@ -49,12 +49,12 @@ adap.sync_user("taro-suzuki")
 
 This program has some requirements and limitations like below.
 
-### Attributes to synchronized
+### Not all attributes are synchronized
 
 Data synchronized to LDAP from AD are limited such as dn, cn uid and uidNumber etc.
 These attributes are enough to authenticate users to login to Unix-like systems that used an LDAP for authenticating users.
 
-### AD must allow 
+### AD must be set not to require strong auth
 
 AD must allow setting `ldap server require strong auth = no` for getting user data.
 
@@ -65,7 +65,7 @@ ldap server require strong auth = no
 
 This program will fail to get user data from AD if you did not allow this setting.
 
-### AD must allow storing password as CryptSHA256 or CryptSHA512 and it's have to same as storing method in LDAP
+### AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP
 
 AD must allow storing password as CryptSHA256 or CryptSHA512 by setting smb.conf like below.
 
@@ -74,7 +74,7 @@ AD must allow storing password as CryptSHA256 or CryptSHA512 by setting smb.conf
     password hash userPassword schemes = CryptSHA256 CryptSHA512
 ```
 
-And LDAP have to be configured to store password as sha256 or sha512.
+And LDAP have to be configured to store password as sha256(CryptSHA256) or sha512(CryptSHA512).
 
 For example, you use OpneLDAP, you have to set configuration like below when you store password as sha256.
 
@@ -103,7 +103,9 @@ olcPasswordCryptSaltFormat: $6$%.16s
 EOF
 ```
 
-As I said, this algorithm must be same as an AD's one to synchronize user information.
+### This program must be located in AD server
+
+This program must be located in AD server because samba-tool on AD only support getting hashed password only from `ldapi://` or `tdb://`.
 
 ## Development
 
