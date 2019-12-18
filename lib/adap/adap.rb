@@ -79,17 +79,19 @@ class Adap
   end
 
   def get_password(username)
-    output = nil
-    ret = nil
 
-    output=`samba-tool user getpassword #{username} --attribute #{@password_hash_algorithm} 2> /dev/null | grep -E '^virtualCrypt' -A 1 | tr -d ' \n' | cut -d ':' -f 2`
-    output = output.chomp
+    password = get_raw_password(username)
+    password = password.chomp
 
-    if output.empty?
+    if password.empty?
       raise "Failed to get password of #{username} from AD. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?"
     end
 
-    output
+    password
+  end
+
+  def get_raw_password(username)
+    output = `samba-tool user getpassword #{username} --attribute #{@password_hash_algorithm} 2> /dev/null | grep -E '^virtualCrypt' -A 1 | tr -d ' \n' | cut -d ':' -f 2`
   end
 
   def sync_user(username)
