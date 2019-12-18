@@ -1,10 +1,6 @@
 require "test_helper"
 
 class ModAdapTest < Minitest::Test
-  #def test_that_it_has_a_version_number
-  #  refute_nil ::ModAdap::VERSION
-  #end
-
   def test_add_user_should_failed_if_ldap_add_was_failed
     # get_operation_result will returns...
     #   if success:
