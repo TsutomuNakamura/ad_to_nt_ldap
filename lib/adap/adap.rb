@@ -80,11 +80,13 @@ class Adap
 
   def get_password(username)
     password = get_raw_password(username, @password_hash_algorithm)
-    password = password.chomp
 
-    if password.empty?
+    if password == nil || password.empty?
       raise "Failed to get password of #{username} from AD. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?"
     end
+
+    password = password.chomp
+
 
     password
   end
