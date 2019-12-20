@@ -84,9 +84,7 @@ class Adap
     if password == nil || password.empty?
       raise "Failed to get password of #{username} from AD. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?"
     end
-
     password = password.chomp
-
 
     password
   end
