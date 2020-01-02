@@ -103,21 +103,23 @@ class Adap
     @ad_client.search(:base => ad_dn) do |entry|
       ad_entry = entry
     end
+    ret_code = @ad_client.get_operation_result.code
 
     return {
-      :code => @ad_client.get_operation_result.code,
+      :code => ret_code,
       :message => "Failed to get a user #{ad_dn} from AD - " + @ad_client.get_operation_result.error_message
-    } if @ad_client.get_operation_result.code != 0
+    } if ret_code != 0 && ret_code != 32
 
     # dn: uid=tsutomu-nakamura,ou=Users,dc=teraintl,dc=co,dc=jp
     @ldap_client.search(:base => ldap_dn) do |entry|
       ldap_entry = entry
     end
+    ret_code = @ldap_client.get_operation_result.code
 
     return {
-      :code => @ldap_client.get_operation_result.code,
+      :code => ret_code,
       :message => "Failed to get a user #{ldap_dn} from LDAP - " + @ldap_client.get_operation_result.error_message
-    } if @ldap_client.get_operation_result.code != 0
+    } if ret_code != 0 && ret_code != 32
 
     ret = nil
 

@@ -26,10 +26,10 @@ class ModAdapTest < Minitest::Test
 #      .yields({:objectclass => ["top", "person"], :cn => "ldap"})
 
     # @ad_client.get_operation_result.code
-    mock_ad_get_operation_result.expects(:code).returns(1, 1).times(2)
+    mock_ad_get_operation_result.expects(:code).returns(1)
     # @ldap_client.get_operation_result.error_message of @ldap_client.delete
     mock_ad_get_operation_result.expects(:error_message).returns("Some error")
-    mock_ad_client.expects(:get_operation_result).returns(mock_ad_get_operation_result).times(3)
+    mock_ad_client.expects(:get_operation_result).returns(mock_ad_get_operation_result).times(2)
 
     # Testing from here
     adap = Adap.new({
@@ -77,9 +77,9 @@ class ModAdapTest < Minitest::Test
     mock_ad_client.expects(:get_operation_result).returns(mock_ad_get_operation_result)
 
     # @ldap_client.get_operation_result.code
-    mock_ldap_get_operation_result.expects(:code).returns(1, 1).times(2)
+    mock_ldap_get_operation_result.expects(:code).returns(1)
     mock_ldap_get_operation_result.expects(:error_message).returns("Some error")
-    mock_ldap_client.expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(3)
+    mock_ldap_client.expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
 
     # Testing from here
     adap = Adap.new({
