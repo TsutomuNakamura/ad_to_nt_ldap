@@ -132,7 +132,7 @@ class Adap
     end
     # Do nothing if (ad_entry.nil? and ldap_entry.nil?)
 
-    return (ret != nil ? ret : {:code => 1, :message => "There are no any data of #{username} to sync."})
+    return (ret != nil ? ret : {:code => 1, :message => "There are not any data of #{username} to sync."})
   end
 
   def add_user(ldap_user_dn, ad_entry, password)
