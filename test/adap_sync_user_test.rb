@@ -6,7 +6,6 @@ class ModAdapTest < Minitest::Test
     mock_ad_client                      = mock()
     mock_ldap_client                    = mock()
     mock_ad_get_operation_result        = mock()
-    mock_ldap_get_operation_result      = mock()
 
     Adap.expects(:get_ad_client_instance)
       .with("localhost", 389, { :method => :simple, :username => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com", :password => "ad_secret" })

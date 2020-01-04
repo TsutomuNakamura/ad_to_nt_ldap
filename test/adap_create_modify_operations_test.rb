@@ -67,9 +67,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_modify_operations_should_create_operation_that_add_cn
-    mock_ad_client = mock()
-    mock_ldap_client = mock()
-
     adap = Adap.new({
       :ad_host => "localhost",
       :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
@@ -93,9 +90,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_modify_operations_should_create_operation_that_has_duplicated_attributes
-    mock_ad_client = mock()
-    mock_ldap_client = mock()
-
     adap = Adap.new({
       :ad_host => "localhost",
       :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
@@ -120,9 +114,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_modify_operations_should_create_operation_that_delete_cn
-    mock_ad_client = mock()
-    mock_ldap_client = mock()
-
     adap = Adap.new({
       :ad_host => "localhost",
       :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
@@ -144,9 +135,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_modify_operations_should_create_operation_that_has_add_and_replace_and_delete
-    mock_ad_client = mock()
-    mock_ldap_client = mock()
-
     adap = Adap.new({
       :ad_host        => "localhost",
       :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
