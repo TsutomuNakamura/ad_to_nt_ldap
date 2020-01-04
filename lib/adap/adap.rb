@@ -65,7 +65,8 @@ class Adap
       :objectclass => ["top", "person", "organizationalPerson", "inetOrgPerson", "posixAccount", "shadowAccount"]
     }
 
-    entry.each do |attribute, values|
+   entry.each do |attribute, values|
+      # Change string to lower case symbols to compare each attributes correctly
       attribute = attribute.downcase.to_sym
 
       if REQUIRED_ATTRIBUTES.include?(attribute) then
