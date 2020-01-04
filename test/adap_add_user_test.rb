@@ -10,7 +10,6 @@ class ModAdapTest < Minitest::Test
 
     mock_ad_client                    = mock()
     mock_ldap_client                  = mock()
-    mock_adap_create_ldap_attributes  = mock()
     mock_get_operation_result         = mock()
 
     Adap.expects(:get_ad_client_instance)
@@ -62,7 +61,6 @@ class ModAdapTest < Minitest::Test
   def test_add_user_should_failed_if_ldap_modify_was_failed
     mock_ad_client                    = mock()
     mock_ldap_client                  = mock()
-    mock_adap_create_ldap_attributes  = mock()
     mock_ldap_get_operation_result    = mock()
 
     Adap.expects(:get_ad_client_instance)
@@ -125,7 +123,6 @@ class ModAdapTest < Minitest::Test
   def test_add_user_should_success
     mock_ad_client                    = mock()
     mock_ldap_client                  = mock()
-    mock_adap_create_ldap_attributes  = mock()
     mock_ldap_get_operation_result    = mock()
 
     Adap.expects(:get_ad_client_instance)
@@ -135,13 +132,6 @@ class ModAdapTest < Minitest::Test
     Adap.expects(:get_ldap_client_instance)
       .with("ldap_server", 389, { :method => :simple, :username => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com", :password => "ldap_secret" })
       .returns(mock_ldap_client)
-
-    # adap.create_ldap_attributes
-#    mock_adap_create_ldap_attributes.expect(
-#      :call,
-#      {:objectclass => ["top", "person"], :cn => "foo"},
-#      [{:objectclass => ["top", "person"], :cn => "foo"}]
-#    )
 
     # @ldap_client.add
     mock_ldap_client.expects(:add)
