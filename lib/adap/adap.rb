@@ -17,6 +17,7 @@ class Adap
   #   :ldap_binddn   required                                   Binddn of NT.
   #   :ldap_basedn   required                                   Basedn of NT users.
   #   :ldap_password optional (default:(same as :ad_password))  Password of NT with :ldap_binddn
+  #   :password_hash_algorithm (default:virtualCryptSHA512)     Password hash algorithm. It must be same between AD and LDAP, and only support virtualCryptSHA512 or virtualCryptSHA256 now.
   # }
   #
   def initialize(params)
@@ -60,12 +61,14 @@ class Adap
   end
 
   def create_ldap_attributes(entry)
-    attributes = {}
     attributes = {
       :objectclass => ["top", "person", "organizationalPerson", "inetOrgPerson", "posixAccount", "shadowAccount"]
     }
-    entry.each do |attribute, values|
-      #puts "#{attribute} --- #{values}" if REQUIRED_ATTRIBUTES.include?(attribute)
+
+   entry.each do |attribute, values|
+      # Change string to lower case symbols to compare each attributes correctly
+      attribute = attribute.downcase.to_sym
+
       if REQUIRED_ATTRIBUTES.include?(attribute) then
         if attribute == :unixhomedirectory then
           attributes[:homedirectory] = values
@@ -122,9 +125,9 @@ class Adap
     } if ret_code != 0 && ret_code != 32
 
     ret = nil
-
     if !ad_entry.nil? and ldap_entry.nil? then
-      ret = add_user(ldap_dn, ad_entry, get_password(username))
+      pass = get_password(username)
+      ret = add_user(ldap_dn, ad_entry, pass)
     elsif ad_entry.nil? and !ldap_entry.nil? then
       ret = delete_user(ldap_dn)
     elsif !ad_entry.nil? and !ldap_entry.nil? then
