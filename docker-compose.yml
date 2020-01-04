@@ -3,10 +3,8 @@ version: '3'
 services:
   ruby:
     container_name: ad-ruby
+    image: tsutomu/adap:docker_bundle_v2.1.2
     hostname: ruby
-    build:
-      context: ./dockerfile
-      dockerfile: Dockerfile
     depends_on:
       - nt
     entrypoint:
