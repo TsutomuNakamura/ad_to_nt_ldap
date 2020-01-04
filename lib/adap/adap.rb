@@ -44,11 +44,11 @@ class Adap
   end
 
   def self.get_ad_client_instance(ad_host, ad_port, ad_auth)
-    ad_client = Net::LDAP.new(:host => ad_host, :port => ad_port, :auth => ad_auth)
+    Net::LDAP.new(:host => ad_host, :port => ad_port, :auth => ad_auth)
   end
 
   def self.get_ldap_client_instance(ldap_host, ldap_port, ldap_auth)
-    ldap_client = Net::LDAP.new(:host => ldap_host, :port => ldap_port, :auth => ldap_auth)
+    Net::LDAP.new(:host => ldap_host, :port => ldap_port, :auth => ldap_auth)
   end
 
   def get_ad_dn(username)
