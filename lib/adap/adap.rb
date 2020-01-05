@@ -2,7 +2,8 @@ require 'net-ldap'
 
 class Adap
 
-  REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :homedirectory, :displayname, :unixhomedirectory, :loginshell, :gecos, :givenname]
+  # :unixhomedirectory and :homedirectory are the attributes that has same meaning between AD and LDAP.
+  REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :unixhomedirectory, :homedirectory]
   #REQUIRED_ATTRIBUTES = ['cn', 'sn', 'uid', 'uidNumber', 'gidNumber', 'homeDirectory', 'loginShell', 'gecos', 'givenName']
 
   #
@@ -135,7 +136,7 @@ class Adap
     end
     # Do nothing if (ad_entry.nil? and ldap_entry.nil?)
 
-    return (ret != nil ? ret : {:code => 1, :message => "There are not any data of #{username} to sync."})
+    return (ret != nil ? ret : {:code => 1, :operation => nil, :message => "There are not any data of #{username} to sync."})
   end
 
   def add_user(ldap_user_dn, ad_entry, password)
@@ -163,7 +164,7 @@ class Adap
       :message => "Failed to modify a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
     } if @ldap_client.get_operation_result.code != 0
 
-    return {:code => @ldap_client.get_operation_result.code, :message => nil}
+    return {:code => @ldap_client.get_operation_result.code, :operation => :add_user, :message => nil}
   end
 
   def modify_user(ldap_user_dn, ad_entry, ldap_entry, password)
@@ -180,27 +181,34 @@ class Adap
       :message => "Failed to modify a user #{ldap_user_dn} in modify_user() - " + @ldap_client.get_operation_result.error_message
     } if @ldap_client.get_operation_result.code != 0
 
-    return {:code => @ldap_client.get_operation_result.code, :message => nil}
+    return {:code => @ldap_client.get_operation_result.code, :operation => :modify_user, :message => nil}
   end
 
   def create_modify_operations(ad_entry, ldap_entry, password)
     operations = []
 
     ad_entry.each do |key, value|
-      if REQUIRED_ATTRIBUTES.include?(key)
-        next if value == ldap_entry[key]
-        operations.push((ldap_entry.key?(key) ? [:replace, key, value] : [:add, key, value]))
+      ad_key_sym    = key.downcase.to_sym
+      ldap_key      = (key != "unixHomeDirectory" ? key : "homeDirectory")
+      ldap_key_sym  = ldap_key.downcase.to_sym
+
+      if REQUIRED_ATTRIBUTES.include?(ad_key_sym)
+        next if value == ldap_entry[ldap_key]
+        operations.push((ldap_entry.key?(ldap_key) ? [:replace, ldap_key_sym, value] : [:add, ldap_key_sym, value]))
       end
     end
 
-    ldap_entry.each_key do |key|
-      if REQUIRED_ATTRIBUTES.include?(key)
-        operations.push([:delete, key, nil]) if !ad_entry.key?(key)
+    ldap_entry.each do |key, value|
+      ldap_key_sym  = key.downcase.to_sym
+      ad_key        = (key != "homeDirectory" ? key : "unixHomeDirectory")
+
+      if REQUIRED_ATTRIBUTES.include?(ldap_key_sym)
+        operations.push([:delete, ldap_key_sym, nil]) if ad_entry[ad_key] != nil
       end
     end
 
     # AD does not have password as simple ldap attribute.
-    # So password will always be updated for the reason.
+    # So password will always be updated for this reason.
     operations.push([:replace, :userpassword, password])
 
     operations
@@ -214,11 +222,7 @@ class Adap
       :message => "Failed to delete a user #{ldap_user_dn} in delete_user() - " + @ldap_client.get_operation_result.error_message
     } if @ldap_client.get_operation_result.code != 0
 
-    return {:code => @ldap_client.get_operation_result.code, :message => nil}
-  end
-
-  def display
-    "Hello world"
+    return {:code => @ldap_client.get_operation_result.code, :operation => :delete_user, :message => nil}
   end
 end
 
