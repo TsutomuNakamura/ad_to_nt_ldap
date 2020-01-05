@@ -107,6 +107,10 @@ EOF
 
 This program must be located in AD server because samba-tool on AD only support getting hashed password only from `ldapi://` or `tdb://`.
 
+### This program only supports syncing user data. Syncing group data does not support yet
+
+Syncing group data might be supported and implemented if some people demand it.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
