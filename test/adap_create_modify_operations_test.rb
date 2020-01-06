@@ -2,7 +2,6 @@
 require "test_helper"
 
 class ModAdapTest < Minitest::Test
-
   def test_create_modify_operations_should_create_operation_that_replace_password
     mock_ad_client = mock()
     mock_ldap_client = mock()
