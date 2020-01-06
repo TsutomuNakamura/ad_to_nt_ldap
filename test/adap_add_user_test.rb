@@ -177,6 +177,6 @@ class ModAdapTest < Minitest::Test
       {:objectclass => ["top", "person"], :cn => "foo"},
       "secret"
     )
-    assert_equal({:code => 0, :message => nil}, ret)
+    assert_equal({:code => 0, :operation => :add_user, :message => nil}, ret)
   end
 end
