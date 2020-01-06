@@ -46,7 +46,7 @@ class ModAdapTest < Minitest::Test
       "secret"
     )
 
-    assert_equal({:code => 1, :message => "Failed to add a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com in add_user() - Some error"}, ret)
+    assert_equal({:code => 1, :operation => :add_user, :message => "Failed to add a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com in add_user() - Some error"}, ret)
   end
 
   def test_add_user_should_failed_if_ldap_modify_was_failed
@@ -108,7 +108,7 @@ class ModAdapTest < Minitest::Test
       {:objectclass => ["top", "person"], :cn => "foo"},
       "secret"
     )
-    assert_equal({:code => 1, :message => "Failed to modify a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com in add_user() - Some error"}, ret)
+    assert_equal({:code => 1, :operation => :add_user, :message => "Failed to modify a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com in add_user() - Some error"}, ret)
   end
 
   def test_add_user_should_success
