@@ -151,6 +151,7 @@ class Adap
 
     return {
       :code => @ldap_client.get_operation_result.code,
+      :operation => :add_user,
       :message => "Failed to add a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
     } if @ldap_client.get_operation_result.code != 0
 
@@ -163,6 +164,7 @@ class Adap
 
     return {
       :code => @ldap_client.get_operation_result.code,
+      :operation => :add_user,
       :message => "Failed to modify a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
     } if @ldap_client.get_operation_result.code != 0
 
@@ -220,13 +222,15 @@ class Adap
 
   def delete_user(ldap_user_dn)
     @ldap_client.delete(:dn => ldap_user_dn)
+    ret_code = @ldap_client.get_operation_result.code
 
     return {
-      :code => @ldap_client.get_operation_result.code,
+      :code => ret_code,
+      :operation => :delete_user,
       :message => "Failed to delete a user #{ldap_user_dn} in delete_user() - " + @ldap_client.get_operation_result.error_message
-    } if @ldap_client.get_operation_result.code != 0
+    } if ret_code != 0
 
-    return {:code => @ldap_client.get_operation_result.code, :operation => :delete_user, :message => nil}
+    return {:code => ret_code, :operation => :delete_user, :message => nil}
   end
 end
 

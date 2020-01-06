@@ -23,11 +23,11 @@ class ModAdapTest < Minitest::Test
       .returns(true)
 
     # @ldap_client.get_operation_result.code of @ldap_client.delete
-    mock_ldap_get_operation_result.expects(:code).returns(1, 1).times(2)
+    mock_ldap_get_operation_result.expects(:code).returns(1)
     mock_ldap_get_operation_result.expects(:error_message).returns("Some error")
     mock_ldap_client
       .expects(:get_operation_result)
-      .returns(mock_ldap_get_operation_result).times(3)
+      .returns(mock_ldap_get_operation_result).times(2)
 
     adap = Adap.new({
       :ad_host => "localhost",
@@ -41,7 +41,7 @@ class ModAdapTest < Minitest::Test
     })
 
     ret = adap.delete_user("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
-    assert_equal({:code => 1, :message => "Failed to delete a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com in delete_user() - Some error"}, ret)
+    assert_equal({:code => 1, :operation => :delete_user, :message => "Failed to delete a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com in delete_user() - Some error"}, ret)
   end
 
   def test_delete_user_should_success
@@ -65,9 +65,9 @@ class ModAdapTest < Minitest::Test
 
     # @ldap_client.get_operation_result.code of @ldap_client.delete
     mock_ldap_get_operation_result
-      .expects(:code).returns(0, 0).times(2)
+      .expects(:code).returns(0)
     mock_ldap_client
-      .expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
+      .expects(:get_operation_result).returns(mock_ldap_get_operation_result)
 
     adap = Adap.new({
       :ad_host        => "localhost",
