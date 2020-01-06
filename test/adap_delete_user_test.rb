@@ -81,6 +81,6 @@ class ModAdapTest < Minitest::Test
     })
 
     ret = adap.delete_user("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
-    assert_equal({:code => 0, :message => nil}, ret)
+    assert_equal({:code => 0, :operation => :delete_user, :message => nil}, ret)
   end
 end
