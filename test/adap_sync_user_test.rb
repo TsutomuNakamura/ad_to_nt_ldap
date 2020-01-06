@@ -44,7 +44,7 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     ret = adap.sync_user("foo")
-    assert_equal({:code => 1, :message => "Failed to get a user CN=foo,CN=Users,DC=mysite,DC=example,DC=com from AD - Some error"}, ret)
+    assert_equal({:code => 1, :operation => nil, :message => "Failed to get a user CN=foo,CN=Users,DC=mysite,DC=example,DC=com from AD - Some error"}, ret)
   end
 
   def test_sync_user_should_failed_if_ldap_search_from_ldap_was_failed
@@ -94,7 +94,7 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     ret = adap.sync_user("foo")
-    assert_equal({:code => 1, :message => "Failed to get a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com from LDAP - Some error"}, ret)
+    assert_equal({:code => 1, :operation => nil, :message => "Failed to get a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com from LDAP - Some error"}, ret)
   end
 
   def test_sync_user_should_success_if_add_user_returns_success
@@ -147,10 +147,10 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_password).with("foo").returns("secret")
     adap.expects(:add_user)
       .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com", {:objectclass => ["top", "person"], :cn => "ad"}, "secret")
-      .returns({:code => 0, :message => "Success add_user"})
+      .returns({:code => 0, :operation => :add_user, :message => "Success add_user"})
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 0, :message => "Success add_user"}, ret)
+    assert_equal({:code => 0, :operation => :add_user, :message => "Success add_user"}, ret)
   end
 
   def test_sync_user_should_success_if_delete_user_returns_success
@@ -202,10 +202,10 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     adap.expects(:delete_user)
       .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
-      .returns({:code => 0, :message => "Success delete_user"})
+      .returns({:code => 0, :operation => :delete_user, :message => "Success delete_user"})
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 0, :message => "Success delete_user"}, ret)
+    assert_equal({:code => 0, :operation => :delete_user, :message => "Success delete_user"}, ret)
   end
 
   def test_sync_user_should_success_if_modify_user_returns_success
@@ -258,10 +258,10 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_password).with("foo").returns("secret")
     adap.expects(:modify_user)
       .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com", {:objectclass => ["top", "person"], :cn => "ad"}, {:objectclass => ["top", "person"], :cn => "ldap"}, "secret")
-      .returns({:code => 0, :message => "Success add_user"})
+      .returns({:code => 0, :operation => :modify_user, :message => "Success add_user"})
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 0, :message => "Success add_user"}, ret)
+    assert_equal({:code => 0, :operation => :modify_user, :message => "Success add_user"}, ret)
   end
 
   def test_sync_user_should_error_if_ad_entry_and_ldap_entry_does_not_existed
@@ -313,7 +313,7 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 1, :message => "There are not any data of foo to sync."}, ret)
+    assert_equal({:code => 0, :operation => nil, :message => "There are not any data of foo to sync."}, ret)
   end
 
   def test_sync_user_should_success_if_ad_query_returns_32_and_ldap_query_returns_0
@@ -365,7 +365,7 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 1, :message => "There are not any data of foo to sync."}, ret)
+    assert_equal({:code => 0, :operation => nil, :message => "There are not any data of foo to sync."}, ret)
   end
 
   def test_sync_user_should_success_if_ad_query_returns_0_and_ldap_query_returns_32
@@ -417,7 +417,7 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 1, :message => "There are not any data of foo to sync."}, ret)
+    assert_equal({:code => 0, :operation => nil, :message => "There are not any data of foo to sync."}, ret)
   end
 
   def test_sync_user_should_success_if_ad_query_and_ldap_query_returns_32
@@ -469,6 +469,6 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 1, :message => "There are not any data of foo to sync."}, ret)
+    assert_equal({:code => 0, :operation => nil, :message => "There are not any data of foo to sync."}, ret)
   end
 end

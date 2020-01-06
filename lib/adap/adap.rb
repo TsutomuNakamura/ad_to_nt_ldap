@@ -111,6 +111,7 @@ class Adap
 
     return {
       :code => ret_code,
+      :operation => nil,
       :message => "Failed to get a user #{ad_dn} from AD - " + @ad_client.get_operation_result.error_message
     } if ret_code != 0 && ret_code != 32
 
@@ -122,6 +123,7 @@ class Adap
 
     return {
       :code => ret_code,
+      :operation => nil,
       :message => "Failed to get a user #{ldap_dn} from LDAP - " + @ldap_client.get_operation_result.error_message
     } if ret_code != 0 && ret_code != 32
 
@@ -136,7 +138,7 @@ class Adap
     end
     # Do nothing if (ad_entry.nil? and ldap_entry.nil?)
 
-    return (ret != nil ? ret : {:code => 1, :operation => nil, :message => "There are not any data of #{username} to sync."})
+    return (ret != nil ? ret : {:code => 0, :operation => nil, :message => "There are not any data of #{username} to sync."})
   end
 
   def add_user(ldap_user_dn, ad_entry, password)
