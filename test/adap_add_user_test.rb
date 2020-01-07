@@ -53,7 +53,6 @@ class ModAdapTest < Minitest::Test
     mock_ldap_get_operation_result    = mock()
     mock                              = mock_ad_and_ldap_connections()
 
-
     # @ldap_client.add
     mock[:ldap_client].expects(:add)
       .with({
@@ -104,20 +103,11 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_add_user_should_success
-    mock_ad_client                    = mock()
-    mock_ldap_client                  = mock()
     mock_ldap_get_operation_result    = mock()
-
-    Adap.expects(:get_ad_client_instance)
-      .with("localhost", 389, { :method => :simple, :username => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com", :password => "ad_secret" })
-      .returns(mock_ad_client)
-
-    Adap.expects(:get_ldap_client_instance)
-      .with("ldap_server", 389, { :method => :simple, :username => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com", :password => "ldap_secret" })
-      .returns(mock_ldap_client)
+    mock                              = mock_ad_and_ldap_connections()
 
     # @ldap_client.add
-    mock_ldap_client.expects(:add)
+    mock[:ldap_client].expects(:add)
       .with({
         :dn => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com",
         :attributes => {
@@ -128,7 +118,7 @@ class ModAdapTest < Minitest::Test
       .returns(true)
 
     # @ldap_client.modify
-    mock_ldap_client.expects(:modify)
+    mock[:ldap_client].expects(:modify)
       .with({
         :dn => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com",
         :operations => [
@@ -139,7 +129,7 @@ class ModAdapTest < Minitest::Test
 
     # @ldap_client.get_operation_result.code of @ldap_client.modify
     mock_ldap_get_operation_result.expects(:code).returns(0, 0, 0).times(3)
-    mock_ldap_client.expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(3)
+    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(3)
 
     adap = Adap.new({
       :ad_host => "localhost",
