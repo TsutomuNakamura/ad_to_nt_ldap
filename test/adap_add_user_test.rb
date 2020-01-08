@@ -75,9 +75,9 @@ class ModAdapTest < Minitest::Test
       .returns(true)
 
     # @ldap_client.get_operation_result.code of @ldap_client.modify
-    mock_ldap_get_operation_result.expects(:code).returns(0, 1, 1).times(3)
+    mock_ldap_get_operation_result.expects(:code).returns(0, 1).times(2)
     mock_ldap_get_operation_result.expects(:error_message).returns("Some error")
-    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(4)
+    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(3)
 
     adap = Adap.new({
       :ad_host => "localhost",
@@ -128,8 +128,8 @@ class ModAdapTest < Minitest::Test
       .returns(true)
 
     # @ldap_client.get_operation_result.code of @ldap_client.modify
-    mock_ldap_get_operation_result.expects(:code).returns(0, 0, 0).times(3)
-    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(3)
+    mock_ldap_get_operation_result.expects(:code).returns(0, 0).times(2)
+    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
 
     adap = Adap.new({
       :ad_host => "localhost",
