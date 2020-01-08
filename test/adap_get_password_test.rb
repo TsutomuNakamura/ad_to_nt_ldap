@@ -2,16 +2,7 @@ require "test_helper"
 
 class ModAdapTest < Minitest::Test
   def test_get_password_should_return_error_if_getting_raw_password_returns_empty_string
-    mock_ad_client                  = mock()
-    mock_ldap_client                = mock()
-
-    Adap.expects(:get_ad_client_instance)
-      .with("localhost", 389, { :method => :simple, :username => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com", :password => "ad_secret" })
-      .returns(mock_ad_client)
-
-    Adap.expects(:get_ldap_client_instance)
-      .with("ldap_server", 389, { :method => :simple, :username => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com", :password => "ldap_secret" })
-      .returns(mock_ldap_client)
+    mock_ad_and_ldap_connections()
 
     adap = Adap.new({
       :ad_host => "localhost",
@@ -26,9 +17,9 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_raw_password).with("foo", "virtualCryptSHA512").returns("")
 
     exception = assert_raises RuntimeError do
-      #result = adap.get_password("foo")
       adap.get_password("foo")
     end
+
     assert_equal(
       exception.message,
       'Failed to get password of foo from AD. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?'
@@ -36,16 +27,7 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_get_password_should_return_error_if_getting_raw_password_returns_nil
-    mock_ad_client                  = mock()
-    mock_ldap_client                = mock()
-
-    Adap.expects(:get_ad_client_instance)
-      .with("localhost", 389, { :method => :simple, :username => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com", :password => "ad_secret" })
-      .returns(mock_ad_client)
-
-    Adap.expects(:get_ldap_client_instance)
-      .with("ldap_server", 389, { :method => :simple, :username => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com", :password => "ldap_secret" })
-      .returns(mock_ldap_client)
+    mock_ad_and_ldap_connections()
 
     adap = Adap.new({
       :ad_host => "localhost",
@@ -70,16 +52,7 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_get_password_should_success_if_sha256_option_has_been_passed
-    mock_ad_client                  = mock()
-    mock_ldap_client                = mock()
-
-    Adap.expects(:get_ad_client_instance)
-      .with("localhost", 389, { :method => :simple, :username => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com", :password => "ad_secret" })
-      .returns(mock_ad_client)
-
-    Adap.expects(:get_ldap_client_instance)
-      .with("ldap_server", 389, { :method => :simple, :username => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com", :password => "ldap_secret" })
-      .returns(mock_ldap_client)
+    mock_ad_and_ldap_connections()
 
     adap = Adap.new({
       :ad_host => "localhost",
@@ -100,16 +73,7 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_get_password_should_success
-    mock_ad_client                  = mock()
-    mock_ldap_client                = mock()
-
-    Adap.expects(:get_ad_client_instance)
-      .with("localhost", 389, { :method => :simple, :username => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com", :password => "ad_secret" })
-      .returns(mock_ad_client)
-
-    Adap.expects(:get_ldap_client_instance)
-      .with("ldap_server", 389, { :method => :simple, :username => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com", :password => "ldap_secret" })
-      .returns(mock_ldap_client)
+    mock_ad_and_ldap_connections()
 
     adap = Adap.new({
       :ad_host => "localhost",
@@ -127,5 +91,4 @@ class ModAdapTest < Minitest::Test
     result = adap.get_password("foo")
     assert_equal(result, 'secret_sha512')
   end
-
 end
