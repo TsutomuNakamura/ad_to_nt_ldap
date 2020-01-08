@@ -3,32 +3,19 @@ require "test_helper"
 class ModAdapTest < Minitest::Test
 
   def test_sync_user_should_failed_if_ldap_search_from_ad_was_failed
-    mock_ad_client                      = mock()
-    mock_ldap_client                    = mock()
+    mock                                = mock_ad_and_ldap_connections()
     mock_ad_get_operation_result        = mock()
-
-    Adap.expects(:get_ad_client_instance)
-      .with("localhost", 389, { :method => :simple, :username => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com", :password => "ad_secret" })
-      .returns(mock_ad_client)
-
-    Adap.expects(:get_ldap_client_instance)
-      .with("ldap_server", 389, { :method => :simple, :username => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com", :password => "ldap_secret" })
-      .returns(mock_ldap_client)
 
     # @ad_client.search()
     mock_ad_client.expects(:search)
       .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
       .yields({:objectclass => ["top", "person"], :cn => "ad"})
 
-#    mock_ldap_client.expects(:search)
-#      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
-#      .yields({:objectclass => ["top", "person"], :cn => "ldap"})
-
     # @ad_client.get_operation_result.code
     mock_ad_get_operation_result.expects(:code).returns(1)
     # @ldap_client.get_operation_result.error_message of @ldap_client.delete
     mock_ad_get_operation_result.expects(:error_message).returns("Some error")
-    mock_ad_client.expects(:get_operation_result).returns(mock_ad_get_operation_result).times(2)
+    mock[:ad_client].expects(:get_operation_result).returns(mock_ad_get_operation_result).times(2)
 
     # Testing from here
     adap = Adap.new({
@@ -48,37 +35,28 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_sync_user_should_failed_if_ldap_search_from_ldap_was_failed
-    mock_ad_client                      = mock()
-    mock_ldap_client                    = mock()
+    mock                                = mock_ad_and_ldap_connections()
     mock_ad_get_operation_result        = mock()
     mock_ldap_get_operation_result      = mock()
 
-    Adap.expects(:get_ad_client_instance)
-      .with("localhost", 389, { :method => :simple, :username => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com", :password => "ad_secret" })
-      .returns(mock_ad_client)
-
-    Adap.expects(:get_ldap_client_instance)
-      .with("ldap_server", 389, { :method => :simple, :username => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com", :password => "ldap_secret" })
-      .returns(mock_ldap_client)
-
     # @ad_client.search()
-    mock_ad_client.expects(:search)
+    mock[:ad_client].expects(:search)
       .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
       .yields({:objectclass => ["top", "person"], :cn => "ad"})
 
-    mock_ldap_client.expects(:search)
+    mock[:ldap_client].expects(:search)
       .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
       .yields({:objectclass => ["top", "person"], :cn => "ldap"})
 
     # @ad_client.get_operation_result.code
     mock_ad_get_operation_result.expects(:code).returns(0)
     # @ad_client.get_operation_result
-    mock_ad_client.expects(:get_operation_result).returns(mock_ad_get_operation_result)
+    mock[:ad_client].expects(:get_operation_result).returns(mock_ad_get_operation_result)
 
     # @ldap_client.get_operation_result.code
     mock_ldap_get_operation_result.expects(:code).returns(1)
     mock_ldap_get_operation_result.expects(:error_message).returns("Some error")
-    mock_ldap_client.expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
+    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
 
     # Testing from here
     adap = Adap.new({
