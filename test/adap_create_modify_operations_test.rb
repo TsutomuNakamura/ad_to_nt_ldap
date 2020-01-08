@@ -3,16 +3,7 @@ require "test_helper"
 
 class ModAdapTest < Minitest::Test
   def test_create_modify_operations_should_create_operation_that_replace_password
-    mock_ad_client = mock()
-    mock_ldap_client = mock()
-
-    Adap.expects(:get_ad_client_instance)
-      .with("localhost", 389, { :method => :simple, :username => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com", :password => "ad_secret" })
-      .returns(mock_ad_client)
-
-    Adap.expects(:get_ldap_client_instance)
-      .with("ldap_server", 389, { :method => :simple, :username => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com", :password => "ldap_secret" })
-      .returns(mock_ldap_client)
+    mock = mock_ad_and_ldap_connections()
 
     adap = Adap.new({
       :ad_host        => "localhost",
@@ -32,16 +23,7 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_modify_operations_should_create_operation_that_replace_cn
-    mock_ad_client = mock()
-    mock_ldap_client = mock()
-
-    Adap.expects(:get_ad_client_instance)
-      .with("localhost", 389, { :method => :simple, :username => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com", :password => "ad_secret" })
-      .returns(mock_ad_client)
-
-    Adap.expects(:get_ldap_client_instance)
-      .with("ldap_server", 389, { :method => :simple, :username => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com", :password => "ldap_secret" })
-      .returns(mock_ldap_client)
+    mock = mock_ad_and_ldap_connections()
 
     adap = Adap.new({
       :ad_host => "localhost",

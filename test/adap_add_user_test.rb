@@ -22,9 +22,9 @@ class ModAdapTest < Minitest::Test
       }).returns(true)
 
     # @ldap_client.get_operation_result.code
-    mock_get_operation_result.expects(:code).returns(1, 1).times(2)
+    mock_get_operation_result.expects(:code).returns(1)
     mock_get_operation_result.expects(:error_message).returns("Some error")
-    mock[:ldap_client].expects(:get_operation_result).returns(mock_get_operation_result).times(3)
+    mock[:ldap_client].expects(:get_operation_result).returns(mock_get_operation_result).times(2)
 
     adap = Adap.new({
       :ad_host   => "localhost",
