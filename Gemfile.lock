@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    adap (0.0.5)
+    adap (0.0.6)
 
 GEM
   remote: https://rubygems.org/
