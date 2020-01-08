@@ -162,14 +162,15 @@ class Adap
         [:add, :userPassword, password]
       ]
     )
+    ret_code = @ldap_client.get_operation_result.code
 
     return {
-      :code => @ldap_client.get_operation_result.code,
+      :code => ret_code,
       :operation => :add_user,
       :message => "Failed to modify a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
-    } if @ldap_client.get_operation_result.code != 0
+    } if ret_code != 0
 
-    return {:code => @ldap_client.get_operation_result.code, :operation => :add_user, :message => nil}
+    return {:code => ret_code, :operation => :add_user, :message => nil}
   end
 
   def modify_user(ldap_user_dn, ad_entry, ldap_entry, password)
