@@ -202,7 +202,7 @@ class Adap
 
       if REQUIRED_ATTRIBUTES.include?(ad_key_sym)
         next if value == ldap_entry[ldap_key]
-        operations.push((ldap_entry.key?(ldap_key) ? [:replace, ldap_key_sym, value] : [:add, ldap_key_sym, value]))
+        operations.push((ldap_entry[ldap_key] != nil ? [:replace, ldap_key_sym, value] : [:add, ldap_key_sym, value]))
       end
     end
 
