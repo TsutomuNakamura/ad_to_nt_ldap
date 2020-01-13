@@ -97,11 +97,11 @@ class Adap
     `samba-tool user getpassword #{username} --attribute #{algo} 2> /dev/null | grep -E '^virtualCrypt' -A 1 | tr -d ' \n' | cut -d ':' -f 2`
   end
 
-  def sync_user(username)
+  def sync_user(uid)
     ad_entry    = nil
     ldap_entry  = nil
-    ad_dn       = get_ad_dn(username)
-    ldap_dn     = get_ldap_dn(username)
+    ad_dn       = get_ad_dn(uid)
+    ldap_dn     = get_ldap_dn(uid)
 
     # dn: CN=user-name,CN=Users,DC=mysite,DC=example,DC=com
     @ad_client.search(:base => ad_dn) do |entry|
@@ -129,16 +129,24 @@ class Adap
 
     ret = nil
     if !ad_entry.nil? and ldap_entry.nil? then
-      pass = get_password(username)
-      ret = add_user(ldap_dn, ad_entry, pass)
+      ret = add_user(ldap_dn, ad_entry, get_password(uid))
     elsif ad_entry.nil? and !ldap_entry.nil? then
       ret = delete_user(ldap_dn)
     elsif !ad_entry.nil? and !ldap_entry.nil? then
-      ret = modify_user(ldap_dn, ad_entry, ldap_entry, get_password(username))
+      ret = modify_user(ldap_dn, ad_entry, ldap_entry, get_password(uid))
     end
-    # Do nothing if (ad_entry.nil? and ldap_entry.nil?)
 
-    return (ret != nil ? ret : {:code => 0, :operation => nil, :message => "There are not any data of #{username} to sync."})
+    # Do nothing if (ad_entry.nil? and ldap_entry.nil?)
+    if ret == nil then
+      return {:code => 0, :operation => nil, :message => "There are not any data of #{uid} to sync."}
+    elsif ret[:code] != 0 then
+      return ret
+    end
+
+    # Sync groups belonging the user next if syncing data of the user has succeeded.
+    ret_sync_group = sync_group_of_user(uid, get_primary_gidnumber(ad_entry))
+
+    return {"Synching a user has succeeded but synching its groups have failed. Message: " + ret_sync_group.get_operation_result.error_message}
   end
 
   def add_user(ldap_user_dn, ad_entry, password)
@@ -233,6 +241,15 @@ class Adap
     } if ret_code != 0
 
     return {:code => ret_code, :operation => :delete_user, :message => nil}
+  end
+
+  def get_primary_gidnumber(entry)
+    return nil if entry == nil || entry[:gidnumber] == nil
+    return entry[:gidnumber].first
+  end
+
+  def sync_group_of_user(uid, primary_gid=nil)
+
   end
 end
 
