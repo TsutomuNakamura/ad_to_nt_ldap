@@ -250,6 +250,30 @@ class Adap
 
   def sync_group_of_user(uid, primary_gid=nil)
 
+    if primary_gid == nil then
+      @ad_client.search(:base => "CN=#{uid},CN=Users,#{@ad_basedn}") do |entry|
+        primary_gid = entry[:gidnumber].first
+      end
+    end
+
+    return {:code => 1, operation: => nil, message: => "primary_gid must be set. Can not find the entry of #{uid} in AD"} if primary_gid == ni
+
+    ad_filter = Net::LDAP::Filter.construct(
+        "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(|(member=CN=#{uid},CN=Users,#{@ad_basedn})(gidNumber=#{primary_gid})))")
+
+    # Get groups from AD
+    @ad_client.search(:base => @ad_basedn, :filter => ad_filter) do |entry|
+      ad_entry = entry
+    end
+
+    ldap_filter = "(memberUid=#{uid})"
+
+    # Get groups from LDAP
+    @ldap_client.search(:base => @ldap_basedn, :filter => ldap_filter) do |entry|
+      ldap_entry = entry
+    end
+
+    # Comparing name of AD's entry and cn of LDAP's entry
   end
 end
 
