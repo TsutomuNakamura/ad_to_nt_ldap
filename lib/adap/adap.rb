@@ -256,22 +256,36 @@ class Adap
       end
     end
 
-    return {:code => 1, operation: => nil, message: => "primary_gid must be set. Can not find the entry of #{uid} in AD"} if primary_gid == ni
+    return {
+      :code => 1,
+      operation: => nil,
+      message: => "primary_gid must be set. Can not find the entry of #{uid} in AD"
+    } if primary_gid == nil
 
     ad_filter = Net::LDAP::Filter.construct(
         "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(|(member=CN=#{uid},CN=Users,#{@ad_basedn})(gidNumber=#{primary_gid})))")
+    ldap_filter = Net::LDAP::Filter.construct("(memberUid=#{uid})")
+    ad_group_map = {}
+    ldap_group_map = {}
 
     # Get groups from AD
     @ad_client.search(:base => @ad_basedn, :filter => ad_filter) do |entry|
-      ad_entry = entry
+      ad_group_map[entry[:name]] = nil
     end
+    ret_code = @ldap_client.get_operation_result.code
 
-    ldap_filter = "(memberUid=#{uid})"
+    return {
+      :code => ret_code,
+      :operation => :search_group_from_ad,
+      :message => "Failed to get group infomation from AD[host: #{@ad_host}, port: #{@ad_port}]"
+    } if rec_code != 0
 
     # Get groups from LDAP
     @ldap_client.search(:base => @ldap_basedn, :filter => ldap_filter) do |entry|
-      ldap_entry = entry
+      ldap_group_map[entry[:cn]] = nil
     end
+
+    # TODO:
 
     # Comparing name of AD's entry and cn of LDAP's entry
   end
