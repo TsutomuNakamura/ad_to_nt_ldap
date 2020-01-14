@@ -278,7 +278,7 @@ class Adap
     } if ret_code != 0
 
     # Comparing name of AD's entry and cn of LDAP's entry
-    operation     = create_operation_sync_group_of_user(ad_group_map, ldap_group_map)
+    operation = create_operation_sync_group_of_user(ad_group_map, ldap_group_map)
     return {
       :code => 0,
       :operation => nil,
@@ -301,7 +301,10 @@ class Adap
     } if ret_code != 0
 
     return {:code => 0, :operation => modify_group_of_user}
+  end
 
+  def create_operation_sync_group_of_user(ad_group_map, ldap_group_map)
+    # TODO:
   end
 
   def get_primary_gidnumber(entry)
@@ -314,8 +317,6 @@ class Adap
 
     return entry[:gidnumber].first
   end
-
-
 
   def get_primary_gidnumber_from_ad(uid)
     return nil if uid ==nil
