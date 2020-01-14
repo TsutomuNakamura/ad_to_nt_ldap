@@ -243,25 +243,7 @@ class Adap
     return {:code => ret_code, :operation => :delete_user, :message => nil}
   end
 
-  def get_primary_gidnumber(entry)
-    return nil if entry == nil || entry[:gidnumber] == nil
-    return entry[:gidnumber].first
-  end
-
-  def sync_group_of_user(uid, primary_gid=nil)
-
-    if primary_gid == nil then
-      @ad_client.search(:base => "CN=#{uid},CN=Users,#{@ad_basedn}") do |entry|
-        primary_gid = entry[:gidnumber].first
-      end
-    end
-
-    return {
-      :code => 1,
-      operation: => nil,
-      message: => "primary_gid must be set. Can not find the entry of #{uid} in AD"
-    } if primary_gid == nil
-
+  def sync_group_of_user(uid, primary_gid)
     ad_filter = Net::LDAP::Filter.construct(
         "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(|(member=CN=#{uid},CN=Users,#{@ad_basedn})(gidNumber=#{primary_gid})))")
     ldap_filter = Net::LDAP::Filter.construct("(memberUid=#{uid})")
@@ -272,6 +254,7 @@ class Adap
     @ad_client.search(:base => @ad_basedn, :filter => ad_filter) do |entry|
       ad_group_map[entry[:name]] = nil
     end
+
     ret_code = @ldap_client.get_operation_result.code
 
     return {
@@ -289,5 +272,29 @@ class Adap
 
     # Comparing name of AD's entry and cn of LDAP's entry
   end
+
+  def get_primary_gidnumber(entry)
+    return nil if entry == nil
+
+    if entry[:gidnumber] == nil then
+      ad_result = get_primary_gidnumber_from_ad(entry[:uid].first)
+      return ad_result
+    end
+
+    return entry[:gidnumber].first
+  end
+
+
+
+  def get_primary_gidnumber_from_ad(uid)
+    return nil if uid ==nil
+
+    @ad_client.search(:base => "CN=#{uid},CN=Users,#{@ad_basedn}") do |entry|
+      primary_gid = entry[:gidnumber].first
+    end
+
+    return primary_gid
+  end
+
 end
 
