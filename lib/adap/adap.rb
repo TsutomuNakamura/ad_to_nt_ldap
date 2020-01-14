@@ -255,12 +255,12 @@ class Adap
       ad_group_map[entry[:name]] = nil
     end
 
-    ret_code = @ldap_client.get_operation_result.code
+    ret_code = @ad_client.get_operation_result.code
 
     return {
       :code => ret_code,
       :operation => :search_group_from_ad,
-      :message => "Failed to get group infomation from AD[host: #{@ad_host}, port: #{@ad_port}]"
+      :message => "Failed to get group infomation from AD - " + @ad_client.get_operation_result.error_message
     } if rec_code != 0
 
     # Get groups from LDAP
@@ -268,9 +268,40 @@ class Adap
       ldap_group_map[entry[:cn]] = nil
     end
 
+    ret_code = @ad_client.get_operation_result.code
     # TODO:
 
+    return {
+      :code => ret_code,
+      :operation => nil,
+      :message => "Failed to get a user #{}"
+    } if ret_code != 0
+
     # Comparing name of AD's entry and cn of LDAP's entry
+    operation     = create_operation_sync_group_of_user(ad_group_map, ldap_group_map)
+    return {
+      :code => 0,
+      :operation => nil,
+      :message => "There are not any groups of user to sync"
+    } if operation == nil || operation.empty?
+
+    ldap_user_dn  = get_ldap_dn(uid)
+
+    @ldap_client.modify(
+      :dn => ldap_user_dn,
+      :operations => operation
+    )
+
+    ret_code = @ldap_client.get_operation_result.code
+
+    return {
+      :code => ret_code,
+      :operation => :modify_group_of_user,
+      :message => "Failed to modify group of user. - " + @ad_client.get_operation_result.error_message
+    } if ret_code != 0
+
+    return {:code => 0, :operation => modify_group_of_user}
+
   end
 
   def get_primary_gidnumber(entry)
