@@ -316,13 +316,17 @@ class Adap
   #   ]
   # }
   def create_sync_group_of_user_operation(ad_group_map, ldap_group_map, uid)
-    operations = []
+    operations = {}
 
     ad_group_map.each_key do |key|
-      if !ldap_group_map.has_key?(key) then
-        [:add, key, uid]
-      end
+      operations["cn=#{key},ou=Groups,#{@ldap_dn}"] = [:add, :memberuid, uid] if !ldap_group_map.has_key?(key)
     end
+
+    ldap_group_map.each_key do |key|
+      operations["cn=#{key},ou=Groups,#{@ldap_dn}"] = [:delete, :memberuid, uid] if !ad_group_map.has_key?(key)
+    end
+
+    operations
   end
 
   def get_primary_gidnumber(entry)
