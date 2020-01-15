@@ -5,6 +5,7 @@ class Adap
   # :unixhomedirectory and :homedirectory are the attributes that has same meaning between AD and LDAP.
   USER_REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :unixhomedirectory, :homedirectory]
   #USER_REQUIRED_ATTRIBUTES = ['cn', 'sn', 'uid', 'uidNumber', 'gidNumber', 'homeDirectory', 'loginShell', 'gecos', 'givenName']
+  GROUP_OF_USER_REQUIRED_ATTRIBUTES = [:objectclass, :gidnumber, :cn, :description, :memberuid]
 
   #
   # params {
@@ -278,7 +279,7 @@ class Adap
     } if ret_code != 0
 
     # Comparing name of AD's entry and cn of LDAP's entry
-    operation = create_sync_group_of_user_operation(ad_group_map, ldap_group_map)
+    operation = create_sync_group_of_user_operation(ad_group_map, ldap_group_map, uid)
     return {
       :code => 0,
       :operation => nil,
@@ -303,12 +304,23 @@ class Adap
     return {:code => 0, :operation => modify_group_of_user}
   end
 
-  def create_sync_group_of_user_operation(ad_group_map, ldap_group_map)
+  # {
+  #   "cn=foo,ou=Groups,dc=mysite,dc=example,dc=com": [
+  #     [:add, :memberuid, uid]
+  #   ],
+  #   "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com": [
+  #     [:delete, :memberuid, uid]
+  #   ],
+  #   "cn=baz,ou=Groups,dc=mysite,dc=example,dc=com": [
+  #     [:add, :memberuid, uid]
+  #   ]
+  # }
+  def create_sync_group_of_user_operation(ad_group_map, ldap_group_map, uid)
     operations = []
 
     ad_group_map.each_key do |key|
-      if ldap_group_map.has_key?(key) then
-        [:add]
+      if !ldap_group_map.has_key?(key) then
+        [:add, key, uid]
       end
     end
   end
