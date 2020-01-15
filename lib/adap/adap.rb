@@ -3,8 +3,8 @@ require 'net-ldap'
 class Adap
 
   # :unixhomedirectory and :homedirectory are the attributes that has same meaning between AD and LDAP.
-  REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :unixhomedirectory, :homedirectory]
-  #REQUIRED_ATTRIBUTES = ['cn', 'sn', 'uid', 'uidNumber', 'gidNumber', 'homeDirectory', 'loginShell', 'gecos', 'givenName']
+  USER_REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :unixhomedirectory, :homedirectory]
+  #USER_REQUIRED_ATTRIBUTES = ['cn', 'sn', 'uid', 'uidNumber', 'gidNumber', 'homeDirectory', 'loginShell', 'gecos', 'givenName']
 
   #
   # params {
@@ -70,7 +70,7 @@ class Adap
       # Change string to lower case symbols to compare each attributes correctly
       attribute = attribute.downcase.to_sym
 
-      if REQUIRED_ATTRIBUTES.include?(attribute) then
+      if USER_REQUIRED_ATTRIBUTES.include?(attribute) then
         if attribute == :unixhomedirectory then
           attributes[:homedirectory] = values
         else
@@ -208,7 +208,7 @@ class Adap
       ldap_key      = (key != "unixHomeDirectory" ? key : "homeDirectory")
       ldap_key_sym  = ldap_key.downcase.to_sym
 
-      if REQUIRED_ATTRIBUTES.include?(ad_key_sym)
+      if USER_REQUIRED_ATTRIBUTES.include?(ad_key_sym)
         next if value == ldap_entry[ldap_key]
         operations.push((ldap_entry[ldap_key] != nil ? [:replace, ldap_key_sym, value] : [:add, ldap_key_sym, value]))
       end
@@ -218,7 +218,7 @@ class Adap
       ldap_key_sym  = key.downcase.to_sym
       ad_key        = (key != "homeDirectory" ? key : "unixHomeDirectory")
 
-      if REQUIRED_ATTRIBUTES.include?(ldap_key_sym)
+      if USER_REQUIRED_ATTRIBUTES.include?(ldap_key_sym)
         operations.push([:delete, ldap_key_sym, nil]) if ad_entry[ad_key] == nil
       end
     end
@@ -252,7 +252,7 @@ class Adap
 
     # Get groups from AD
     @ad_client.search(:base => @ad_basedn, :filter => ad_filter) do |entry|
-      ad_group_map[entry[:name]] = nil
+      ad_group_map[entry[:name].downcase.to_sym] = nil
     end
 
     ret_code = @ad_client.get_operation_result.code
@@ -265,7 +265,7 @@ class Adap
 
     # Get groups from LDAP
     @ldap_client.search(:base => @ldap_basedn, :filter => ldap_filter) do |entry|
-      ldap_group_map[entry[:cn]] = nil
+      ldap_group_map[entry[:cn].downcase.to_sym] = nil
     end
 
     ret_code = @ad_client.get_operation_result.code
@@ -278,7 +278,7 @@ class Adap
     } if ret_code != 0
 
     # Comparing name of AD's entry and cn of LDAP's entry
-    operation = create_operation_sync_group_of_user(ad_group_map, ldap_group_map)
+    operation = create_sync_group_of_user_operation(ad_group_map, ldap_group_map)
     return {
       :code => 0,
       :operation => nil,
@@ -303,8 +303,14 @@ class Adap
     return {:code => 0, :operation => modify_group_of_user}
   end
 
-  def create_operation_sync_group_of_user(ad_group_map, ldap_group_map)
-    # TODO:
+  def create_sync_group_of_user_operation(ad_group_map, ldap_group_map)
+    operations = []
+
+    ad_group_map.each_key do |key|
+      if ldap_group_map.has_key?(key) then
+        [:add]
+      end
+    end
   end
 
   def get_primary_gidnumber(entry)
