@@ -279,12 +279,13 @@ class Adap
     } if ret_code != 0
 
     # Comparing name of AD's entry and cn of LDAP's entry
-    operation = create_sync_group_of_user_operation(ad_group_map, ldap_group_map, uid)
+    operation_with_dn = create_sync_group_of_user_operation(ad_group_map, ldap_group_map, uid)
+
     return {
       :code => 0,
       :operation => nil,
       :message => "There are not any groups of user to sync"
-    } if operation == nil || operation.empty?
+    } if operation_with_dn.length == 0
 
     ldap_user_dn  = get_ldap_dn(uid)
 
@@ -316,17 +317,17 @@ class Adap
   #   ]
   # }
   def create_sync_group_of_user_operation(ad_group_map, ldap_group_map, uid)
-    operations = {}
+    operations_with_dn = {}
 
     ad_group_map.each_key do |key|
-      operations["cn=#{key},ou=Groups,#{@ldap_dn}"] = [:add, :memberuid, uid] if !ldap_group_map.has_key?(key)
+      operations_with_dn["cn=#{key},ou=Groups,#{@ldap_dn}"] = [:add, :memberuid, uid] if !ldap_group_map.has_key?(key)
     end
 
     ldap_group_map.each_key do |key|
-      operations["cn=#{key},ou=Groups,#{@ldap_dn}"] = [:delete, :memberuid, uid] if !ad_group_map.has_key?(key)
+      operations_with_dn["cn=#{key},ou=Groups,#{@ldap_dn}"] = [:delete, :memberuid, uid] if !ad_group_map.has_key?(key)
     end
 
-    operations
+    operations_with_dn
   end
 
   def get_primary_gidnumber(entry)
