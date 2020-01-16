@@ -112,7 +112,7 @@ class Adap
 
     return {
       :code => ret_code,
-      :operation => nil,
+      :operations => nil,
       :message => "Failed to get a user #{ad_dn} from AD - " + @ad_client.get_operation_result.error_message
     } if ret_code != 0 && ret_code != 32
 
@@ -124,7 +124,7 @@ class Adap
 
     return {
       :code => ret_code,
-      :operation => nil,
+      :operations => nil,
       :message => "Failed to get a user #{ldap_dn} from LDAP - " + @ldap_client.get_operation_result.error_message
     } if ret_code != 0 && ret_code != 32
 
@@ -136,7 +136,7 @@ class Adap
     elsif !ad_entry.nil? and !ldap_entry.nil? then
       ret = modify_user(ldap_dn, ad_entry, ldap_entry, get_password(uid))
     elsif ad_entry.nil? and ldap_entry.nil? then
-      return {:code => 0, :operation => nil, :message => "There are not any data of #{uid} to sync."}
+      return {:code => 0, :operations => nil, :message => "There are not any data of #{uid} to sync."}
     end
 
     return ret if ret[:code] != 0
@@ -144,7 +144,11 @@ class Adap
     # Sync groups belonging the user next if syncing data of the user has succeeded.
     ret_sync_group = sync_group_of_user(uid, get_primary_gidnumber(ad_entry))
 
-    return {:code => 0, :operation => :"Synching a user has succeeded but synching its groups have failed. Message: " + ret_sync_group.get_operation_result.error_message}
+    return {
+      :code => 0,
+      :operations => ret[:operations].concat(:sync_group_of_user),
+      :message => "Synching a user has succeeded but synching its groups have failed. Message: " + ret_sync_group.get_operation_result.error_message
+    }
   end
 
   def add_user(ldap_user_dn, ad_entry, password)
@@ -158,7 +162,7 @@ class Adap
 
     return {
       :code => ret_code,
-      :operation => :add_user,
+      :operations => [:add_user],
       :message => "Failed to add a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
     } if ret_code != 0
 
@@ -172,11 +176,11 @@ class Adap
 
     return {
       :code => ret_code,
-      :operation => :add_user,
+      :operations => [:add_user],
       :message => "Failed to modify a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
     } if ret_code != 0
 
-    return {:code => ret_code, :operation => :add_user, :message => nil}
+    return {:code => ret_code, :operations => [:add_user], :message => nil}
   end
 
   def modify_user(ldap_user_dn, ad_entry, ldap_entry, password)
@@ -191,11 +195,11 @@ class Adap
 
     return {
       :code => ret_code,
-      :operation => :modify_user,
+      :operations => [:modify_user],
       :message => "Failed to modify a user #{ldap_user_dn} in modify_user() - " + @ldap_client.get_operation_result.error_message
     } if ret_code != 0
 
-    return {:code => ret_code, :operation => :modify_user, :message => nil}
+    return {:code => ret_code, :operations => [:modify_user], :message => nil}
   end
 
   def create_modify_operations(ad_entry, ldap_entry, password)
@@ -234,11 +238,11 @@ class Adap
 
     return {
       :code => ret_code,
-      :operation => :delete_user,
+      :operations => [:delete_user],
       :message => "Failed to delete a user #{ldap_user_dn} in delete_user() - " + @ldap_client.get_operation_result.error_message
     } if ret_code != 0
 
-    return {:code => ret_code, :operation => :delete_user, :message => nil}
+    return {:code => ret_code, :operations => [:delete_user], :message => nil}
   end
 
   def sync_group_of_user(uid, primary_gid)
@@ -257,7 +261,7 @@ class Adap
 
     return {
       :code => ret_code,
-      :operation => :search_group_from_ad,
+      :operations => [:search_group_from_ad],
       :message => "Failed to get group infomation from AD - " + @ad_client.get_operation_result.error_message
     } if rec_code != 0
 
@@ -271,7 +275,7 @@ class Adap
 
     return {
       :code => ret_code,
-      :operation => nil,
+      :operations => nil,
       :message => "Failed to get a user #{}"
     } if ret_code != 0
 
@@ -280,7 +284,7 @@ class Adap
 
     return {
       :code => 0,
-      :operation => nil,
+      :operations => nil,
       :message => "There are not any groups of user to sync"
     } if operation_with_dn.length == 0
 
@@ -289,18 +293,18 @@ class Adap
     operation_with_dn.each_key do |key|
       @ldap_client.modify(
         :dn => key,
-        :operation => operation_with_dn[key]
+        :operations => operation_with_dn[key]
       )
       ret_code = @ldap_client.get_operation_result.code
 
       return {
         :code => ret_code,
-        :operation => :modify_group_of_user,
+        :operations => [:modify_group_of_user],
         :message => "Failed to modify group \"#{key}\" of user #{uid}. - " + @ad_client.get_operation_result.error_message
       } if ret_code != 0
     end
 
-    return {:code => 0, :operation => :modify_group_of_user, :message => nil}
+    return {:code => 0, :operations => [:modify_group_of_user], :message => nil}
   end
 
   # {
