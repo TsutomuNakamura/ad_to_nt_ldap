@@ -135,19 +135,16 @@ class Adap
       ret = delete_user(ldap_dn)
     elsif !ad_entry.nil? and !ldap_entry.nil? then
       ret = modify_user(ldap_dn, ad_entry, ldap_entry, get_password(uid))
+    elsif ad_entry.nil? and ldap_entry.nil? then
+      return {:code => 0, :operation => nil, :message => "There are not any data of #{uid} to sync."}
     end
 
-    # Do nothing if (ad_entry.nil? and ldap_entry.nil?)
-    if ret == nil then
-      return {:code => 0, :operation => nil, :message => "There are not any data of #{uid} to sync."}
-    elsif ret[:code] != 0 then
-      return ret
-    end
+    return ret if ret[:code] != 0
 
     # Sync groups belonging the user next if syncing data of the user has succeeded.
     ret_sync_group = sync_group_of_user(uid, get_primary_gidnumber(ad_entry))
 
-    return {"Synching a user has succeeded but synching its groups have failed. Message: " + ret_sync_group.get_operation_result.error_message}
+    return {:code => 0, :operation => :"Synching a user has succeeded but synching its groups have failed. Message: " + ret_sync_group.get_operation_result.error_message}
   end
 
   def add_user(ldap_user_dn, ad_entry, password)
