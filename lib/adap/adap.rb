@@ -287,22 +287,23 @@ class Adap
       :message => "There are not any groups of user to sync"
     } if operation_with_dn.length == 0
 
-    ldap_user_dn  = get_ldap_dn(uid)
+    # ldap_user_dn  = get_ldap_dn(uid)
 
-    @ldap_client.modify(
-      :dn => ldap_user_dn,
-      :operations => operation
-    )
+    operation_with_dn.each_key do |key|
+      @ldap_client.modify(
+        :dn => key,
+        :operation => operation_with_dn[key]
+      )
+      ret_code = @ldap_client.get_operation_result.code
 
-    ret_code = @ldap_client.get_operation_result.code
+      return {
+        :code => ret_code,
+        :operation => :modify_group_of_user,
+        :message => "Failed to modify group \"#{key}\" of user #{uid}. - " + @ad_client.get_operation_result.error_message
+      } if ret_code != 0
+    end
 
-    return {
-      :code => ret_code,
-      :operation => :modify_group_of_user,
-      :message => "Failed to modify group of user. - " + @ad_client.get_operation_result.error_message
-    } if ret_code != 0
-
-    return {:code => 0, :operation => modify_group_of_user}
+    return {:code => 0, :operation => :modify_group_of_user, :message => nil}
   end
 
   # {
