@@ -145,9 +145,12 @@ class Adap
     ret_sync_group = sync_group_of_user(uid, get_primary_gidnumber(ad_entry))
 
     return {
-      :code => 0,
-      :operations => ret[:operations].concat(:sync_group_of_user),
-      :message => "Synching a user has succeeded but synching its groups have failed. Message: " + ret_sync_group.get_operation_result.error_message
+      :code => ret_sync_group[:code],
+      :operations => ret[:operations].concat(ret_sync_group[:operations]),
+      :message => (
+        ret_sync_group[:code] == 0 ?
+          nil : "Syncing a user has succeeded but synching its groups have failed. Message: " + ret_sync_group.get_operation_result.error_message
+      )
     }
   end
 
