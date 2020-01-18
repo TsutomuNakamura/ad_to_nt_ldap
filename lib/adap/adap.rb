@@ -265,29 +265,29 @@ class Adap
 
     # Get groups from AD
     @ad_client.search(:base => @ad_basedn, :filter => ad_filter) do |entry|
-      ad_group_map[entry[:name].downcase.to_sym] = nil
+      ad_group_map[entry[:name]] = nil
     end
     ret_code = @ad_client.get_operation_result.code
 
     return {
       :code => ret_code,
-      :operations => [:search_group_from_ad],
-      :message => "Failed to get group infomation from AD - " + @ad_client.get_operation_result.error_message
+      :operations => [:search_groups_from_ad],
+      :message => "Failed to get groups of a user #{uid} from AD to sync them. " + @ad_client.get_operation_result.error_message
     } if ret_code != 0
 
     # Create LDAP ldapsearch filter
-    ldap_filter = Net::LDAP::Filter.construct("(memberUid=foo)")
+    ldap_filter = Net::LDAP::Filter.construct("(memberUid=#{uid})")
 
     # Get groups from LDAP
     @ldap_client.search(:base => "ou=Users," + @ldap_basedn, :filter => ldap_filter) do |entry|
-      ldap_group_map[entry[:cn].downcase.to_sym] = nil
+      ldap_group_map[entry[:cn]] = nil
     end
     ret_code = @ldap_client.get_operation_result.code
 
     return {
       :code => ret_code,
-      :operations => nil,
-      :message => "Failed to get groups of a usre #{uid} to sync them. " + @ldap_client.get_operation_result.error_message
+      :operations => [:search_groups_from_ldap],
+      :message => "Failed to get groups of a user #{uid} from LDAP to sync them. " + @ldap_client.get_operation_result.error_message
     } if ret_code != 0
 
     # Comparing name of AD's entry and cn of LDAP's entry
@@ -311,7 +311,7 @@ class Adap
       return {
         :code => ret_code,
         :operations => [:modify_group_of_user],
-        :message => "Failed to modify group \"#{key}\" of user #{uid}. - " + @ad_client.get_operation_result.error_message
+        :message => "Failed to modify group \"#{key}\" of user #{uid}. " + @ldap_client.get_operation_result.error_message
       } if ret_code != 0
     end
 
