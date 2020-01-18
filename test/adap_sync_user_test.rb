@@ -31,7 +31,7 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     ret = adap.sync_user("foo")
-    assert_equal({:code => 1, :operation => nil, :message => "Failed to get a user CN=foo,CN=Users,DC=mysite,DC=example,DC=com from AD - Some error"}, ret)
+    assert_equal({:code => 1, :operations => nil, :message => "Failed to get a user CN=foo,CN=Users,DC=mysite,DC=example,DC=com from AD - Some error"}, ret)
   end
 
   def test_sync_user_should_failed_if_ldap_search_from_ldap_was_failed
@@ -72,7 +72,7 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     ret = adap.sync_user("foo")
-    assert_equal({:code => 1, :operation => nil, :message => "Failed to get a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com from LDAP - Some error"}, ret)
+    assert_equal({:code => 1, :operations => nil, :message => "Failed to get a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com from LDAP - Some error"}, ret)
   end
 
   def test_sync_user_should_success_if_add_user_returns_success
@@ -88,8 +88,6 @@ class ModAdapTest < Minitest::Test
     mock[:ldap_client].expects(:search)
       .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
       .yields(nil)
-
-    ## ad_client != nil and ldap_client == nil -> add_user
 
     # @ad_client.get_operation_result.code
     mock_ad_get_operation_result.expects(:code).returns(0)
@@ -116,10 +114,16 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_password).with("foo").returns("secret")
     adap.expects(:add_user)
       .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com", {:objectclass => ["top", "person"], :cn => "ad"}, "secret")
-      .returns({:code => 0, :operation => :add_user, :message => "Success add_user"})
+      .returns({:code => 0, :operations => [:add_user], :message => "Success add_user"})
+    adap.expects(:get_primary_gidnumber)
+      .with({:objectclass => ["top", "person"], :cn => "ad"})
+      .returns(513)
+    adap.expects(:sync_group_of_user)
+      .with("foo", 513)
+      .returns({:code => 0, :operations => [:some_group_of_user_operation], :message => nil})
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 0, :operation => :add_user, :message => "Success add_user"}, ret)
+    assert_equal({:code => 0, :operations => [:add_user, :some_group_of_user_operation], :message => nil}, ret)
   end
 
   def test_sync_user_should_success_if_delete_user_returns_success
@@ -162,10 +166,14 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     adap.expects(:delete_user)
       .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
-      .returns({:code => 0, :operation => :delete_user, :message => "Success delete_user"})
+      .returns({:code => 0, :operations => [:delete_user], :message => "Success delete_user"})
+    adap.expects(:get_primary_gidnumber).with(nil).returns(nil)
+    adap.expects(:sync_group_of_user)
+      .with("foo", nil)
+      .returns({:code => 0, :operations => [:some_group_of_user_operation], :message => nil})
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 0, :operation => :delete_user, :message => "Success delete_user"}, ret)
+    assert_equal({:code => 0, :operations => [:delete_user, :some_group_of_user_operation], :message => nil}, ret)
   end
 
   def test_sync_user_should_success_if_modify_user_returns_success
@@ -181,8 +189,6 @@ class ModAdapTest < Minitest::Test
     mock[:ldap_client].expects(:search)
       .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
       .yields({:objectclass => ["top", "person"], :cn => "ldap"})
-
-    ## ad_client == nil and ldap_client != nil -> delete_user
 
     # @ad_client.get_operation_result.code
     mock_ad_get_operation_result.expects(:code).returns(0)
@@ -209,10 +215,16 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_password).with("foo").returns("secret")
     adap.expects(:modify_user)
       .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com", {:objectclass => ["top", "person"], :cn => "ad"}, {:objectclass => ["top", "person"], :cn => "ldap"}, "secret")
-      .returns({:code => 0, :operation => :modify_user, :message => "Success add_user"})
+      .returns({:code => 0, :operations => [:modify_user], :message => "Success add_user"})
+    adap.expects(:get_primary_gidnumber)
+      .with({:objectclass => ["top", "person"], :cn => "ad"})
+      .returns(513)
+    adap.expects(:sync_group_of_user)
+      .with("foo", 513)
+      .returns({:code => 0, :operations => [:some_group_of_user_operation], :message => nil})
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 0, :operation => :modify_user, :message => "Success add_user"}, ret)
+    assert_equal({:code => 0, :operations => [:modify_user, :some_group_of_user_operation], :message => nil}, ret)
   end
 
   def test_sync_user_should_error_if_ad_entry_and_ldap_entry_does_not_existed
@@ -228,8 +240,6 @@ class ModAdapTest < Minitest::Test
     mock[:ldap_client].expects(:search)
       .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
       .yields(nil)
-
-    ## ad_client == nil and ldap_client != nil -> delete_user
 
     # @ad_client.get_operation_result.code
     mock_ad_get_operation_result.expects(:code).returns(0)
@@ -255,7 +265,7 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 0, :operation => nil, :message => "There are not any data of foo to sync."}, ret)
+    assert_equal({:code => 0, :operations => nil, :message => "There are not any data of foo to sync."}, ret)
   end
 
   def test_sync_user_should_success_if_ad_query_returns_32_and_ldap_query_returns_0
@@ -298,7 +308,7 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 0, :operation => nil, :message => "There are not any data of foo to sync."}, ret)
+    assert_equal({:code => 0, :operations => nil, :message => "There are not any data of foo to sync."}, ret)
   end
 
   def test_sync_user_should_success_if_ad_query_returns_0_and_ldap_query_returns_32
@@ -341,7 +351,7 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 0, :operation => nil, :message => "There are not any data of foo to sync."}, ret)
+    assert_equal({:code => 0, :operations => nil, :message => "There are not any data of foo to sync."}, ret)
   end
 
   def test_sync_user_should_success_if_ad_query_and_ldap_query_returns_32
@@ -382,6 +392,62 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
 
     ret = adap.sync_user("foo")
-    assert_equal({:code => 0, :operation => nil, :message => "There are not any data of foo to sync."}, ret)
+    assert_equal({:code => 0, :operations => nil, :message => "There are not any data of foo to sync."}, ret)
+  end
+
+  def test_sync_user_should_failed_if_sync_group_of_user_returns_error
+    mock                                = mock_ad_and_ldap_connections()
+    mock_ad_get_operation_result        = mock()
+    mock_ldap_get_operation_result      = mock()
+
+    # @ad_client.search()
+    mock[:ad_client].expects(:search)
+      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .yields({:objectclass => ["top", "person"], :cn => "ad"})
+
+    mock[:ldap_client].expects(:search)
+      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
+      .yields({:objectclass => ["top", "person"], :cn => "ldap"})
+
+    # @ad_client.get_operation_result.code
+    mock_ad_get_operation_result.expects(:code).returns(0)
+    # @ad_client.get_operation_result
+    mock[:ad_client].expects(:get_operation_result).returns(mock_ad_get_operation_result)
+
+    # @ldap_client.get_operation_result.code
+    mock_ldap_get_operation_result.expects(:code).returns(0)
+    # @ldap_client.get_operation_result
+    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result)
+
+    # Testing from here
+    adap = Adap.new({
+      :ad_host        => "localhost",
+      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password    => "ad_secret",
+      :ldap_host      => "ldap_server",
+      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
+      :ldap_password  => "ldap_secret"
+    })
+    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:get_password).with("foo").returns("secret")
+    adap.expects(:modify_user)
+      .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com", {:objectclass => ["top", "person"], :cn => "ad"}, {:objectclass => ["top", "person"], :cn => "ldap"}, "secret")
+      .returns({:code => 0, :operations => [:modify_user], :message => "Success add_user"})
+    adap.expects(:get_primary_gidnumber)
+      .with({:objectclass => ["top", "person"], :cn => "ad"})
+      .returns(513)
+    adap.expects(:sync_group_of_user)
+      .with("foo", 513)
+      .returns({:code => 1, :operations => [:some_group_of_user_operation], :message => "Some error"})
+
+    ret = adap.sync_user("foo")
+    assert_equal({
+      :code => 1,
+      :operations => [:modify_user, :some_group_of_user_operation],
+      :message => "Syncing a user foo has succeeded but syncing its groups have failed. Message: Some error"
+    }, ret)
   end
 end
