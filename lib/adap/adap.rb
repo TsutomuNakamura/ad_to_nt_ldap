@@ -273,13 +273,13 @@ class Adap
       :code => ret_code,
       :operations => [:search_group_from_ad],
       :message => "Failed to get group infomation from AD - " + @ad_client.get_operation_result.error_message
-    } if rec_code != 0
+    } if ret_code != 0
 
     # Create LDAP ldapsearch filter
-    ldap_filter = Net::LDAP::Filter.construct("(memberUid=#{uid})")
+    ldap_filter = Net::LDAP::Filter.construct("(memberUid=foo)")
 
     # Get groups from LDAP
-    @ldap_client.search(:base => @ldap_basedn, :filter => ldap_filter) do |entry|
+    @ldap_client.search(:base => "ou=Users," + @ldap_basedn, :filter => ldap_filter) do |entry|
       ldap_group_map[entry[:cn].downcase.to_sym] = nil
     end
     ret_code = @ldap_client.get_operation_result.code
@@ -295,7 +295,7 @@ class Adap
 
     return {
       :code => 0,
-      :operations => nil,
+      :operations => [:modify_group_of_user],
       :message => "There are not any groups of user to sync"
     } if operation_with_dn.length == 0
 
