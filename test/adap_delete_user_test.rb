@@ -31,7 +31,7 @@ class ModAdapTest < Minitest::Test
     })
 
     ret = adap.delete_user("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
-    assert_equal({:code => 1, :operation => :delete_user, :message => "Failed to delete a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com in delete_user() - Some error"}, ret)
+    assert_equal({:code => 1, :operations => [:delete_user], :message => "Failed to delete a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com in delete_user() - Some error"}, ret)
   end
 
   def test_delete_user_should_success
@@ -61,6 +61,6 @@ class ModAdapTest < Minitest::Test
     })
 
     ret = adap.delete_user("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
-    assert_equal({:code => 0, :operation => :delete_user, :message => nil}, ret)
+    assert_equal({:code => 0, :operations => [:delete_user], :message => nil}, ret)
   end
 end
