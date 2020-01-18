@@ -45,7 +45,7 @@ class ModAdapTest < Minitest::Test
       {:objectclass => ["top", "person"], :cn => "cn_ldap"},
       "secret"
     )
-    assert_equal({:code => 1, :operation => :modify_user, :message => "Failed to modify a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com in modify_user() - Some error"}, ret)
+    assert_equal({:code => 1, :operations => [:modify_user], :message => "Failed to modify a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com in modify_user() - Some error"}, ret)
   end
 
   def test_modify_user_should_success
@@ -89,6 +89,6 @@ class ModAdapTest < Minitest::Test
       {:objectclass => ["top", "person"], :cn => "cn_ldap"},
       "secret"
     )
-    assert_equal({:code => 0, :operation => :modify_user, :message => nil}, ret)
+    assert_equal({:code => 0, :operations => [:modify_user], :message => nil}, ret)
   end
 end
