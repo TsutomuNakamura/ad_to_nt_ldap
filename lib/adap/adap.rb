@@ -249,17 +249,23 @@ class Adap
   end
 
   def sync_group_of_user(uid, primary_gid)
-    ad_filter = Net::LDAP::Filter.construct(
-        "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(|(member=CN=#{uid},CN=Users,#{@ad_basedn})(gidNumber=#{primary_gid})))")
-    ldap_filter = Net::LDAP::Filter.construct("(memberUid=#{uid})")
     ad_group_map = {}
     ldap_group_map = {}
+
+    # Creating AD ldapsearch filter
+
+    ad_filter = if primary_gid == nil then
+      Net::LDAP::Filter.construct(
+          "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(member=CN=#{uid},CN=Users,#{@ad_basedn}))")
+    else
+      Net::LDAP::Filter.construct(
+          "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(|(member=CN=#{uid},CN=Users,#{@ad_basedn})(gidNumber=#{primary_gid})))")
+    end
 
     # Get groups from AD
     @ad_client.search(:base => @ad_basedn, :filter => ad_filter) do |entry|
       ad_group_map[entry[:name].downcase.to_sym] = nil
     end
-
     ret_code = @ad_client.get_operation_result.code
 
     return {
@@ -268,18 +274,19 @@ class Adap
       :message => "Failed to get group infomation from AD - " + @ad_client.get_operation_result.error_message
     } if rec_code != 0
 
+    # Create LDAP ldapsearch filter
+    ldap_filter = Net::LDAP::Filter.construct("(memberUid=#{uid})")
+
     # Get groups from LDAP
     @ldap_client.search(:base => @ldap_basedn, :filter => ldap_filter) do |entry|
       ldap_group_map[entry[:cn].downcase.to_sym] = nil
     end
-
-    ret_code = @ad_client.get_operation_result.code
-    # TODO:
+    ret_code = @ldap_client.get_operation_result.code
 
     return {
       :code => ret_code,
       :operations => nil,
-      :message => "Failed to get a user #{}"
+      :message => "Failed to get groups of a usre #{uid} to sync them. " + @ldap_client.get_operation_result.error_message
     } if ret_code != 0
 
     # Comparing name of AD's entry and cn of LDAP's entry
