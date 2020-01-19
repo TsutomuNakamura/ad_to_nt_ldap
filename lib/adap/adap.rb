@@ -333,11 +333,11 @@ class Adap
     operations_with_dn = {}
 
     ad_group_map.each_key do |key|
-      operations_with_dn["cn=#{key},ou=Groups,#{@ldap_dn}"] = [:add, :memberuid, uid] if !ldap_group_map.has_key?(key)
+      operations_with_dn["cn=#{key},ou=Groups,#{@ldap_basedn}"] = [[:add, :memberuid, uid]] if !ldap_group_map.has_key?(key)
     end
 
     ldap_group_map.each_key do |key|
-      operations_with_dn["cn=#{key},ou=Groups,#{@ldap_dn}"] = [:delete, :memberuid, uid] if !ad_group_map.has_key?(key)
+      operations_with_dn["cn=#{key},ou=Groups,#{@ldap_basedn}"] = [[:delete, :memberuid, uid]] if !ad_group_map.has_key?(key)
     end
 
     operations_with_dn
