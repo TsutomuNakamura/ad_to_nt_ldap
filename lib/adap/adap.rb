@@ -302,10 +302,10 @@ class Adap
     # ldap_user_dn  = get_ldap_dn(uid)
 
     operation_with_dn.each_key do |key|
-      @ldap_client.modify(
+      @ldap_client.modify({
         :dn => key,
         :operations => operation_with_dn[key]
-      )
+      })
       ret_code = @ldap_client.get_operation_result.code
 
       return {

@@ -19,3 +19,16 @@ def mock_ad_and_ldap_connections
   return {:ad_client => ad_client, :ldap_client => ldap_client}
 end
 
+def get_general_adap_instance
+    Adap.new({
+      :ad_host        => "localhost",
+      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_basedn      => "DC=mysite,DC=example,DC=com",
+      :ad_password    => "ad_secret",
+      :ldap_host      => "ldap_server",
+      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
+      :ldap_password  => "ldap_secret"
+    })
+end
+
