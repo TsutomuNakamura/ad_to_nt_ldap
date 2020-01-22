@@ -272,7 +272,7 @@ class Adap
       :code => ret_code,
       :operations => [:search_groups_from_ad],
       :message => "Failed to get groups of a user #{uid} from AD to sync them. " + @ad_client.get_operation_result.error_message
-    } if ret_code != 0
+    } if ret_code != 0 && rec_code != 32
 
     # Create LDAP ldapsearch filter
     ldap_filter = Net::LDAP::Filter.construct("(memberUid=#{uid})")
@@ -291,28 +291,7 @@ class Adap
 
     # Comparing name of AD's entry and cn of LDAP's entry
     operation_with_dn = create_sync_group_of_user_operation(ad_group_map, ldap_group_map, uid)
-
-    return {
-      :code => 0,
-      :operations => [:modify_group_of_user],
-      :message => "There are not any groups of user to sync"
-    } if operation_with_dn.length == 0
-
-    # ldap_user_dn  = get_ldap_dn(uid)
-
-    operation_with_dn.each_key do |key|
-      @ldap_client.modify({
-        :dn => key,
-        :operations => operation_with_dn[key]
-      })
-      ret_code = @ldap_client.get_operation_result.code
-
-      return {
-        :code => ret_code,
-        :operations => [:modify_group_of_user],
-        :message => "Failed to modify group \"#{key}\" of user #{uid}. " + @ldap_client.get_operation_result.error_message
-      } if ret_code != 0
-    end
+    do_sync_group_of_user_operation(operation_with_dn)
 
     return {:code => 0, :operations => [:modify_group_of_user], :message => nil}
   end
@@ -340,6 +319,28 @@ class Adap
     end
 
     operations_with_dn
+  end
+
+  def do_sync_group_of_user_operation(operations)
+    return {
+      :code => 0,
+      :operations => [:modify_group_of_user],
+      :message => "There are not any groups of user to sync"
+    } if operations.length == 0
+
+    operation.each_key do |key|
+      @ldap_client.modify({
+        :dn => key,
+        :operations => operation_with_dn[key]
+      })
+      ret_code = @ldap_client.get_operation_result.code
+
+      return {
+        :code => ret_code,
+        :operations => [:modify_group_of_user],
+        :message => "Failed to modify group \"#{key}\" of user #{uid}. " + @ldap_client.get_operation_result.error_message
+      } if ret_code != 0
+    end
   end
 
   def get_primary_gidnumber(entry)
