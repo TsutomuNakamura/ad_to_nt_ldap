@@ -328,10 +328,17 @@ class Adap
       :message => "There are not any groups of user to sync"
     } if operations.length == 0
 
-    operation.each_key do |key|
+    operations.each_key do |key|
+
+      if operations.first.first == :add then
+        add_group_if_not_existed(key)
+      end
+      # The operation will be like...
+      # [[:add, :memberuid, "username"]] or [[:delete, :memberuid, "username"]]
+
       @ldap_client.modify({
         :dn => key,
-        :operations => operation_with_dn[key]
+        :operations => operations[key]
       })
       ret_code = @ldap_client.get_operation_result.code
 
@@ -341,6 +348,25 @@ class Adap
         :message => "Failed to modify group \"#{key}\" of user #{uid}. " + @ldap_client.get_operation_result.error_message
       } if ret_code != 0
     end
+  end
+
+  def add_group_if_not_existed(dn_of_group, gidNumber)
+    @ldap_client.search(:base => dn_of_group)
+    ret_code = @ldap_client.get_operation_result.code
+
+    return {:code => 0, :operations => nil, :message => nil} if ret_code == 0
+    return {:code => ret_code, :operation => nil, :message => "Failed to search ldap in add_group_if_not_existed()"} if ret_code != 32
+
+    attributes = {:objectclass => ["top", "posixGroup"]}
+    attributes[:gidnumber] = gidNumber if gidNumber != nil
+    # TODO: How to get cn of a group
+
+    @ldap_client.add(
+      :dn => dn_of_group,
+      :attributes => {
+        :objectclass => ["top", "posixGroup"],
+      }
+    )
   end
 
   def get_primary_gidnumber(entry)
