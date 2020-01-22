@@ -297,9 +297,10 @@ class Adap
   end
 
   # {
-  #   "cn=foo,ou=Groups,dc=mysite,dc=example,dc=com": [
-  #     [:add, :memberuid, uid]
-  #   ],
+  #   "cn=foo,ou=Groups,dc=mysite,dc=example,dc=com": {
+  #     :cn => "foo",
+  #     :operations => [[:add, :memberuid, uid]]
+  #   }
   #   "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com": [
   #     [:delete, :memberuid, uid]
   #   ],
@@ -350,8 +351,10 @@ class Adap
     end
   end
 
-  def add_group_if_not_existed(dn_of_group, gidNumber)
-    @ldap_client.search(:base => dn_of_group)
+  def add_group_if_not_existed(group_cn, gidNumber)
+    group_dn = get_ldap_dn_from_cn(group_cn)
+
+    @ldap_client.search(:base => group_dn)
     ret_code = @ldap_client.get_operation_result.code
 
     return {:code => 0, :operations => nil, :message => nil} if ret_code == 0
