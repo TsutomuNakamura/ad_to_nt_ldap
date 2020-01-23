@@ -248,7 +248,7 @@ class Adap
     return {:code => ret_code, :operations => [:delete_user], :message => nil}
   end
 
-  def sync_group_of_user(uid, primary_gid)
+  def sync_group_of_user(uid, primary_gid_number)
     ad_group_map = {}
     ldap_group_map = {}
 
@@ -263,8 +263,15 @@ class Adap
     end
 
     # Get groups from AD
+    # entry = {
+    #   :gidnumber => xxx,
+    # }
+    #
     @ad_client.search(:base => @ad_basedn, :filter => ad_filter) do |entry|
-      ad_group_map[entry[:name]] = nil
+      ad_group_map[entry[:name]] = {
+        :gidnumber => entry[:gidnumber]
+      }
+      #ad_group_map[entry[:name]] = nil
     end
     ret_code = @ad_client.get_operation_result.code
 
@@ -279,6 +286,7 @@ class Adap
 
     # Get groups from LDAP
     @ldap_client.search(:base => "ou=Users," + @ldap_basedn, :filter => ldap_filter) do |entry|
+      # gidnumber is not necessary for LDAP entry
       ldap_group_map[entry[:cn]] = nil
     end
     ret_code = @ldap_client.get_operation_result.code
@@ -299,10 +307,12 @@ class Adap
   # {
   #   "cn=foo,ou=Groups,dc=mysite,dc=example,dc=com": {
   #     :cn => "foo",
+  #     :gidnumber => xxx,
   #     :operations => [[:add, :memberuid, uid]]
   #   }
   #   "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com": {
   #     :cn => "bar",
+  #     :gidnumber => yyy,
   #     :operations => [[:delete, :memberuid, uid]]
   #   }
   # }
@@ -313,6 +323,7 @@ class Adap
       # Convert AD entries to LDAP entries to create operation to update LDAP data.
       operation_pool["cn=#{key},ou=Groups,#{@ldap_basedn}"] = {
         :cn => key,
+        :gidnumber => ad_group_map[:gidnumber],
         :operations => [[:add, :memberuid, uid]]
       } if !ldap_group_map.has_key?(key)
     end
@@ -333,10 +344,11 @@ class Adap
 
     operation_pool.each_key do |operation_set|
 
-      # "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com": {
-      #   :cn => "bar",
-      #   :operations => [[:delete, :memberuid, uid]]
-      # }
+      # operation_set = "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com": {
+      #     :cn => "bar",
+      #     :gidnumber => xxx,
+      #     :operations => [[:delete, :memberuid, uid]]
+      #   }
       if element[:operations].first.first == :add then
         add_group_if_not_existed(operation_set)
       end
@@ -357,8 +369,8 @@ class Adap
     end
   end
 
-  def add_group_if_not_existed(operation_set, gid_number)
-    group_dn = operation_set
+  def add_group_if_not_existed(operation_set)
+    group_dn = operation_set[:cn]
 
     @ldap_client.search(:base => group_dn)
     ret_code = @ldap_client.get_operation_result.code
