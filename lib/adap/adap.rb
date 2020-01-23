@@ -290,8 +290,8 @@ class Adap
     } if ret_code != 0
 
     # Comparing name of AD's entry and cn of LDAP's entry
-    operation_with_dn = create_sync_group_of_user_operation(ad_group_map, ldap_group_map, uid)
-    do_sync_group_of_user_operation(operation_with_dn)
+    operation_pool = create_sync_group_of_user_operation(ad_group_map, ldap_group_map, uid)
+    do_sync_group_of_user_operation(operation_pool)
 
     return {:code => 0, :operations => [:modify_group_of_user], :message => nil}
   end
@@ -301,38 +301,44 @@ class Adap
   #     :cn => "foo",
   #     :operations => [[:add, :memberuid, uid]]
   #   }
-  #   "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com": [
-  #     [:delete, :memberuid, uid]
-  #   ],
-  #   "cn=baz,ou=Groups,dc=mysite,dc=example,dc=com": [
-  #     [:add, :memberuid, uid]
-  #   ]
+  #   "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com": {
+  #     :cn => "bar",
+  #     :operations => [[:delete, :memberuid, uid]]
+  #   }
   # }
   def create_sync_group_of_user_operation(ad_group_map, ldap_group_map, uid)
-    operations_with_dn = {}
+    operation_pool = {}
 
     ad_group_map.each_key do |key|
-      operations_with_dn["cn=#{key},ou=Groups,#{@ldap_basedn}"] = [[:add, :memberuid, uid]] if !ldap_group_map.has_key?(key)
+      # Convert AD entries to LDAP entries to create operation to update LDAP data.
+      operation_pool["cn=#{key},ou=Groups,#{@ldap_basedn}"] = {
+        :cn => key,
+        :operations => [[:add, :memberuid, uid]]
+      } if !ldap_group_map.has_key?(key)
     end
 
     ldap_group_map.each_key do |key|
-      operations_with_dn["cn=#{key},ou=Groups,#{@ldap_basedn}"] = [[:delete, :memberuid, uid]] if !ad_group_map.has_key?(key)
+      operation_pool["cn=#{key},ou=Groups,#{@ldap_basedn}"] = [[:delete, :memberuid, uid]] if !ad_group_map.has_key?(key)
     end
 
-    operations_with_dn
+    operation_pool
   end
 
-  def do_sync_group_of_user_operation(operations)
+  def do_sync_group_of_user_operation(operation_pool)
     return {
       :code => 0,
       :operations => [:modify_group_of_user],
       :message => "There are not any groups of user to sync"
     } if operations.length == 0
 
-    operations.each_key do |key|
+    operation_pool.each_key do |operation_set|
 
-      if operations.first.first == :add then
-        add_group_if_not_existed(key)
+      # "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com": {
+      #   :cn => "bar",
+      #   :operations => [[:delete, :memberuid, uid]]
+      # }
+      if element[:operations].first.first == :add then
+        add_group_if_not_existed(operation_set)
       end
       # The operation will be like...
       # [[:add, :memberuid, "username"]] or [[:delete, :memberuid, "username"]]
@@ -351,14 +357,20 @@ class Adap
     end
   end
 
-  def add_group_if_not_existed(group_cn, gidNumber)
-    group_dn = get_ldap_dn_from_cn(group_cn)
+  def add_group_if_not_existed(operation_set, gid_number)
+    group_dn = operation_set
 
     @ldap_client.search(:base => group_dn)
     ret_code = @ldap_client.get_operation_result.code
 
+    # The group already existed
     return {:code => 0, :operations => nil, :message => nil} if ret_code == 0
-    return {:code => ret_code, :operation => nil, :message => "Failed to search ldap in add_group_if_not_existed()"} if ret_code != 32
+    # Failed to query ldapsearch for some reason
+    return {
+      :code => ret_code,
+      :operation => nil,
+      :message => "Failed to search ldap in add_group_if_not_existed(). " + @ldap_client.get_operation_result.error_message
+    } if ret_code != 32
 
     attributes = {:objectclass => ["top", "posixGroup"]}
     attributes[:gidnumber] = gidNumber if gidNumber != nil
