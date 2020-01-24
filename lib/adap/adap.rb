@@ -342,15 +342,19 @@ class Adap
       :message => "There are not any groups of user to sync"
     } if operations.length == 0
 
-    operation_pool.each_key do |operation_set|
+    # entry_key = "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com"
+    operation_pool.each_key do |entry_key|
 
-      # operation_set = "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com": {
-      #     :cn => "bar",
-      #     :gidnumber => xxx,
-      #     :operations => [[:delete, :memberuid, uid]]
-      #   }
-      if element[:operations].first.first == :add then
-        add_group_if_not_existed(operation_set)
+      # entry = {
+      #   :cn => "bar",
+      #   :gidnumber => xxx,
+      #   :operations => [[:delete, :memberuid, uid]]
+      # }
+      entry = operation_pool[entry_key]
+
+      if entry[:operations].first.first == :add then
+        ret = add_group_if_not_existed(entry_key, entry)
+        return ret if ret_code != 0
       end
       # The operation will be like...
       # [[:add, :memberuid, "username"]] or [[:delete, :memberuid, "username"]]
@@ -369,14 +373,13 @@ class Adap
     end
   end
 
-  def add_group_if_not_existed(operation_set)
-    group_dn = operation_set[:cn]
-
+  def add_group_if_not_existed(group_dn, entry)
     @ldap_client.search(:base => group_dn)
     ret_code = @ldap_client.get_operation_result.code
 
     # The group already existed
     return {:code => 0, :operations => nil, :message => nil} if ret_code == 0
+
     # Failed to query ldapsearch for some reason
     return {
       :code => ret_code,
@@ -385,15 +388,20 @@ class Adap
     } if ret_code != 32
 
     attributes = {:objectclass => ["top", "posixGroup"]}
-    attributes[:gidnumber] = gidNumber if gidNumber != nil
-    # TODO: How to get cn of a group
+    attributes[:gidnumber] = entry[:gidnumber] if entry[:gidnumber] != nil
+    attributes[:cn] = entry[:cn] if entry[:cn] != nil
 
     @ldap_client.add(
-      :dn => dn_of_group,
-      :attributes => {
-        :objectclass => ["top", "posixGroup"],
-      }
+      :dn => group_dn,
+      :attributes => attributes
     )
+    ret_code = @ldap_client.get_operation_result.code
+
+    return {
+      :code => ret_code,
+      :operation => :add_group,
+      :message => (ret_code == 0 ? nil : "Failed to add group in add_group_if_not_existed(). " + @ldap_client.get_operation_result.error_message)
+    }
   end
 
   def get_primary_gidnumber(entry)
