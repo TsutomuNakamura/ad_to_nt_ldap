@@ -354,7 +354,7 @@ class Adap
 
       if entry[:operations].first.first == :add then
         ret = add_group_if_not_existed(entry_key, entry)
-        return ret if ret_code != 0
+        return ret if ret != 0
       end
       # The operation will be like...
       # [[:add, :memberuid, "username"]] or [[:delete, :memberuid, "username"]]
@@ -370,6 +370,11 @@ class Adap
         :operations => [:modify_group_of_user],
         :message => "Failed to modify group \"#{key}\" of user #{uid}. " + @ldap_client.get_operation_result.error_message
       } if ret_code != 0
+
+      if entry[:operations].first.fitst == :delete then
+        ret = delete_group_if_existed(entry_key, entry)
+        return ret if ret != 0
+      end
     end
   end
 
@@ -402,6 +407,9 @@ class Adap
       :operation => :add_group,
       :message => (ret_code == 0 ? nil : "Failed to add group in add_group_if_not_existed(). " + @ldap_client.get_operation_result.error_message)
     }
+  end
+
+  def delete_group_if_existed(group_dn, entry)
   end
 
   def get_primary_gidnumber(entry)
