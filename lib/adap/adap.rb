@@ -285,9 +285,9 @@ class Adap
     ldap_filter = Net::LDAP::Filter.construct("(memberUid=#{uid})")
 
     # Get groups from LDAP
-    @ldap_client.search(:base => "ou=Users," + @ldap_basedn, :filter => ldap_filter) do |entry|
+    @ldap_client.search(:base => "ou=Groups," + @ldap_basedn, :filter => ldap_filter) do |entry|
       # gidnumber is not necessary for LDAP entry
-      ldap_group_map[entry[:cn]] = nil
+      ldap_group_map[entry[:cn].first] = nil
     end
     ret_code = @ldap_client.get_operation_result.code
 
@@ -407,12 +407,12 @@ class Adap
   def get_primary_gidnumber(entry)
     return nil if entry == nil
 
-    if entry[:gidnumber] == nil then
+    if entry[:primarygroupid] == nil then
       ad_result = get_primary_gidnumber_from_ad(entry[:uid].first)
       return ad_result
     end
 
-    return entry[:gidnumber].first
+    return entry[:primarygroupid].first
   end
 
   def get_primary_gidnumber_from_ad(uid)
