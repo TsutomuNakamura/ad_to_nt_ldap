@@ -320,16 +320,20 @@ class Adap
     operation_pool = {}
 
     ad_group_map.each_key do |key|
+      dn = "cn=#{key},ou=Groups,#{@ldap_basedn}"
       # Convert AD entries to LDAP entries to create operation to update LDAP data.
-      operation_pool["cn=#{key},ou=Groups,#{@ldap_basedn}"] = {
+      operation_pool[dn] = {
         :cn => key,
-        :gidnumber => ad_group_map[:gidnumber],
+        :gidnumber => ad_group_map[key][:gidnumber],
         :operations => [[:add, :memberuid, uid]]
       } if !ldap_group_map.has_key?(key)
     end
 
     ldap_group_map.each_key do |key|
-      operation_pool["cn=#{key},ou=Groups,#{@ldap_basedn}"] = [[:delete, :memberuid, uid]] if !ad_group_map.has_key?(key)
+      operation_pool["cn=#{key},ou=Groups,#{@ldap_basedn}"] = {
+        # :cn and :gidnumber are not necessary
+        :operations => [[:delete, :memberuid, uid]]
+      } if !ad_group_map.has_key?(key)
     end
 
     operation_pool
@@ -340,7 +344,7 @@ class Adap
       :code => 0,
       :operations => [:modify_group_of_user],
       :message => "There are not any groups of user to sync"
-    } if operations.length == 0
+    } if operation_pool.length == 0
 
     # entry_key = "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com"
     operation_pool.each_key do |entry_key|
@@ -371,11 +375,11 @@ class Adap
         :message => "Failed to modify group \"#{key}\" of user #{uid}. " + @ldap_client.get_operation_result.error_message
       } if ret_code != 0
 
-      # TODO: Deleting groups does not supported yet
-      # if entry[:operations].first.fitst == :delete then
-      #   ret = delete_group_if_existed(entry_key, entry)
-      #   return ret if ret != 0
-      # end
+      # Deleting groups does not supported yet
+      #if entry[:operations].first.fitst == :delete then
+      #  ret = delete_group_if_existed(entry_key, entry)
+      #  return ret if ret != 0
+      #end
     end
 
     return {:code => 0, :operations => [:modify_group_of_user], :message => nil}
