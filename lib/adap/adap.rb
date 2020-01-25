@@ -362,27 +362,26 @@ class Adap
 
       if entry[:operations].first.first == :add then
         ret = add_group_if_not_existed(entry_key, entry)
-        return ret if ret != 0
+        return ret if ret[:code] != 0
       end
       # The operation will be like...
       # [[:add, :memberuid, "username"]] or [[:delete, :memberuid, "username"]]
 
       @ldap_client.modify({
-        :dn => key,
-        :operations => operations[key]
+        :dn => entry_key,
+        :operations => entry
       })
       ret_code = @ldap_client.get_operation_result.code
 
       return {
         :code => ret_code,
         :operations => [:modify_group_of_user],
-        :message => "Failed to modify group \"#{key}\" of user #{uid}. " + @ldap_client.get_operation_result.error_message
+        :message => "Failed to modify group \"#{entry_key}\" of user #{entry[:cn]}. " + @ldap_client.get_operation_result.error_message
       } if ret_code != 0
 
-      # 
-      if entry[:operations].first.fitst == :delete then
+      if entry[:operations].first.first == :delete then
         ret = delete_group_if_existed_as_empty(entry_key, entry)
-        return ret if ret != 0
+        return ret if ret[:code] != 0
       end
     end
 
@@ -416,7 +415,7 @@ class Adap
     return {
       :code => ret_code,
       :operations => [:add_group],
-      :message => (ret_code == 0 ? nil : "Failed to add group in add_group_if_not_existed(). " + @ldap_client.get_operation_result.error_message)
+      :message => (ret_code == 0 ? nil : "Failed to add a group in add_group_if_not_existed(). " + @ldap_client.get_operation_result.error_message)
     }
   end
 
