@@ -427,7 +427,11 @@ class Adap
       is_no_memberuid = true
     end
 
-    return {:code => 0, :operations => nil, :message => "There are no groups to delete"} if is_no_memberuid == false
+    ret_code = @ldap_client.get_operation_result.code
+    return {:code => 0, :operations => nil, :message => nil} \
+      if (ret_code == 0 && is_no_memberuid == false) || ret_code == 32
+
+    return {:code => 0, :operations => nil, :message => "Failed to search group in delete_group_if_existed_as_empty()"} if ret_code != 0
 
     @ldap_client.delete(:dn => group_dn)
     ret_code = @ldap_client.get_operation_result.code
