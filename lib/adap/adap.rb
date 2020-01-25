@@ -348,14 +348,16 @@ class Adap
       :message => "There are not any groups of user to sync"
     } if operation_pool.length == 0
 
-    # entry_key = "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com"
+    # ex)
+    #   entry_key = "cn=bar,ou=Groups,dc=mysite,dc=example,dc=com"
     operation_pool.each_key do |entry_key|
 
-      # entry = {
-      #   :cn => "bar",
-      #   :gidnumber => xxx,
-      #   :operations => [[:delete, :memberuid, uid]]
-      # }
+      # ex)
+      #   entry = {
+      #     :cn => "bar",
+      #     :gidnumber => 1000,
+      #     :operations => [[:add, :memberuid, uid]]  # or [[:delete, :memberuid, uid]]
+      #   }
       entry = operation_pool[entry_key]
 
       if entry[:operations].first.first == :add then
@@ -377,11 +379,11 @@ class Adap
         :message => "Failed to modify group \"#{key}\" of user #{uid}. " + @ldap_client.get_operation_result.error_message
       } if ret_code != 0
 
-      # Deleting groups does not supported yet
-      #if entry[:operations].first.fitst == :delete then
-      #  ret = delete_group_if_existed(entry_key, entry)
-      #  return ret if ret != 0
-      #end
+      # 
+      if entry[:operations].first.fitst == :delete then
+        ret = delete_group_if_existed_as_empty(entry_key, entry)
+        return ret if ret != 0
+      end
     end
 
     return {:code => 0, :operations => [:modify_group_of_user], :message => nil}
@@ -415,6 +417,25 @@ class Adap
       :code => ret_code,
       :operations => [:add_group],
       :message => (ret_code == 0 ? nil : "Failed to add group in add_group_if_not_existed(). " + @ldap_client.get_operation_result.error_message)
+    }
+  end
+
+  def delete_group_if_existed_as_empty(group_dn)
+    is_no_memberuid = false
+    # Check whether the group has memberuid
+    @ldap_client.search(:base => group_dn, :filter => "(!(memberUid=*))") do |e|
+      is_no_memberuid = true
+    end
+
+    return {:code => 0, :operations => nil, :message => "There are no groups to delete"} if is_no_memberuid == false
+
+    @ldap_client.delete(:dn => group_dn)
+    ret_code = @ldap_client.get_operation_result.code
+
+    return {
+      :code => ret_code,
+      :operations => [:delete_group],
+      :message => (ret_code == 0 ? nil: @ldap_client.get_operation_result.error_message)
     }
   end
 
