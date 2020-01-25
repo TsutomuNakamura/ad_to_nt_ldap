@@ -3,18 +3,15 @@ require "test_helper"
 class ModAdapTest < Minitest::Test
   def test_sync_group_of_user_should_call_ldap_client_search_without_gidfilter_if_parameter_of_gid_is_nil
     mock                            = mock_ad_and_ldap_connections()
-    mock_ad_get_operation_result  = mock()
+    mock_ad_get_operation_result    = mock()
     mock_ldap_get_operation_result  = mock()
 
-    Net::LDAP::Filter.expects(:construct).with(
-      "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com))"  # Tset
-    ).returns("(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com))")
+    Net::LDAP::Filter.expects(:construct).with(DUMMY_LDAP_FILTER_OF_FOO_WITHOUT_GIDNUMBER).returns(DUMMY_LDAP_FILTER_OF_FOO_WITHOUT_GIDNUMBER)
 
-    # @ldap_client.modify
-    mock[:ad_client].expects(:search).with({
-      :base => "DC=mysite,DC=example,DC=com",
-      :filter => "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com))"
-    }).yields({:name => "Domain Users"})
+    # Search ad group entry that belonging the user from AD
+    mock[:ad_client].expects(:search)
+      .with({:base => AD_BASE,:filter => DUMMY_LDAP_FILTER_OF_FOO_WITHOUT_GIDNUMBER})
+      .yields({:name => ["Domain Users"], :gidnumber => 513})
 
     mock_ad_get_operation_result.expects(:code).returns(0)
     mock[:ad_client].expects(:get_operation_result).returns(mock_ad_get_operation_result)
@@ -22,46 +19,39 @@ class ModAdapTest < Minitest::Test
     Net::LDAP::Filter.expects(:construct)
       .with("(memberUid=foo)")
       .returns("(memberUid=foo)")
-    mock[:ldap_client].expects(:search).with({
-      :base => "ou=Users,dc=mysite,dc=example,dc=com", :filter => "(memberUid=foo)"
-    }).yields({:cn => "Domain Users"})
+    mock[:ldap_client].expects(:search)
+      .with({:base => LDAP_BASE_OF_GROUP, :filter => "(memberUid=foo)"})
+      .yields({:cn => ["Domain Users"]})
 
     mock_ldap_get_operation_result.expects(:code).returns(0)
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result)
 
     # Testing from here
-    adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
-    })
+    adap = get_general_adap_instance()
     adap.expects(:create_sync_group_of_user_operation)
-      .with({"Domain Users" => nil}, {"Domain Users" => nil}, "foo")
+      .with({"Domain Users" => {:gidnumber => 513}}, {"Domain Users" => nil}, "foo")
       .returns({})
+    adap.expects(:do_sync_group_of_user_operation)
+      .with({})
+      .returns({:code => 0, :operations => nil, :message => "There are not any groups of user to sync"})
 
     ret = adap.sync_group_of_user("foo", nil)
-    assert_equal({:code => 0, :operations => [:modify_group_of_user], :message => "There are not any groups of user to sync"}, ret)
+    assert_equal({:code => 0, :operations => [:modify_group_of_user], :message => nil}, ret)
   end
 
   def test_sync_group_of_user_should_call_ldap_client_search_with_gidfilter_if_parameter_of_gid_is_not_nil
     mock                            = mock_ad_and_ldap_connections()
-    mock_ad_get_operation_result  = mock()
+    mock_ad_get_operation_result    = mock()
     mock_ldap_get_operation_result  = mock()
 
-    Net::LDAP::Filter.expects(:construct).with(
-      "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    ).returns("(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))")
+    Net::LDAP::Filter.expects(:construct)
+      .with(DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513)
+      .returns(DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513)
 
     # @ldap_client.modify
-    mock[:ad_client].expects(:search).with({
-      :base => "DC=mysite,DC=example,DC=com",
-      :filter => "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    }).yields({:name => "Domain Users"})
+    mock[:ad_client].expects(:search)
+      .with({:base => AD_BASE, :filter => DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513})
+      .yields({:name => ["Domain Users"], :gidnumber => 513})
 
     mock_ad_get_operation_result.expects(:code).returns(0)
     mock[:ad_client].expects(:get_operation_result).returns(mock_ad_get_operation_result)
@@ -70,25 +60,23 @@ class ModAdapTest < Minitest::Test
       .with("(memberUid=foo)")
       .returns("(memberUid=foo)")
     mock[:ldap_client].expects(:search).with({
-      :base => "ou=Users,dc=mysite,dc=example,dc=com", :filter => "(memberUid=foo)"
-    }).yields({:cn => "Domain Users"})
+      :base => LDAP_BASE_OF_GROUP, :filter => "(memberUid=foo)"
+    }).yields({:cn => ["Domain Users"]})
 
     mock_ldap_get_operation_result.expects(:code).returns(0)
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result)
 
     # Testing from here
-    adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
-    })
+    adap = get_general_adap_instance()
+    adap.expects(:create_sync_group_of_user_operation)
+      .with({"Domain Users" => {:gidnumber => 513}}, {"Domain Users" => nil}, "foo")
+      .returns({})
+    adap.expects(:do_sync_group_of_user_operation)
+      .with({})
+      .returns({:code => 0, :operations => nil, :message => "There are not any groups of user to sync"})
+
     ret = adap.sync_group_of_user("foo", 513)
-    assert_equal({:code => 0, :operations => [:modify_group_of_user], :message => "There are not any groups of user to sync"}, ret)
+    assert_equal({:code => 0, :operations => [:modify_group_of_user], :message => nil}, ret)
   end
 
   def test_sync_group_of_user_should_return_error_if_ad_search_has_failed
@@ -96,31 +84,23 @@ class ModAdapTest < Minitest::Test
     mock_ad_get_operation_result    = mock()
     #mock_ldap_get_operation_result  = mock()
 
-    Net::LDAP::Filter.expects(:construct).with(
-      "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    ).returns("(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))")
+    Net::LDAP::Filter.expects(:construct)
+      .with(DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513)
+      .returns(DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513)
 
     # @ldap_client.modify
     mock[:ad_client].expects(:search).with({
-      :base => "DC=mysite,DC=example,DC=com",
-      :filter => "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    }).yields({:name => "Domain Users"})
+      :base => AD_BASE,
+      :filter => DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513
+    }).yields({:name => ["Domain Users"], :gidnumber => 513})
 
-    mock_ad_get_operation_result.expects(:code).returns(1)    # Test
+    mock_ad_get_operation_result.expects(:code).returns(1)    # ldapsearch to AD will fail
     mock_ad_get_operation_result.expects(:error_message).returns("Some error")
     mock[:ad_client].expects(:get_operation_result).returns(mock_ad_get_operation_result).times(2)
 
     # Testing from here
-    adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
-    })
+    adap = get_general_adap_instance()
+
     ret = adap.sync_group_of_user("foo", 513)
     assert_equal({:code => 1, :operations => [:search_groups_from_ad], :message => "Failed to get groups of a user foo from AD to sync them. Some error"}, ret)
   end
@@ -130,40 +110,30 @@ class ModAdapTest < Minitest::Test
     mock_ad_get_operation_result    = mock()
     mock_ldap_get_operation_result  = mock()
 
-    Net::LDAP::Filter.expects(:construct).with(
-      "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    ).returns("(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))")
+    Net::LDAP::Filter.expects(:construct)
+      .with(DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513)
+      .returns(DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513)
 
     # @ldap_client.modify
-    mock[:ad_client].expects(:search).with({
-      :base => "DC=mysite,DC=example,DC=com",
-      :filter => "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    }).yields({:name => "Domain Users"})
+    mock[:ad_client].expects(:search)
+      .with({:base => AD_BASE, :filter => DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513})
+      .yields({:name => ["Domain Users"], :gidnumber => 513})
 
-    mock_ad_get_operation_result.expects(:code).returns(0)    # Test
+    mock_ad_get_operation_result.expects(:code).returns(0)
     mock[:ad_client].expects(:get_operation_result).returns(mock_ad_get_operation_result)
 
     Net::LDAP::Filter.expects(:construct)
       .with("(memberUid=foo)")
       .returns("(memberUid=foo)")
-    mock[:ldap_client].expects(:search).with({
-      :base => "ou=Users,dc=mysite,dc=example,dc=com", :filter => "(memberUid=foo)"
-    }).yields({:cn => "Domain Users"})
+    mock[:ldap_client].expects(:search)
+      .with({:base => LDAP_BASE_OF_GROUP, :filter => "(memberUid=foo)"})
+      .yields({:cn => ["Domain Users"]})
     mock_ldap_get_operation_result.expects(:code).returns(1)
     mock_ldap_get_operation_result.expects(:error_message).returns("Some error")
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
 
     # Testing from here
-    adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
-    })
+    adap = get_general_adap_instance()
     ret = adap.sync_group_of_user("foo", 513)
     assert_equal({:code => 1, :operations => [:search_groups_from_ldap], :message => "Failed to get groups of a user foo from LDAP to sync them. Some error"}, ret)
   end
@@ -173,196 +143,83 @@ class ModAdapTest < Minitest::Test
     mock_ad_get_operation_result    = mock()
     mock_ldap_get_operation_result  = mock()
 
-    Net::LDAP::Filter.expects(:construct).with(
-      "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    ).returns("(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))")
+    Net::LDAP::Filter.expects(:construct)
+      .with(DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513)
+      .returns(DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513)
 
     # @ldap_client.modify
-    mock[:ad_client].expects(:search).with({
-      :base => "DC=mysite,DC=example,DC=com",
-      :filter => "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    }).multiple_yields({:name => "Domain Users"}, {:name => "Domain Admins"})
+    mock[:ad_client].expects(:search)
+      .with({:base => AD_BASE, :filter => DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513})
+      .multiple_yields({:name => ["Domain Users"], :gidnumber => 513}, {:name => ["Domain Admins"], :gidnumber => 512})
 
-    mock_ad_get_operation_result.expects(:code).returns(0)    # Test
+    mock_ad_get_operation_result.expects(:code).returns(0)
     mock[:ad_client].expects(:get_operation_result).returns(mock_ad_get_operation_result)
 
     Net::LDAP::Filter.expects(:construct)
       .with("(memberUid=foo)")
       .returns("(memberUid=foo)")
     mock[:ldap_client].expects(:search).with({
-      :base => "ou=Users,dc=mysite,dc=example,dc=com", :filter => "(memberUid=foo)"
-    }).yields({:cn => "Domain Users"})
-    mock_ldap_get_operation_result.expects(:code).returns(0, 1).times(2)
-    mock_ldap_get_operation_result.expects(:error_message).returns("Some error")
-    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(3)
+      :base => LDAP_BASE_OF_GROUP, :filter => "(memberUid=foo)"
+    }).yields({:cn => ["Domain Users"]})
+    mock_ldap_get_operation_result.expects(:code).returns(0)
+    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result)
 
     # Testing from here
-    adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
-    })
+    adap = get_general_adap_instance()
     adap.expects(:create_sync_group_of_user_operation)
-      .with({"Domain Users" => nil, "Domain Admins" => nil}, {"Domain Users" => nil}, "foo")
-      .returns({
-        "cn=Domain Admins,cn=Groups,dc=mysite,dc=example,dc=com" => [
-          [:add, :memberuid, "foo"]
-        ]
-      })
-    mock[:ldap_client].expects(:modify)
-      .with({:dn => "cn=Domain Admins,cn=Groups,dc=mysite,dc=example,dc=com", :operations => [[:add, :memberuid, "foo"]]})
+      .with({"Domain Users" => {:gidnumber => 513}, "Domain Admins" => {:gidnumber => 512}}, {"Domain Users" => nil}, "foo")
+      .returns({"cn=Domain Admins,#{LDAP_BASE_OF_GROUP}" => [[:add, :memberuid, "foo"]]})
+    adap.expects(:do_sync_group_of_user_operation)
+      .with({"cn=Domain Admins,#{LDAP_BASE_OF_GROUP}" => [[:add, :memberuid, "foo"]]})
+      .returns({:code => 1, :operations => nil, :message => "Some error from do_sync_group_of_user_operation()"})  # will fail
 
     ret = adap.sync_group_of_user("foo", 513)
     assert_equal({
       :code => 1,
       :operations => [:modify_group_of_user],
-      :message => "Failed to modify group \"cn=Domain Admins,cn=Groups,dc=mysite,dc=example,dc=com\" of user foo. Some error"}, ret)
+      :message => "Some error from do_sync_group_of_user_operation()"}, ret)
   end
 
-  def test_sync_group_of_user_should_return_error_if_secound_ldap_modify_has_failed
+  def test_sync_group_of_user_should_return_success
     mock                            = mock_ad_and_ldap_connections()
     mock_ad_get_operation_result    = mock()
     mock_ldap_get_operation_result  = mock()
 
-    Net::LDAP::Filter.expects(:construct).with(
-      "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    ).returns("(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))")
+    Net::LDAP::Filter.expects(:construct)
+      .with(DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513)
+      .returns(DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513)
 
     # @ldap_client.modify
-    mock[:ad_client].expects(:search).with({
-      :base => "DC=mysite,DC=example,DC=com",
-      :filter => "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    }).multiple_yields({:name => "Domain Users"}, {:name => "Domain Admins"}, {:name => "Domain Guests"})
+    mock[:ad_client].expects(:search)
+      .with({:base => AD_BASE, :filter => DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513})
+      .multiple_yields({:name => ["Domain Users"], :gidnumber => 513}, {:name => ["Domain Admins"], :gidnumber => 512})
 
-    mock_ad_get_operation_result.expects(:code).returns(0)    # Test
+    mock_ad_get_operation_result.expects(:code).returns(0)
     mock[:ad_client].expects(:get_operation_result).returns(mock_ad_get_operation_result)
 
     Net::LDAP::Filter.expects(:construct)
       .with("(memberUid=foo)")
       .returns("(memberUid=foo)")
     mock[:ldap_client].expects(:search).with({
-      :base => "ou=Users,dc=mysite,dc=example,dc=com", :filter => "(memberUid=foo)"
-    }).yields({:cn => "Domain Users"})
-    mock_ldap_get_operation_result.expects(:code).returns(0, 0, 1).times(3)
-    mock_ldap_get_operation_result.expects(:error_message).returns("Some error")
-    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(4)
+      :base => LDAP_BASE_OF_GROUP, :filter => "(memberUid=foo)"
+    }).yields({:cn => ["Domain Users"]})
+    mock_ldap_get_operation_result.expects(:code).returns(0)
+    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result)
 
     # Testing from here
     adap = get_general_adap_instance()
-
     adap.expects(:create_sync_group_of_user_operation)
-      .with({"Domain Users" => nil, "Domain Admins" => nil, "Domain Guests" => nil}, {"Domain Users" => nil}, "foo")
-      .returns({
-        "cn=Domain Admins,cn=Groups,dc=mysite,dc=example,dc=com" => [[:add, :memberuid, "foo"]],
-        "cn=Domain Guests,cn=Groups,dc=mysite,dc=example,dc=com" => [[:add, :memberuid, "foo"]]
-    })
-    mock[:ldap_client].expects(:modify)
-      .with({:dn => "cn=Domain Admins,cn=Groups,dc=mysite,dc=example,dc=com", :operations => [[:add, :memberuid, "foo"]]})
-    mock[:ldap_client].expects(:modify)
-      .with({:dn => "cn=Domain Guests,cn=Groups,dc=mysite,dc=example,dc=com", :operations => [[:add, :memberuid, "foo"]]})
+      .with({"Domain Users" => {:gidnumber => 513}, "Domain Admins" => {:gidnumber => 512}}, {"Domain Users" => nil}, "foo")
+      .returns({"cn=Domain Admins,#{LDAP_BASE_OF_GROUP}" => [[:add, :memberuid, "foo"]]})
+    adap.expects(:do_sync_group_of_user_operation)
+      .with({"cn=Domain Admins,#{LDAP_BASE_OF_GROUP}" => [[:add, :memberuid, "foo"]]})
+      .returns({:code => 1, :operations => nil, :message => "Some error from do_sync_group_of_user_operation()"})  # will fail
 
     ret = adap.sync_group_of_user("foo", 513)
     assert_equal({
       :code => 1,
       :operations => [:modify_group_of_user],
-      :message => "Failed to modify group \"cn=Domain Guests,cn=Groups,dc=mysite,dc=example,dc=com\" of user foo. Some error"}, ret)
+      :message => "Some error from do_sync_group_of_user_operation()"}, ret)
   end
 
-  def test_sync_group_of_user_should_return_success_if_one_modify_operation
-    mock                            = mock_ad_and_ldap_connections()
-    mock_ad_get_operation_result    = mock()
-    mock_ldap_get_operation_result  = mock()
-
-    Net::LDAP::Filter.expects(:construct).with(
-      "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    ).returns("(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))")
-
-    # @ldap_client.modify
-    mock[:ad_client].expects(:search).with({
-      :base => "DC=mysite,DC=example,DC=com",
-      :filter => "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    }).multiple_yields({:name => "Domain Users"}, {:name => "Domain Admins"})
-
-    mock_ad_get_operation_result.expects(:code).returns(0)    # Test
-    mock[:ad_client].expects(:get_operation_result).returns(mock_ad_get_operation_result)
-
-    Net::LDAP::Filter.expects(:construct)
-      .with("(memberUid=foo)")
-      .returns("(memberUid=foo)")
-    mock[:ldap_client].expects(:search).with({
-      :base => "ou=Users,dc=mysite,dc=example,dc=com", :filter => "(memberUid=foo)"
-    }).yields({:cn => "Domain Users"})
-    mock_ldap_get_operation_result.expects(:code).returns(0, 0).times(2)
-    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
-
-    # Testing from here
-    adap = get_general_adap_instance()
-
-    adap.expects(:create_sync_group_of_user_operation)
-      .with({"Domain Users" => nil, "Domain Admins" => nil}, {"Domain Users" => nil}, "foo")
-      .returns({
-        "cn=Domain Admins,cn=Groups,dc=mysite,dc=example,dc=com" => [[:add, :memberuid, "foo"]]
-    })
-    mock[:ldap_client].expects(:modify)
-      .with({:dn => "cn=Domain Admins,cn=Groups,dc=mysite,dc=example,dc=com", :operations => [[:add, :memberuid, "foo"]]})
-
-    ret = adap.sync_group_of_user("foo", 513)
-    assert_equal({
-      :code => 0,
-      :operations => [:modify_group_of_user],
-      :message => nil}, ret)
-  end
-
-  def test_sync_group_of_user_should_return_success_if_some_modify_operations
-    mock                            = mock_ad_and_ldap_connections()
-    mock_ad_get_operation_result    = mock()
-    mock_ldap_get_operation_result  = mock()
-
-    Net::LDAP::Filter.expects(:construct).with(
-      "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    ).returns("(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))")
-
-    # @ldap_client.modify
-    mock[:ad_client].expects(:search).with({
-      :base => "DC=mysite,DC=example,DC=com",
-      :filter => "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
-    }).multiple_yields({:name => "Domain Users"}, {:name => "Domain Admins"}, {:name => "Domain Guests"})
-
-    mock_ad_get_operation_result.expects(:code).returns(0)    # Test
-    mock[:ad_client].expects(:get_operation_result).returns(mock_ad_get_operation_result)
-
-    Net::LDAP::Filter.expects(:construct)
-      .with("(memberUid=foo)")
-      .returns("(memberUid=foo)")
-    mock[:ldap_client].expects(:search).with({
-      :base => "ou=Users,dc=mysite,dc=example,dc=com", :filter => "(memberUid=foo)"
-    }).yields({:cn => "Domain Users"})
-    mock_ldap_get_operation_result.expects(:code).returns(0, 0, 0).times(3)
-    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(3)
-
-    # Testing from here
-    adap = get_general_adap_instance()
-
-    adap.expects(:create_sync_group_of_user_operation)
-      .with({"Domain Users" => nil, "Domain Admins" => nil, "Domain Guests" => nil}, {"Domain Users" => nil}, "foo")
-      .returns({
-        "cn=Domain Admins,cn=Groups,dc=mysite,dc=example,dc=com" => [[:add, :memberuid, "foo"]],
-        "cn=Domain Guests,cn=Groups,dc=mysite,dc=example,dc=com" => [[:add, :memberuid, "foo"]]
-    })
-    mock[:ldap_client].expects(:modify)
-      .with({:dn => "cn=Domain Admins,cn=Groups,dc=mysite,dc=example,dc=com", :operations => [[:add, :memberuid, "foo"]]})
-    mock[:ldap_client].expects(:modify)
-      .with({:dn => "cn=Domain Guests,cn=Groups,dc=mysite,dc=example,dc=com", :operations => [[:add, :memberuid, "foo"]]})
-
-    ret = adap.sync_group_of_user("foo", 513)
-    assert_equal({
-      :code => 0,
-      :operations => [:modify_group_of_user],
-      :message => nil}, ret)
-  end
 end

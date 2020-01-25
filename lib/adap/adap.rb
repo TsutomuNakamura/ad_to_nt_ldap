@@ -254,12 +254,12 @@ class Adap
 
     # Creating AD ldapsearch filter
 
-    ad_filter = if primary_gid == nil then
+    ad_filter = if primary_gid_number == nil then
       Net::LDAP::Filter.construct(
           "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(member=CN=#{uid},CN=Users,#{@ad_basedn}))")
     else
       Net::LDAP::Filter.construct(
-          "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(|(member=CN=#{uid},CN=Users,#{@ad_basedn})(gidNumber=#{primary_gid})))")
+          "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(|(member=CN=#{uid},CN=Users,#{@ad_basedn})(gidNumber=#{primary_gid_number})))")
     end
 
     # Get groups from AD
@@ -268,9 +268,7 @@ class Adap
     # }
     #
     @ad_client.search(:base => @ad_basedn, :filter => ad_filter) do |entry|
-      ad_group_map[entry[:name]] = {
-        :gidnumber => entry[:gidnumber]
-      }
+      ad_group_map[entry[:name].first] = {:gidnumber => entry[:gidnumber]}
       #ad_group_map[entry[:name]] = nil
     end
     ret_code = @ad_client.get_operation_result.code
@@ -279,7 +277,7 @@ class Adap
       :code => ret_code,
       :operations => [:search_groups_from_ad],
       :message => "Failed to get groups of a user #{uid} from AD to sync them. " + @ad_client.get_operation_result.error_message
-    } if ret_code != 0 && rec_code != 32
+    } if ret_code != 0 && ret_code != 32
 
     # Create LDAP ldapsearch filter
     ldap_filter = Net::LDAP::Filter.construct("(memberUid=#{uid})")
@@ -299,9 +297,13 @@ class Adap
 
     # Comparing name of AD's entry and cn of LDAP's entry
     operation_pool = create_sync_group_of_user_operation(ad_group_map, ldap_group_map, uid)
-    do_sync_group_of_user_operation(operation_pool)
+    ret = do_sync_group_of_user_operation(operation_pool)
 
-    return {:code => 0, :operations => [:modify_group_of_user], :message => nil}
+    return {
+      :code => ret[:code],
+      :operations => [:modify_group_of_user],
+      :message => (ret[:code] == 0 ? nil: ret[:message])
+    }
   end
 
   # {
@@ -342,7 +344,7 @@ class Adap
   def do_sync_group_of_user_operation(operation_pool)
     return {
       :code => 0,
-      :operations => [:modify_group_of_user],
+      :operations => nil,
       :message => "There are not any groups of user to sync"
     } if operation_pool.length == 0
 

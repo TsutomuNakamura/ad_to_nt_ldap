@@ -4,6 +4,12 @@ require "adap"
 require "minitest/autorun"
 require 'mocha/minitest'
 
+DUMMY_LDAP_FILTER_OF_FOO_WITHOUT_GIDNUMBER = "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com))"
+DUMMY_LDAP_FILTER_OF_FOO_WITH_GIDNUMBER_513 = "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=mysite,DC=example,DC=com)(|(member=CN=foo,CN=Users,DC=mysite,DC=example,DC=com)(gidNumber=513)))"
+AD_BASE = "DC=mysite,DC=example,DC=com"
+LDAP_BASE = "dc=mysite,dc=example,dc=com"
+LDAP_BASE_OF_GROUP = "ou=Groups,#{LDAP_BASE}"
+
 def mock_ad_and_ldap_connections
   ad_client                    = mock()
   ldap_client                  = mock()
