@@ -210,7 +210,7 @@ class Adap
 
     ad_entry.each do |key, value|
       ad_key_sym    = key.downcase.to_sym
-      ldap_key      = (key != :unixhomedirectory ? key : :homedirectory)
+      ldap_key      = (ad_key_sym != :unixhomedirectory ? ad_key_sym : :homedirectory)
       ldap_key_sym  = ldap_key.downcase.to_sym
 
       if USER_REQUIRED_ATTRIBUTES.include?(ad_key_sym)
@@ -221,11 +221,9 @@ class Adap
 
     ldap_entry.each do |key, value|
       ldap_key_sym  = key.downcase.to_sym
-      ad_key        = (key != :homedirectory ? key : :unixhomedirectory)
+      ad_key        = (ldap_key_sym != :homedirectory ? ldap_key_sym : :unixhomedirectory)
 
       if USER_REQUIRED_ATTRIBUTES.include?(ldap_key_sym)
-        puts("##########################################")
-        puts(ldap_key_sym)
         operations.push([:delete, ldap_key_sym, nil]) if ad_entry[ad_key] == nil
       end
     end
