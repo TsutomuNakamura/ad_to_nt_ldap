@@ -369,7 +369,7 @@ class Adap
 
       @ldap_client.modify({
         :dn => entry_key,
-        :operations => entry
+        :operations => entry[:operations]
       })
       ret_code = @ldap_client.get_operation_result.code
 
@@ -380,7 +380,7 @@ class Adap
       } if ret_code != 0
 
       if entry[:operations].first.first == :delete then
-        ret = delete_group_if_existed_as_empty(entry_key, entry)
+        ret = delete_group_if_existed_as_empty(entry_key)
         return ret if ret[:code] != 0
       end
     end
