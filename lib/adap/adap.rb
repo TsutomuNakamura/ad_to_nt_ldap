@@ -224,6 +224,8 @@ class Adap
       ad_key        = (key != :homedirectory ? key : :unixhomedirectory)
 
       if USER_REQUIRED_ATTRIBUTES.include?(ldap_key_sym)
+        puts("##########################################")
+        puts(ldap_key_sym)
         operations.push([:delete, ldap_key_sym, nil]) if ad_entry[ad_key] == nil
       end
     end

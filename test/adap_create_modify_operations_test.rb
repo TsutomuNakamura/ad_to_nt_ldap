@@ -115,6 +115,32 @@ class ModAdapTest < Minitest::Test
     ], operations)
   end
 
+  def test_create_modify_operations_should_replace_unixhomedirectory_to_homedirectory
+    adap = get_general_adap_instance()
+    ret = adap.create_modify_operations(
+      {:unixhomedirectory => "/home/foo"},
+      {},
+      "ad_secret"
+    )
+    assert_equal([
+      [:add, :homedirectory, "/home/foo"],
+      [:replace, :userpassword, "ad_secret"]
+    ], ret)
+  end
+
+  def test_create_modify_operations_should_NOT_replace_homedirectory_to_unixhomedirectory
+    adap = get_general_adap_instance()
+    ret = adap.create_modify_operations(
+      {},
+      {:homedirectory => "/home/foo"},
+      "ad_secret"
+    )
+    assert_equal([
+      [:delete, :homedirectory, nil],
+      [:replace, :userpassword, "ad_secret"]
+    ], ret)
+  end
+
   def test_create_modify_operations_should_create_operation_that_has_add_and_replace_and_delete
     adap = Adap.new({
       :ad_host        => "localhost",
