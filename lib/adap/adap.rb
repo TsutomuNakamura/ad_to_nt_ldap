@@ -430,7 +430,11 @@ class Adap
     return {:code => 0, :operations => nil, :message => nil} \
       if (ret_code == 0 && is_no_memberuid == false) || ret_code == 32
 
-    return {:code => 0, :operations => nil, :message => "Failed to search group in delete_group_if_existed_as_empty()"} if ret_code != 0
+    return {
+      :code => ret_code,
+      :operations => nil,
+      :message => "Failed to search group in delete_group_if_existed_as_empty(). " + @ldap_client.get_operation_result.error_message
+    } if ret_code != 0
 
     @ldap_client.delete(:dn => group_dn)
     ret_code = @ldap_client.get_operation_result.code
@@ -438,7 +442,7 @@ class Adap
     return {
       :code => ret_code,
       :operations => [:delete_group],
-      :message => (ret_code == 0 ? nil: @ldap_client.get_operation_result.error_message)
+      :message => (ret_code == 0 ? nil: "Failed to delete a group in delete_group_if_existed_as_empty(). " + @ldap_client.get_operation_result.error_message)
     }
   end
 
