@@ -46,7 +46,7 @@ class ModAdapTest < Minitest::Test
       .with("cn=Foo,#{LDAP_BASE_OF_GROUP}", operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"])
       .returns({:code => 0, :operations => nil, :message => nil})
     mock[:ldap_client].expects(:modify)
-      .with({:dn => "cn=Foo,#{LDAP_BASE_OF_GROUP}", :operations => operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"]})
+      .with({:dn => "cn=Foo,#{LDAP_BASE_OF_GROUP}", :operations => operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"][:operations]})
     mock_ldap_get_operation_result.expects(:code).returns(1)    # Retrun fail
     mock_ldap_get_operation_result.expects(:error_message).returns("Some error")
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
@@ -75,11 +75,11 @@ class ModAdapTest < Minitest::Test
     #  .with("cn=Foo,#{LDAP_BASE_OF_GROUP}", operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"])
     #  .returns({:code => 0, :operations => nil, :message => nil})
     mock[:ldap_client].expects(:modify)
-      .with({:dn => "cn=Foo,#{LDAP_BASE_OF_GROUP}", :operations => operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"]})
+      .with({:dn => "cn=Foo,#{LDAP_BASE_OF_GROUP}", :operations => operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"][:operations]})
     mock_ldap_get_operation_result.expects(:code).returns(0)
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result)
     adap.expects(:delete_group_if_existed_as_empty)
-      .with("cn=Foo,#{LDAP_BASE_OF_GROUP}", operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"])
+      .with("cn=Foo,#{LDAP_BASE_OF_GROUP}")
       .returns({:code => 1, :operations => [:delete_group_of_user], :message => "Some error"})    # Return fail
 
     ret = adap.do_sync_group_of_user_operation(operation_pool)
@@ -101,7 +101,7 @@ class ModAdapTest < Minitest::Test
       .with("cn=Foo,#{LDAP_BASE_OF_GROUP}", operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"])
       .returns({:code => 0, :operations => nil, :message => nil})
     mock[:ldap_client].expects(:modify)
-      .with({:dn => "cn=Foo,#{LDAP_BASE_OF_GROUP}", :operations => operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"]})
+      .with({:dn => "cn=Foo,#{LDAP_BASE_OF_GROUP}", :operations => operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"][:operations]})
     mock_ldap_get_operation_result.expects(:code).returns(0)
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result)
 
@@ -127,13 +127,13 @@ class ModAdapTest < Minitest::Test
       .with("cn=Foo,#{LDAP_BASE_OF_GROUP}", operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"])
       .returns({:code => 0, :operations => nil, :message => nil})
     mock[:ldap_client].expects(:modify)
-      .with({:dn => "cn=Foo,#{LDAP_BASE_OF_GROUP}", :operations => operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"]})
+      .with({:dn => "cn=Foo,#{LDAP_BASE_OF_GROUP}", :operations => operation_pool["cn=Foo,#{LDAP_BASE_OF_GROUP}"][:operations]})
     mock[:ldap_client].expects(:modify)
-      .with({:dn => "cn=Bar,#{LDAP_BASE_OF_GROUP}", :operations => operation_pool["cn=Bar,#{LDAP_BASE_OF_GROUP}"]})
+      .with({:dn => "cn=Bar,#{LDAP_BASE_OF_GROUP}", :operations => operation_pool["cn=Bar,#{LDAP_BASE_OF_GROUP}"][:operations]})
     mock_ldap_get_operation_result.expects(:code).returns(0, 0).times(2)
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
     adap.expects(:delete_group_if_existed_as_empty)
-      .with("cn=Bar,#{LDAP_BASE_OF_GROUP}", operation_pool["cn=Bar,#{LDAP_BASE_OF_GROUP}"])
+      .with("cn=Bar,#{LDAP_BASE_OF_GROUP}")
       .returns({:code => 0, :operations => nil, :message => nil})
 
     ret = adap.do_sync_group_of_user_operation(operation_pool)
