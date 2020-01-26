@@ -398,7 +398,7 @@ class Adap
     # Failed to query ldapsearch for some reason
     return {
       :code => ret_code,
-      :operation => nil,
+      :operations => nil,
       :message => "Failed to search LDAP in add_group_if_not_existed(). " + @ldap_client.get_operation_result.error_message
     } if ret_code != 32
 
