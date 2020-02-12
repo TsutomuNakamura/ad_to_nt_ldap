@@ -40,7 +40,25 @@ class Adap
     @ldap_basedn              = params[:ldap_basedn]
     @ldap_user_basedn         = params[:ldap_user_basedn]
     @ldap_auth                = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_binddn, :password => params[:ldap_password] } : nil )
+    # This attribute converted in generally ... :'msds-phoneticdisplayname' -> :'displayname;lang-ja;phonetic'
     @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : 'virtualCryptSHA512')
+
+    # Phonetics are listed in https://lists.samba.org/archive/samba/2017-March/207308.html
+    @map_msds_phonetics = {
+      # msDS-PhoneticCompanyName => companyName;lang-ja;phonetic
+      :'msds-phoneticcompanyname' => (params[:map_msds_phoneticcompanyname] ? params[:map_msds_phoneticcompanyname] : nil),
+      # msDS-PhoneticDepartment => department;lang-ja;phonetic
+      :'msds-phoneticdepartment' => (params[:map_msds_phoneticdepartment] ? params[:map_msds_phoneticdepartment] : nil),
+      # msDS-PhoneticFirstName => firstname;lang-ja;phonetic
+      :'msds-phoneticfirstname' => (params[:map_msds_phoneticfirstname] ? params[:map_msds_phoneticfirstname] : nil),
+      # msDS-PhoneticLastName => lastname;lang-ja;phonetic
+      :'msds-phoneticlastname' => (params[:map_msds_phoneticlastname] ? params[:map_msds_phoneticlastname] : nil),
+      # msDS-PhoneticDisplayName => displayname;lang-ja;phonetic
+      :'msds-phoneticdisplayname' => (params[:map_msds_phoneticdisplayname] ? params[:map_msds_phoneticdisplayname] : nil),
+    }
+    @map_msds_phoneticdisplayname = (params.has_key?(:map_msds_phoneticdisplayname)
+                                        ? {:'msds-phoneticdisplayname' => params[:map_msds_phoneticdisplayname]}
+                                        : nil )
 
     @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
     @ldap_client  = Adap::get_ldap_client_instance(@ldap_host, @ldap_port, @ldap_auth)
@@ -77,6 +95,8 @@ class Adap
         else
           attributes[attribute] = values
         end
+      elsif @map_msds_phonetics.has_key?(attribute) then
+        # TODO:
       end
     end
 
