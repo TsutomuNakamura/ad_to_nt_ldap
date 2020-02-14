@@ -56,9 +56,6 @@ class Adap
       # msDS-PhoneticDisplayName => displayname;lang-ja;phonetic
       :'msds-phoneticdisplayname' => (params[:map_msds_phoneticdisplayname] ? params[:map_msds_phoneticdisplayname] : nil),
     }
-    @map_msds_phoneticdisplayname = (params.has_key?(:map_msds_phoneticdisplayname)
-                                        ? {:'msds-phoneticdisplayname' => params[:map_msds_phoneticdisplayname]}
-                                        : nil )
 
     @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
     @ldap_client  = Adap::get_ldap_client_instance(@ldap_host, @ldap_port, @ldap_auth)
