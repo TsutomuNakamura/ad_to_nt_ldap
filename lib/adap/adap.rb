@@ -44,17 +44,18 @@ class Adap
     @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : 'virtualCryptSHA512')
 
     # Phonetics are listed in https://lists.samba.org/archive/samba/2017-March/207308.html
+    params[:map_msds_phonetics][:'msds-phoneticdisplayname']
     @map_msds_phonetics = {
       # msDS-PhoneticCompanyName => companyName;lang-ja;phonetic
-      :'msds-phoneticcompanyname' => (params[:map_msds_phoneticcompanyname] ? params[:map_msds_phoneticcompanyname] : nil),
+      :'msds-phoneticcompanyname' => (params[:map_msds_phonetics][:'msds-phoneticcompanyname'] ? params[:map_msds_phonetics][:'msds-phoneticcompanyname'] : nil),
       # msDS-PhoneticDepartment => department;lang-ja;phonetic
-      :'msds-phoneticdepartment' => (params[:map_msds_phoneticdepartment] ? params[:map_msds_phoneticdepartment] : nil),
+      :'msds-phoneticdepartment' => (params[:map_msds_phonetics][:'msds-phoneticdepartment'] ? params[:map_msds_phonetics][:'msds-phoneticdepartment'] : nil),
       # msDS-PhoneticFirstName => firstname;lang-ja;phonetic
-      :'msds-phoneticfirstname' => (params[:map_msds_phoneticfirstname] ? params[:map_msds_phoneticfirstname] : nil),
+      :'msds-phoneticfirstname' => (params[:map_msds_phonetics][:'msds-phoneticfirstname'] ? params[:map_msds_phonetics][:'msds-phoneticfirstname'] : nil),
       # msDS-PhoneticLastName => lastname;lang-ja;phonetic
-      :'msds-phoneticlastname' => (params[:map_msds_phoneticlastname] ? params[:map_msds_phoneticlastname] : nil),
+      :'msds-phoneticlastname' => (params[:map_msds_phonetics][:'msds-phoneticlastname'] ? params[:map_msds_phonetics][:'msds-phoneticlastname'] : nil),
       # msDS-PhoneticDisplayName => displayname;lang-ja;phonetic
-      :'msds-phoneticdisplayname' => (params[:map_msds_phoneticdisplayname] ? params[:map_msds_phoneticdisplayname] : nil),
+      :'msds-phoneticdisplayname' => (params[:map_msds_phonetics][:'msds-phoneticdisplayname'] ? params[:map_msds_phonetics][:'msds-phoneticdisplayname'] : nil),
     }
 
     @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
