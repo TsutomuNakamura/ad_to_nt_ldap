@@ -44,19 +44,23 @@ class Adap
     @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : 'virtualCryptSHA512')
 
     # Phonetics are listed in https://lists.samba.org/archive/samba/2017-March/207308.html
-    params[:map_msds_phonetics][:'msds-phoneticdisplayname']
-    @map_msds_phonetics = {
-      # msDS-PhoneticCompanyName => companyName;lang-ja;phonetic
-      :'msds-phoneticcompanyname' => (params[:map_msds_phonetics][:'msds-phoneticcompanyname'] ? params[:map_msds_phonetics][:'msds-phoneticcompanyname'] : nil),
-      # msDS-PhoneticDepartment => department;lang-ja;phonetic
-      :'msds-phoneticdepartment' => (params[:map_msds_phonetics][:'msds-phoneticdepartment'] ? params[:map_msds_phonetics][:'msds-phoneticdepartment'] : nil),
-      # msDS-PhoneticFirstName => firstname;lang-ja;phonetic
-      :'msds-phoneticfirstname' => (params[:map_msds_phonetics][:'msds-phoneticfirstname'] ? params[:map_msds_phonetics][:'msds-phoneticfirstname'] : nil),
-      # msDS-PhoneticLastName => lastname;lang-ja;phonetic
-      :'msds-phoneticlastname' => (params[:map_msds_phonetics][:'msds-phoneticlastname'] ? params[:map_msds_phonetics][:'msds-phoneticlastname'] : nil),
-      # msDS-PhoneticDisplayName => displayname;lang-ja;phonetic
-      :'msds-phoneticdisplayname' => (params[:map_msds_phonetics][:'msds-phoneticdisplayname'] ? params[:map_msds_phonetics][:'msds-phoneticdisplayname'] : nil),
-    }
+    @map_msds_phonetics = nil
+    if params[:map_msds_phonetics] != nil
+      p = params[:map_msds_phonetics]
+      @map_msds_phonetics = {
+        # msDS-PhoneticCompanyName => companyName;lang-ja;phonetic
+        :'msds-phoneticcompanyname' => (p[:'msds-phoneticcompanyname'] ? p[:'msds-phoneticcompanyname'] : nil),
+        # msDS-PhoneticDepartment => department;lang-ja;phonetic
+        :'msds-phoneticdepartment' => (p[:'msds-phoneticdepartment'] ? p[:'msds-phoneticdepartment'] : nil),
+        # msDS-PhoneticFirstName => firstname;lang-ja;phonetic
+        :'msds-phoneticfirstname' => (p[:'msds-phoneticfirstname'] ? p[:'msds-phoneticfirstname'] : nil),
+        # msDS-PhoneticLastName => lastname;lang-ja;phonetic
+        :'msds-phoneticlastname' => (p[:'msds-phoneticlastname'] ? p[:'msds-phoneticlastname'] : nil),
+        # msDS-PhoneticDisplayName => displayname;lang-ja;phonetic
+        :'msds-phoneticdisplayname' => (p[:'msds-phoneticdisplayname'] ? p[:'msds-phoneticdisplayname'] : nil),
+      }
+    end
+
 
     @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
     @ldap_client  = Adap::get_ldap_client_instance(@ldap_host, @ldap_port, @ldap_auth)
