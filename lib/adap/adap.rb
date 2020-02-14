@@ -94,7 +94,7 @@ class Adap
         end
       elsif @map_msds_phonetics.has_key?(attribute) then
         if @map_msds_phonetics[attribute] != nil && entry[attribute].length != 0
-          attributes@map_msds_phonetics[attribute] = values
+          attributes[@map_msds_phonetics[attribute]] = values
         end
       end
     end
