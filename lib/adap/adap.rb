@@ -61,7 +61,6 @@ class Adap
       }
     end
 
-
     @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
     @ldap_client  = Adap::get_ldap_client_instance(@ldap_host, @ldap_port, @ldap_auth)
   end
@@ -97,7 +96,7 @@ class Adap
         else
           attributes[attribute] = values
         end
-      elsif @map_msds_phonetics.has_key?(attribute) then
+      elsif @map_msds_phonetics != nil && @map_msds_phonetics.has_key?(attribute) then
         if @map_msds_phonetics[attribute] != nil && entry[attribute].length != 0
           attributes[@map_msds_phonetics[attribute]] = values
         end
