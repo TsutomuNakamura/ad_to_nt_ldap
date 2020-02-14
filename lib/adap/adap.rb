@@ -88,17 +88,17 @@ class Adap
 
    entry.each do |attribute, values|
       # Change string to lower case symbols to compare each attributes correctly
-      attribute = attribute.downcase.to_sym
+      sym_attribute = attribute.downcase.to_sym
 
-      if USER_REQUIRED_ATTRIBUTES.include?(attribute) then
-        if attribute == :unixhomedirectory then
+      if USER_REQUIRED_ATTRIBUTES.include?(sym_attribute) then
+        if sym_attribute == :unixhomedirectory then
           attributes[:homedirectory] = values
         else
-          attributes[attribute] = values
+          attributes[sym_attribute] = values
         end
-      elsif @map_msds_phonetics != nil && @map_msds_phonetics.has_key?(attribute) then
-        if @map_msds_phonetics[attribute] != nil && entry[attribute].length != 0
-          attributes[@map_msds_phonetics[attribute]] = values
+      elsif @map_msds_phonetics != nil && @map_msds_phonetics.has_key?(sym_attribute) then
+        if @map_msds_phonetics[sym_attribute] != nil && entry[attribute].length != 0
+          attributes[@map_msds_phonetics[sym_attribute]] = values
         end
       end
     end
