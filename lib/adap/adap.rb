@@ -48,15 +48,15 @@ class Adap
     if params[:map_msds_phonetics] != nil
       p = params[:map_msds_phonetics]
       # msDS-PhoneticCompanyName => companyName;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticcompanyname'] = p[:'msds-phoneticcompanyname']
+      @map_msds_phonetics[:'msds-phoneticcompanyname'] = p[:'msds-phoneticcompanyname'] if p[:'msds-phoneticcompanyname'] != nil
       # msDS-PhoneticDepartment => department;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticdepartment'] = p[:'msds-phoneticdepartment']
+      @map_msds_phonetics[:'msds-phoneticdepartment'] = p[:'msds-phoneticdepartment']   if p[:'msds-phoneticdepartment'] != nil
       # msDS-PhoneticFirstName => firstname;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticfirstname'] = p[:'msds-phoneticfirstname']
+      @map_msds_phonetics[:'msds-phoneticfirstname'] = p[:'msds-phoneticfirstname']     if p[:'msds-phoneticfirstname'] != nil
       # msDS-PhoneticLastName => lastname;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticlastname'] = p[:'msds-phoneticlastname']
+      @map_msds_phonetics[:'msds-phoneticlastname'] = p[:'msds-phoneticlastname']       if p[:'msds-phoneticlastname'] != nil
       # msDS-PhoneticDisplayName => displayname;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticdisplayname'] = p[:'msds-phoneticdisplayname']
+      @map_msds_phonetics[:'msds-phoneticdisplayname'] = p[:'msds-phoneticdisplayname'] if p[:'msds-phoneticdisplayname'] != nil
     end
 
     @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
@@ -94,10 +94,10 @@ class Adap
         else
           attributes[sym_attribute] = values
         end
-      elsif @map_msds_phonetics != nil && @map_msds_phonetics.has_key?(sym_attribute) then
-        if @map_msds_phonetics[sym_attribute] != nil && ad_entry[attribute].length != 0
-          attributes[@map_msds_phonetics[sym_attribute]] = values
-        end
+      elsif @map_msds_phonetics.has_key?(sym_attribute) then
+        # entry always returns an array that length 0 if the attribute does not existed.
+        # So no need to check whether the ad_entry[attribute] is nil or not.
+        attributes[@map_msds_phonetics[sym_attribute]] = values if ad_entry[attribute].length != 0
       end
     end
 
