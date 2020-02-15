@@ -4,8 +4,9 @@ class Adap
 
   # :unixhomedirectory and :homedirectory are the attributes that has same meaning between AD and LDAP.
   USER_REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :unixhomedirectory, :homedirectory]
-  #USER_REQUIRED_ATTRIBUTES = ['cn', 'sn', 'uid', 'uidNumber', 'gidNumber', 'homeDirectory', 'loginShell', 'gecos', 'givenName']
-  GROUP_OF_USER_REQUIRED_ATTRIBUTES = [:objectclass, :gidnumber, :cn, :description, :memberuid]
+  AD_USER_REQUIRED_ATTRIBUTES   = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :unixhomedirectory]
+  LDAP_USER_REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :homedirectory]
+  #GROUP_OF_USER_REQUIRED_ATTRIBUTES = [:objectclass, :gidnumber, :cn, :description, :memberuid]
 
   #
   # params {
@@ -44,21 +45,19 @@ class Adap
     @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : 'virtualCryptSHA512')
 
     # Phonetics are listed in https://lists.samba.org/archive/samba/2017-March/207308.html
-    @map_msds_phonetics = nil
+    @map_msds_phonetics = {}
     if params[:map_msds_phonetics] != nil
       p = params[:map_msds_phonetics]
-      @map_msds_phonetics = {
-        # msDS-PhoneticCompanyName => companyName;lang-ja;phonetic
-        :'msds-phoneticcompanyname' => (p[:'msds-phoneticcompanyname'] ? p[:'msds-phoneticcompanyname'] : nil),
-        # msDS-PhoneticDepartment => department;lang-ja;phonetic
-        :'msds-phoneticdepartment' => (p[:'msds-phoneticdepartment'] ? p[:'msds-phoneticdepartment'] : nil),
-        # msDS-PhoneticFirstName => firstname;lang-ja;phonetic
-        :'msds-phoneticfirstname' => (p[:'msds-phoneticfirstname'] ? p[:'msds-phoneticfirstname'] : nil),
-        # msDS-PhoneticLastName => lastname;lang-ja;phonetic
-        :'msds-phoneticlastname' => (p[:'msds-phoneticlastname'] ? p[:'msds-phoneticlastname'] : nil),
-        # msDS-PhoneticDisplayName => displayname;lang-ja;phonetic
-        :'msds-phoneticdisplayname' => (p[:'msds-phoneticdisplayname'] ? p[:'msds-phoneticdisplayname'] : nil),
-      }
+      # msDS-PhoneticCompanyName => companyName;lang-ja;phonetic
+      @map_msds_phonetics[:'msds-phoneticcompanyname'] = p[:'msds-phoneticcompanyname']
+      # msDS-PhoneticDepartment => department;lang-ja;phonetic
+      @map_msds_phonetics[:'msds-phoneticdepartment'] = p[:'msds-phoneticdepartment']
+      # msDS-PhoneticFirstName => firstname;lang-ja;phonetic
+      @map_msds_phonetics[:'msds-phoneticfirstname'] = p[:'msds-phoneticfirstname']
+      # msDS-PhoneticLastName => lastname;lang-ja;phonetic
+      @map_msds_phonetics[:'msds-phoneticlastname'] = p[:'msds-phoneticlastname']
+      # msDS-PhoneticDisplayName => displayname;lang-ja;phonetic
+      @map_msds_phonetics[:'msds-phoneticdisplayname'] = p[:'msds-phoneticdisplayname']
     end
 
     @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
@@ -81,23 +80,24 @@ class Adap
     "uid=#{username},ou=Users,#{@ldap_basedn}"
   end
 
-  def create_ldap_attributes(entry)
+  def create_ldap_attributes(ad_entry)
     attributes = {
       :objectclass => ["top", "person", "organizationalPerson", "inetOrgPerson", "posixAccount", "shadowAccount"]
     }
 
-   entry.each do |attribute, values|
+   ad_entry.each do |attribute, values|
       # Change string to lower case symbols to compare each attributes correctly
       sym_attribute = attribute.downcase.to_sym
 
-      if USER_REQUIRED_ATTRIBUTES.include?(sym_attribute) then
+      #if USER_REQUIRED_ATTRIBUTES.include?(sym_attribute) then
+      if AD_USER_REQUIRED_ATTRIBUTES.include?(sym_attribute) then
         if sym_attribute == :unixhomedirectory then
           attributes[:homedirectory] = values
         else
           attributes[sym_attribute] = values
         end
       elsif @map_msds_phonetics != nil && @map_msds_phonetics.has_key?(sym_attribute) then
-        if @map_msds_phonetics[sym_attribute] != nil && entry[attribute].length != 0
+        if @map_msds_phonetics[sym_attribute] != nil && ad_entry[attribute].length != 0
           attributes[@map_msds_phonetics[sym_attribute]] = values
         end
       end
