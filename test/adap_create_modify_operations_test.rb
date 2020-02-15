@@ -143,21 +143,38 @@ class ModAdapTest < Minitest::Test
     ], ret)
   end
 
-#  def test_create_modify_operations_should_create_operation_that_has_replace_a_msds_phonetic
-#    adap = get_general_adap_instance({
-#      :map_msds_phonetics => {
-#        :'msds-phoneticcompanyname' => :'companyname;lang-ja;phonetic'
-#      }
-#    })
-#    ret = adap.create_modify_operations(
-#      {:cn => "cn", :sn => "sn", :'msds-phoneticcompanyname' => "ほげ株式会社"},
-#      {:cn => "cn", :sn => "sn", :'companyname;lang-ja;phonetic' => "ふが株式会社"},
-#      "ad_secret"
-#    )
-#    assert_equal([
-#      [:replace, :'companyname;lang-ja;phonetic', "ほげ株式会社"],
-#      [:replace, :userpassword, "ad_secret"]
-#    ], ret)
-#  end
+  def test_create_modify_operations_should_create_operation_that_has_replace_a_msds_phonetic
+    adap = get_general_adap_instance({
+      :map_msds_phonetics => {
+        :'msds-phoneticcompanyname' => :'companyname;lang-ja;phonetic'
+      }
+    })
+    ret = adap.create_modify_operations(
+      {:cn => "cn", :sn => "sn", :'msds-phoneticcompanyname' => "ほげ株式会社"},
+      {:cn => "cn", :sn => "sn", :'companyname;lang-ja;phonetic' => "ふが株式会社"},
+      "ad_secret"
+    )
+    assert_equal([
+      [:replace, :'companyname;lang-ja;phonetic', "ほげ株式会社"],
+      [:replace, :userpassword, "ad_secret"]
+    ], ret)
+  end
+
+  def test_create_modify_operations_should_create_operation_that_has_delete_a_msds_phonetic
+    adap = get_general_adap_instance({
+      :map_msds_phonetics => {
+        :'msds-phoneticcompanyname' => :'companyname;lang-ja;phonetic'
+      }
+    })
+    ret = adap.create_modify_operations(
+      {:cn => "cn", :sn => "sn"},
+      {:cn => "cn", :sn => "sn", :'companyname;lang-ja;phonetic' => "ほげ株式会社"},
+      "ad_secret"
+    )
+    assert_equal([
+      [:delete, :'companyname;lang-ja;phonetic', nil],
+      [:replace, :userpassword, "ad_secret"]
+    ], ret)
+  end
 
 end

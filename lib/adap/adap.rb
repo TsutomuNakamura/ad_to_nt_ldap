@@ -256,10 +256,14 @@ class Adap
 
     ldap_entry.each do |key, value|
       ldap_key_sym  = key.downcase.to_sym
-      ad_key        = (ldap_key_sym != :homedirectory ? ldap_key_sym : :unixhomedirectory)
-      #ad_key        = if ldap_key_sym == :homedirectory
-      #                  :unixhomedirectory
-      #                elsif 
+      #ad_key        = (ldap_key_sym != :homedirectory ? ldap_key_sym : :unixhomedirectory)
+      ad_key        = if ldap_key_sym == :homedirectory
+                        :unixhomedirectory
+                      elsif @map_ldap_msds_phonetics.has_key?(ldap_key_sym)
+                        @map_ldap_msds_phonetics[ldap_key_sym]
+                      else
+                        ldap_key_sym
+                      end
 
       if @ldap_user_required_attributes.include?(ldap_key_sym) && ad_entry[ad_key] == nil
         operations.push([:delete, ldap_key_sym, nil])
