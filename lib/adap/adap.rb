@@ -259,12 +259,9 @@ class Adap
                  end
       ldap_key_sym  = ldap_key.downcase.to_sym
 
-      if @ad_user_required_attributes.include?(ad_key_sym)
-        next if value == ldap_entry[ldap_key]
+      if @ad_user_required_attributes.include?(ad_key_sym) && value != ldap_entry[ldap_key]
+        #next if value == ldap_entry[ldap_key]
         operations.push((ldap_entry[ldap_key] != nil ? [:replace, ldap_key_sym, value] : [:add, ldap_key_sym, value]))
-      elsif @map_msds_phonetics.has_key?(ad_key_sym) then
-        operations.push((ldap_entry[ldap_key] != nil ? [:replace, ldap_key_sym, value] : [:add, ldap_key_sym, value]))
-        #attributes[@map_msds_phonetics[sym_attribute]] = values if ad_entry[attribute].length != 0
       end
     end
 
@@ -272,8 +269,8 @@ class Adap
       ldap_key_sym  = key.downcase.to_sym
       ad_key        = (ldap_key_sym != :homedirectory ? ldap_key_sym : :unixhomedirectory)
 
-      if @ldap_user_required_attributes.include?(ldap_key_sym)
-        operations.push([:delete, ldap_key_sym, nil]) if ad_entry[ad_key] == nil
+      if @ldap_user_required_attributes.include?(ldap_key_sym) && ad_entry[ad_key] == nil
+        operations.push([:delete, ldap_key_sym, nil])
       end
     end
 
