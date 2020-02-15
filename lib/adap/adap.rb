@@ -3,7 +3,6 @@ require 'net-ldap'
 class Adap
 
   # :unixhomedirectory and :homedirectory are the attributes that has same meaning between AD and LDAP.
-  USER_REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :unixhomedirectory, :homedirectory]
   AD_USER_REQUIRED_ATTRIBUTES   = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :unixhomedirectory]
   LDAP_USER_REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :homedirectory]
   #GROUP_OF_USER_REQUIRED_ATTRIBUTES = [:objectclass, :gidnumber, :cn, :description, :memberuid]
@@ -89,7 +88,6 @@ class Adap
       # Change string to lower case symbols to compare each attributes correctly
       sym_attribute = attribute.downcase.to_sym
 
-      #if USER_REQUIRED_ATTRIBUTES.include?(sym_attribute) then
       if AD_USER_REQUIRED_ATTRIBUTES.include?(sym_attribute) then
         if sym_attribute == :unixhomedirectory then
           attributes[:homedirectory] = values
@@ -244,7 +242,7 @@ class Adap
 
       ldap_key_sym  = ldap_key.downcase.to_sym
 
-      if USER_REQUIRED_ATTRIBUTES.include?(ad_key_sym)
+      if AD_USER_REQUIRED_ATTRIBUTES.include?(ad_key_sym)
         next if value == ldap_entry[ldap_key]
         operations.push((ldap_entry[ldap_key] != nil ? [:replace, ldap_key_sym, value] : [:add, ldap_key_sym, value]))
       end
@@ -254,7 +252,7 @@ class Adap
       ldap_key_sym  = key.downcase.to_sym
       ad_key        = (ldap_key_sym != :homedirectory ? ldap_key_sym : :unixhomedirectory)
 
-      if USER_REQUIRED_ATTRIBUTES.include?(ldap_key_sym)
+      if LDAP_USER_REQUIRED_ATTRIBUTES.include?(ldap_key_sym)
         operations.push([:delete, ldap_key_sym, nil]) if ad_entry[ad_key] == nil
       end
     end
