@@ -233,7 +233,15 @@ class Adap
 
     ad_entry.each do |key, value|
       ad_key_sym    = key.downcase.to_sym
-      ldap_key      = (ad_key_sym != :unixhomedirectory ? ad_key_sym : :homedirectory)
+      #ldap_key      = (ad_key_sym != :unixhomedirectory ? ad_key_sym : :homedirectory)
+      ldap_key = if ad_key_sym == :unixhomedirectory
+                   :homedirectory
+                 elsif @map_msds_phonetics.has_key?(ad_key_sym)
+                   @map_msds_phonetics.has_key?(ad_key_sym)
+                 else
+                   ad_key_sym
+                 end
+
       ldap_key_sym  = ldap_key.downcase.to_sym
 
       if USER_REQUIRED_ATTRIBUTES.include?(ad_key_sym)
