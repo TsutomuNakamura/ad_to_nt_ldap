@@ -4,17 +4,7 @@ require "test_helper"
 class ModAdapTest < Minitest::Test
   def test_create_modify_operations_should_create_operation_that_replace_password
     mock = mock_ad_and_ldap_connections()
-
-    adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
-    })
+    adap = get_general_adap_instance()
 
     operations = adap.create_modify_operations({}, {}, "ad_secret")
     assert_equal([
@@ -24,17 +14,7 @@ class ModAdapTest < Minitest::Test
 
   def test_create_modify_operations_should_create_operation_that_replace_cn
     mock = mock_ad_and_ldap_connections()
-
-    adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password => "ad_secret",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-      :ldap_password => "ldap_secret"
-    })
+    adap = get_general_adap_instance()
 
     operations = adap.create_modify_operations(
       {:cn => "cn_ad"},
@@ -48,16 +28,7 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_modify_operations_should_create_operation_that_add_cn
-    adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password => "ad_secret",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-      :ldap_password => "ldap_secret"
-    })
+    adap = get_general_adap_instance()
 
     operations = adap.create_modify_operations(
       {:cn => "cn_ad"},
@@ -71,16 +42,7 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_modify_operations_should_create_operation_that_has_duplicated_attributes
-    adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password => "ad_password",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-      :ldap_password => "ldap_password"
-    })
+    adap = get_general_adap_instance()
 
     operations = adap.create_modify_operations(
       {:cn => "cn_ad",  :sn => "foo"},
@@ -95,14 +57,7 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_modify_operations_should_create_operation_that_delete_cn
-    adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com"
-    })
+    adap = get_general_adap_instance()
 
     operations = adap.create_modify_operations(
       {},
@@ -142,16 +97,7 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_modify_operations_should_create_operation_that_has_add_and_replace_and_delete
-    adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_password"
-    })
+    adap = get_general_adap_instance()
 
     operations = adap.create_modify_operations(
       {:cn => "cn_ad",  :sn => "sn_ad"},
