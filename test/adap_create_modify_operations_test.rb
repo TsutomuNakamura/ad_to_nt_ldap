@@ -12,6 +12,16 @@ class ModAdapTest < Minitest::Test
     ], operations)
   end
 
+  def test_create_modify_operations_should_create_operation_that_replace_password_except_others
+    mock = mock_ad_and_ldap_connections()
+    adap = get_general_adap_instance()
+
+    operations = adap.create_modify_operations({:cn => "foo"}, {:cn => "foo"}, "ad_secret")
+    assert_equal([
+      [:replace, :userpassword, "ad_secret"]
+    ], operations)
+  end
+
   def test_create_modify_operations_should_create_operation_that_replace_cn
     mock = mock_ad_and_ldap_connections()
     adap = get_general_adap_instance()
@@ -115,4 +125,39 @@ class ModAdapTest < Minitest::Test
     assert_equal([:replace, :userpassword, "ad_secret"], operations.select{|x, y| x == :replace && y == :userpassword}[0])
     assert_equal([:delete, :displayname, nil], operations.select{|x, _| x == :delete}[0])
   end
+
+  def test_create_modify_operations_should_create_operation_that_has_add_a_msds_phonetic
+    adap = get_general_adap_instance({
+      :map_msds_phonetics => {
+        :'msds-phoneticcompanyname' => :'companyname;lang-ja;phonetic'
+      }
+    })
+    ret = adap.create_modify_operations(
+      {:cn => "cn", :sn => "sn", :'msds-phoneticcompanyname' => "ほげ株式会社"},
+      {:cn => "cn", :sn => "sn"},
+      "ad_secret"
+    )
+    assert_equal([
+      [:add, :'companyname;lang-ja;phonetic', "ほげ株式会社"],
+      [:replace, :userpassword, "ad_secret"]
+    ], ret)
+  end
+
+#  def test_create_modify_operations_should_create_operation_that_has_replace_a_msds_phonetic
+#    adap = get_general_adap_instance({
+#      :map_msds_phonetics => {
+#        :'msds-phoneticcompanyname' => :'companyname;lang-ja;phonetic'
+#      }
+#    })
+#    ret = adap.create_modify_operations(
+#      {:cn => "cn", :sn => "sn", :'msds-phoneticcompanyname' => "ほげ株式会社"},
+#      {:cn => "cn", :sn => "sn", :'companyname;lang-ja;phonetic' => "ふが株式会社"},
+#      "ad_secret"
+#    )
+#    assert_equal([
+#      [:replace, :'companyname;lang-ja;phonetic', "ほげ株式会社"],
+#      [:replace, :userpassword, "ad_secret"]
+#    ], ret)
+#  end
+
 end
