@@ -2,12 +2,6 @@ require 'net-ldap'
 
 class Adap
 
-  # :unixhomedirectory and :homedirectory are the attributes that has same meaning between AD and LDAP.
-  AD_USER_REQUIRED_ATTRIBUTES   = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :unixhomedirectory]
-  LDAP_USER_REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :homedirectory]
-  #GROUP_OF_USER_REQUIRED_ATTRIBUTES = [:objectclass, :gidnumber, :cn, :description, :memberuid]
-
-  #
   # params {
   #   :ad_host     required                                     IP or hostname of AD.
   #   :ad_port     optional (default:389)                       Port of AD host.
@@ -24,10 +18,15 @@ class Adap
   #
   def initialize(params)
     raise "Initialize Adap was failed. params must not be nil" if params == nil
-    #raise 'Adap requires keys of parameter "ad_host" "ad_binddn" "ad_basedn"' \
+
     [:ad_host, :ad_binddn, :ad_basedn, :ldap_host, :ldap_binddn, :ldap_basedn].each { |k|
       raise 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"' if !params.key?(k)
     }
+
+    # List of attributes for user in AD
+    @ad_user_required_attributes   = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :unixhomedirectory]
+    # List of attributes for user in LDAP
+    @ldap_user_required_attributes = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :homedirectory]
 
     @ad_host                  = params[:ad_host]
     @ad_port                  = (params[:ad_port] ? params[:ad_port] : 389)
@@ -47,16 +46,36 @@ class Adap
     @map_msds_phonetics = {}
     if params[:map_msds_phonetics] != nil
       p = params[:map_msds_phonetics]
-      # msDS-PhoneticCompanyName => companyName;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticcompanyname'] = p[:'msds-phoneticcompanyname'] if p[:'msds-phoneticcompanyname'] != nil
-      # msDS-PhoneticDepartment => department;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticdepartment'] = p[:'msds-phoneticdepartment']   if p[:'msds-phoneticdepartment']  != nil
-      # msDS-PhoneticFirstName => firstname;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticfirstname'] = p[:'msds-phoneticfirstname']     if p[:'msds-phoneticfirstname']   != nil
-      # msDS-PhoneticLastName => lastname;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticlastname'] = p[:'msds-phoneticlastname']       if p[:'msds-phoneticlastname']    != nil
-      # msDS-PhoneticDisplayName => displayname;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticdisplayname'] = p[:'msds-phoneticdisplayname'] if p[:'msds-phoneticdisplayname'] != nil
+      if p[:'msds-phoneticcompanyname'] != nil then
+        # msDS-PhoneticCompanyName => companyName;lang-ja;phonetic
+        @map_msds_phonetics[:'msds-phoneticcompanyname'] = p[:'msds-phoneticcompanyname']
+        @ad_user_required_attributes.push(:'msds-phoneticcompanyname')
+        @ldap_user_required_attributes.push(p[:'msds-phoneticcompanyname'])
+      end
+      if p[:'msds-phoneticdepartment'] != nil then
+        # msDS-PhoneticDepartment => department;lang-ja;phonetic
+        @map_msds_phonetics[:'msds-phoneticdepartment'] = p[:'msds-phoneticdepartment']
+        @ad_user_required_attributes.push(:'msds-phoneticdepartment')
+        @ldap_user_required_attributes.push(p[:'msds-phoneticdepartment'])
+      end
+      if p[:'msds-phoneticfirstname'] != nil then
+        # msDS-PhoneticFirstName => firstname;lang-ja;phonetic
+        @map_msds_phonetics[:'msds-phoneticfirstname'] = p[:'msds-phoneticfirstname']
+        @ad_user_required_attributes.push(:'msds-phoneticfirstname')
+        @ldap_user_required_attributes.push(p[:'msds-phoneticfirstname'])
+      end
+      if p[:'msds-phoneticlastname'] != nil then
+        # msDS-PhoneticLastName => lastname;lang-ja;phonetic
+        @map_msds_phonetics[:'msds-phoneticlastname'] = p[:'msds-phoneticlastname']
+        @ad_user_required_attributes.push(:'msds-phoneticlastname')
+        @ldap_user_required_attributes.push(p[:'msds-phoneticlastname'])
+      end
+      if p[:'msds-phoneticdisplayname'] != nil then
+        # msDS-PhoneticDisplayName => displayname;lang-ja;phonetic
+        @map_msds_phonetics[:'msds-phoneticdisplayname'] = p[:'msds-phoneticdisplayname']
+        @ad_user_required_attributes.push(:'msds-phoneticdisplayname')
+        @ldap_user_required_attributes.push(p[:'msds-phoneticdisplayname'])
+      end
     end
 
     @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
@@ -88,16 +107,16 @@ class Adap
       # Change string to lower case symbols to compare each attributes correctly
       sym_attribute = attribute.downcase.to_sym
 
-      if AD_USER_REQUIRED_ATTRIBUTES.include?(sym_attribute) then
+      if @ad_user_required_attributes.include?(sym_attribute) then
         if sym_attribute == :unixhomedirectory then
           attributes[:homedirectory] = values
+        elsif @map_msds_phonetics.has_key?(sym_attribute) && ad_entry[attribute].length != 0
+          # entry always returns an array that length 0 if the attribute does not existed.
+          # So no need to check whether the ad_entry[attribute] is nil or not.
+          attributes[@map_msds_phonetics[sym_attribute]] = values
         else
           attributes[sym_attribute] = values
         end
-      elsif @map_msds_phonetics.has_key?(sym_attribute) then
-        # entry always returns an array that length 0 if the attribute does not existed.
-        # So no need to check whether the ad_entry[attribute] is nil or not.
-        attributes[@map_msds_phonetics[sym_attribute]] = values if ad_entry[attribute].length != 0
       end
     end
 
@@ -231,7 +250,6 @@ class Adap
 
     ad_entry.each do |key, value|
       ad_key_sym    = key.downcase.to_sym
-      #ldap_key      = (ad_key_sym != :unixhomedirectory ? ad_key_sym : :homedirectory)
       ldap_key = if ad_key_sym == :unixhomedirectory
                    :homedirectory
                  elsif @map_msds_phonetics.has_key?(ad_key_sym)
@@ -239,12 +257,14 @@ class Adap
                  else
                    ad_key_sym
                  end
-
       ldap_key_sym  = ldap_key.downcase.to_sym
 
-      if AD_USER_REQUIRED_ATTRIBUTES.include?(ad_key_sym)
+      if @ad_user_required_attributes.include?(ad_key_sym)
         next if value == ldap_entry[ldap_key]
         operations.push((ldap_entry[ldap_key] != nil ? [:replace, ldap_key_sym, value] : [:add, ldap_key_sym, value]))
+      elsif @map_msds_phonetics.has_key?(ad_key_sym) then
+        operations.push((ldap_entry[ldap_key] != nil ? [:replace, ldap_key_sym, value] : [:add, ldap_key_sym, value]))
+        #attributes[@map_msds_phonetics[sym_attribute]] = values if ad_entry[attribute].length != 0
       end
     end
 
@@ -252,7 +272,7 @@ class Adap
       ldap_key_sym  = key.downcase.to_sym
       ad_key        = (ldap_key_sym != :homedirectory ? ldap_key_sym : :unixhomedirectory)
 
-      if LDAP_USER_REQUIRED_ATTRIBUTES.include?(ldap_key_sym)
+      if @ldap_user_required_attributes.include?(ldap_key_sym)
         operations.push([:delete, ldap_key_sym, nil]) if ad_entry[ad_key] == nil
       end
     end
