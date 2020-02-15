@@ -2,12 +2,6 @@ require 'net-ldap'
 
 class Adap
 
-  # :unixhomedirectory and :homedirectory are the attributes that has same meaning between AD and LDAP.
-  USER_REQUIRED_ATTRIBUTES = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :unixhomedirectory, :homedirectory]
-  #USER_REQUIRED_ATTRIBUTES = ['cn', 'sn', 'uid', 'uidNumber', 'gidNumber', 'homeDirectory', 'loginShell', 'gecos', 'givenName']
-  GROUP_OF_USER_REQUIRED_ATTRIBUTES = [:objectclass, :gidnumber, :cn, :description, :memberuid]
-
-  #
   # params {
   #   :ad_host     required                                     IP or hostname of AD.
   #   :ad_port     optional (default:389)                       Port of AD host.
@@ -24,10 +18,15 @@ class Adap
   #
   def initialize(params)
     raise "Initialize Adap was failed. params must not be nil" if params == nil
-    #raise 'Adap requires keys of parameter "ad_host" "ad_binddn" "ad_basedn"' \
+
     [:ad_host, :ad_binddn, :ad_basedn, :ldap_host, :ldap_binddn, :ldap_basedn].each { |k|
       raise 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"' if !params.key?(k)
     }
+
+    # List of attributes for user in AD
+    @ad_user_required_attributes   = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :unixhomedirectory]
+    # List of attributes for user in LDAP
+    @ldap_user_required_attributes = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :homedirectory]
 
     @ad_host                  = params[:ad_host]
     @ad_port                  = (params[:ad_port] ? params[:ad_port] : 389)
@@ -40,10 +39,35 @@ class Adap
     @ldap_basedn              = params[:ldap_basedn]
     @ldap_user_basedn         = params[:ldap_user_basedn]
     @ldap_auth                = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_binddn, :password => params[:ldap_password] } : nil )
+    # This attribute converted in generally ... :'msds-phoneticdisplayname' -> :'displayname;lang-ja;phonetic'
     @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : 'virtualCryptSHA512')
+
+    # Phonetics are listed in https://lists.samba.org/archive/samba/2017-March/207308.html
+    @map_ad_msds_phonetics = {}
+    @map_ldap_msds_phonetics = {}
+    if params[:map_msds_phonetics] != nil
+      p = params[:map_msds_phonetics]
+      # msDS-PhoneticCompanyName => companyName;lang-ja;phonetic
+      create_map_phonetics(p, :'msds-phoneticcompanyname') if p[:'msds-phoneticcompanyname'] != nil
+      # msDS-PhoneticDepartment => department;lang-ja;phonetic
+      create_map_phonetics(p, :'msds-phoneticdepartment') if p[:'msds-phoneticdepartment'] != nil
+      # msDS-PhoneticFirstName => firstname;lang-ja;phonetic
+      create_map_phonetics(p, :'msds-phoneticfirstname') if p[:'msds-phoneticfirstname'] != nil
+      # msDS-PhoneticLastName => lastname;lang-ja;phonetic
+      create_map_phonetics(p, :'msds-phoneticlastname') if p[:'msds-phoneticlastname'] != nil
+      # msDS-PhoneticDisplayName => displayname;lang-ja;phonetic
+      create_map_phonetics(p, :'msds-phoneticdisplayname') if p[:'msds-phoneticdisplayname'] != nil
+    end
 
     @ad_client    = Adap::get_ad_client_instance(@ad_host, @ad_port, @ad_auth)
     @ldap_client  = Adap::get_ldap_client_instance(@ldap_host, @ldap_port, @ldap_auth)
+  end
+
+  private def create_map_phonetics(p, ad_phonetics)
+    @map_ad_msds_phonetics[ad_phonetics] = p[ad_phonetics]
+    @map_ldap_msds_phonetics[p[ad_phonetics]] = ad_phonetics
+    @ad_user_required_attributes.push(ad_phonetics)
+    @ldap_user_required_attributes.push(p[ad_phonetics])
   end
 
   def self.get_ad_client_instance(ad_host, ad_port, ad_auth)
@@ -62,20 +86,24 @@ class Adap
     "uid=#{username},ou=Users,#{@ldap_basedn}"
   end
 
-  def create_ldap_attributes(entry)
+  def create_ldap_attributes(ad_entry)
     attributes = {
       :objectclass => ["top", "person", "organizationalPerson", "inetOrgPerson", "posixAccount", "shadowAccount"]
     }
 
-   entry.each do |attribute, values|
+   ad_entry.each do |attribute, values|
       # Change string to lower case symbols to compare each attributes correctly
-      attribute = attribute.downcase.to_sym
+      sym_attribute = attribute.downcase.to_sym
 
-      if USER_REQUIRED_ATTRIBUTES.include?(attribute) then
-        if attribute == :unixhomedirectory then
+      if @ad_user_required_attributes.include?(sym_attribute) then
+        if sym_attribute == :unixhomedirectory then
           attributes[:homedirectory] = values
+        elsif @map_ad_msds_phonetics.has_key?(sym_attribute) && ad_entry[attribute].length != 0
+          # entry always returns an array that length 0 if the attribute does not existed.
+          # So no need to check whether the ad_entry[attribute] is nil or not.
+          attributes[@map_ad_msds_phonetics[sym_attribute]] = values
         else
-          attributes[attribute] = values
+          attributes[sym_attribute] = values
         end
       end
     end
@@ -210,21 +238,35 @@ class Adap
 
     ad_entry.each do |key, value|
       ad_key_sym    = key.downcase.to_sym
-      ldap_key      = (ad_key_sym != :unixhomedirectory ? ad_key_sym : :homedirectory)
+      ldap_key = if ad_key_sym == :unixhomedirectory
+                   :homedirectory
+                 elsif @map_ad_msds_phonetics.has_key?(ad_key_sym)
+                   @map_ad_msds_phonetics[ad_key_sym]
+                 else
+                   ad_key_sym
+                 end
       ldap_key_sym  = ldap_key.downcase.to_sym
 
-      if USER_REQUIRED_ATTRIBUTES.include?(ad_key_sym)
-        next if value == ldap_entry[ldap_key]
+      # TODO: Can @ad_user_required_attributes.include? be put more early line?
+      if @ad_user_required_attributes.include?(ad_key_sym) && value != ldap_entry[ldap_key]
+        #next if value == ldap_entry[ldap_key]
         operations.push((ldap_entry[ldap_key] != nil ? [:replace, ldap_key_sym, value] : [:add, ldap_key_sym, value]))
       end
     end
 
     ldap_entry.each do |key, value|
       ldap_key_sym  = key.downcase.to_sym
-      ad_key        = (ldap_key_sym != :homedirectory ? ldap_key_sym : :unixhomedirectory)
+      #ad_key        = (ldap_key_sym != :homedirectory ? ldap_key_sym : :unixhomedirectory)
+      ad_key        = if ldap_key_sym == :homedirectory
+                        :unixhomedirectory
+                      elsif @map_ldap_msds_phonetics.has_key?(ldap_key_sym)
+                        @map_ldap_msds_phonetics[ldap_key_sym]
+                      else
+                        ldap_key_sym
+                      end
 
-      if USER_REQUIRED_ATTRIBUTES.include?(ldap_key_sym)
-        operations.push([:delete, ldap_key_sym, nil]) if ad_entry[ad_key] == nil
+      if @ldap_user_required_attributes.include?(ldap_key_sym) && ad_entry[ad_key] == nil
+        operations.push([:delete, ldap_key_sym, nil])
       end
     end
 
