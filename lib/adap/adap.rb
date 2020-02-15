@@ -50,11 +50,11 @@ class Adap
       # msDS-PhoneticCompanyName => companyName;lang-ja;phonetic
       @map_msds_phonetics[:'msds-phoneticcompanyname'] = p[:'msds-phoneticcompanyname'] if p[:'msds-phoneticcompanyname'] != nil
       # msDS-PhoneticDepartment => department;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticdepartment'] = p[:'msds-phoneticdepartment']   if p[:'msds-phoneticdepartment'] != nil
+      @map_msds_phonetics[:'msds-phoneticdepartment'] = p[:'msds-phoneticdepartment']   if p[:'msds-phoneticdepartment']  != nil
       # msDS-PhoneticFirstName => firstname;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticfirstname'] = p[:'msds-phoneticfirstname']     if p[:'msds-phoneticfirstname'] != nil
+      @map_msds_phonetics[:'msds-phoneticfirstname'] = p[:'msds-phoneticfirstname']     if p[:'msds-phoneticfirstname']   != nil
       # msDS-PhoneticLastName => lastname;lang-ja;phonetic
-      @map_msds_phonetics[:'msds-phoneticlastname'] = p[:'msds-phoneticlastname']       if p[:'msds-phoneticlastname'] != nil
+      @map_msds_phonetics[:'msds-phoneticlastname'] = p[:'msds-phoneticlastname']       if p[:'msds-phoneticlastname']    != nil
       # msDS-PhoneticDisplayName => displayname;lang-ja;phonetic
       @map_msds_phonetics[:'msds-phoneticdisplayname'] = p[:'msds-phoneticdisplayname'] if p[:'msds-phoneticdisplayname'] != nil
     end
