@@ -26,7 +26,6 @@ def mock_ad_and_ldap_connections
 end
 
 def merge_hash(a, b)
-  puts "a: #{a}, b: #{b}"
   a.merge(b) {|key, oldval, newval|
     if oldval.class == Hash && newval.class == Hash
       newval = merge_hash(oldval, newval)
@@ -35,7 +34,7 @@ def merge_hash(a, b)
   }
 end
 
-def get_general_adap_instance(ex_options)
+def get_general_adap_instance(ex_options = nil)
   options = {
     :ad_host        => "localhost",
     :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
