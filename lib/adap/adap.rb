@@ -36,6 +36,7 @@ class Adap
     @ldap_host                = params[:ldap_host]
     @ldap_port                = (params[:ldap_port] ? params[:ldap_port] : 389)
     @ldap_binddn              = params[:ldap_binddn]
+    @ldap_suffix_ou           = (params[:ldap_suffix_ou] ? params[:ldap_suffix_ou] : "ou=Users")
     @ldap_basedn              = params[:ldap_basedn]
     @ldap_user_basedn         = params[:ldap_user_basedn]
     @ldap_auth                = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_binddn, :password => params[:ldap_password] } : nil )
@@ -83,7 +84,7 @@ class Adap
   end
 
   def get_ldap_dn(username)
-    "uid=#{username},ou=Users,#{@ldap_basedn}"
+    "uid=#{username},#{@ldap_suffix_ou},#{@ldap_basedn}"
   end
 
   def create_ldap_attributes(ad_entry)
