@@ -2,7 +2,6 @@ require "test_helper"
 
 class ModAdapTest < Minitest::Test
   def test_create_ldap_attribute_should_only_return_attributes_that_should_be_synced
-    mock = mock_ad_and_ldap_connections()
     adap = get_general_adap_instance()
 
     result = adap.create_ldap_attributes({
@@ -22,7 +21,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_ldap_attribute_should_convert_some_attribute_names
-    mock = mock_ad_and_ldap_connections()
     adap = get_general_adap_instance()
 
     result = adap.create_ldap_attributes({
@@ -43,7 +41,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_ldap_attribute_should_sync_one_phonetic
-    mock = mock_ad_and_ldap_connections()
     adap = get_general_adap_instance({
       :map_msds_phonetics => {
         :'msds-phoneticcompanyname' => :'companyname;lang-ja;phonetic'
@@ -68,7 +65,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_ldap_attribute_should_not_sync_one_phonetic
-    mock = mock_ad_and_ldap_connections()
     adap = get_general_adap_instance()
 
     result = adap.create_ldap_attributes({
@@ -88,7 +84,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_ldap_attribute_should_sync_phonetics
-    mock = mock_ad_and_ldap_connections()
     adap = get_general_adap_instance({
       :map_msds_phonetics => {
         :'msds-phoneticcompanyname' => :'companyname;lang-ja;phonetic',
@@ -116,7 +111,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_ldap_attribute_should_not_sync_phonetics
-    mock = mock_ad_and_ldap_connections()
     adap = get_general_adap_instance()
 
     result = adap.create_ldap_attributes({
@@ -137,7 +131,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_ldap_attribute_should_sync_one_phonetic_and_not_sync_another_phonetic
-    mock = mock_ad_and_ldap_connections()
     adap = get_general_adap_instance({
       :map_msds_phonetics => {
         :'msds-phoneticcompanyname' => :'companyname;lang-ja;phonetic'
@@ -163,7 +156,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_ldap_attribute_should_sync_phonetics_and_not_sync_others
-    mock = mock_ad_and_ldap_connections()
     adap = get_general_adap_instance({
       :map_msds_phonetics => {
         :'msds-phoneticcompanyname' => :'companyname;lang-ja;phonetic',

@@ -3,7 +3,6 @@ require "test_helper"
 
 class ModAdapTest < Minitest::Test
   def test_create_modify_operations_should_create_operation_that_replace_password
-    mock = mock_ad_and_ldap_connections()
     adap = get_general_adap_instance()
 
     operations = adap.create_modify_operations({}, {}, "ad_secret")
@@ -13,7 +12,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_modify_operations_should_create_operation_that_replace_password_except_others
-    mock = mock_ad_and_ldap_connections()
     adap = get_general_adap_instance()
 
     operations = adap.create_modify_operations({:cn => "foo"}, {:cn => "foo"}, "ad_secret")
@@ -23,7 +21,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_modify_operations_should_create_operation_that_replace_cn
-    mock = mock_ad_and_ldap_connections()
     adap = get_general_adap_instance()
 
     operations = adap.create_modify_operations(
@@ -215,7 +212,7 @@ class ModAdapTest < Minitest::Test
     ], ret)
   end
 
-  def test_create_modify_operations_should_create_operation_that_has_delete_a_msds_phonetic
+  def test_create_modify_operations_should_create_operation_that_has_delete_msds_phonetics
     adap = get_general_adap_instance({
       :map_msds_phonetics => {
         :'msds-phoneticcompanyname' => :'companyname;lang-ja;phonetic',

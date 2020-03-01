@@ -2,7 +2,6 @@ require "test_helper"
 
 class ModAdapTest < Minitest::Test
   def test_create_sync_group_of_user_operation_should_return_an_add_operation
-    mock = mock_ad_and_ldap_connections()
     ret = get_general_adap_instance()
       .create_sync_group_of_user_operation({"Domain Admins" => {:gidnumber => 512}}, {}, "foo")
 
@@ -16,7 +15,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_sync_group_of_user_operation_should_return_some_add_operations
-    mock = mock_ad_and_ldap_connections()
     ret = get_general_adap_instance
       .create_sync_group_of_user_operation({"Domain Admins" => {:gidnumber => 512}, "Domain Users" => {:gidnumber => 513}}, {}, "foo")
 
@@ -35,7 +33,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_sync_group_of_user_operation_should_return_a_delete_operation
-    mock = mock_ad_and_ldap_connections()
     ret = get_general_adap_instance
       .create_sync_group_of_user_operation({}, {"Domain Admins" => nil}, "foo")
 
@@ -47,7 +44,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_sync_group_of_user_operation_should_return_some_delete_operations
-    mock = mock_ad_and_ldap_connections()
     ret = get_general_adap_instance
       .create_sync_group_of_user_operation({}, {"Domain Admins" => nil, "Domain Users" => nil}, "foo")
 
@@ -62,7 +58,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_sync_group_of_user_operation_should_return_an_add_and_a_delete_operations
-    mock = mock_ad_and_ldap_connections()
     ret = get_general_adap_instance
       .create_sync_group_of_user_operation({"Domain Users" => {:gidnumber => 513}}, {"Domain Admins" => nil}, "foo")
 
@@ -79,7 +74,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_sync_group_of_user_operation_should_return_some_add_and_some_delete_operations
-    mock = mock_ad_and_ldap_connections()
     ret = get_general_adap_instance
       .create_sync_group_of_user_operation(
         {"Domain Users" => {:gidnumber => 513}, "Foo" => {:gidnumber => 1000}},
@@ -108,7 +102,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_create_sync_group_of_user_operation_should_return_no_operation
-    mock = mock_ad_and_ldap_connections()
     ret = get_general_adap_instance
       .create_sync_group_of_user_operation(
         {"Domain Admins" => {:gidnumber => 512}, "Domain Users" => {:gidnumber => 513}},

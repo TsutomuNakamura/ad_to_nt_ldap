@@ -50,7 +50,7 @@ class ModAdapTest < Minitest::Test
     assert_equal(exception.message, 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"')
   end
 
-  def test_raise_error_if_params_does_not_have_ad_host
+  def test_raise_error_if_params_does_not_have_nt_host
     exception = assert_raises RuntimeError do
       Adap.new({
         :ad_host => "localhost",
@@ -64,7 +64,7 @@ class ModAdapTest < Minitest::Test
     assert_equal(exception.message, 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"')
   end
 
-  def test_raise_error_if_params_does_not_have_ad_binddn
+  def test_raise_error_if_params_does_not_have_nt_binddn
     exception = assert_raises RuntimeError do
       Adap.new({
         :ad_host => "localhost",
@@ -78,7 +78,7 @@ class ModAdapTest < Minitest::Test
     assert_equal(exception.message, 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"')
   end
 
-  def test_raise_error_if_params_does_not_have_ad_basedn
+  def test_raise_error_if_params_does_not_have_nt_basedn
     exception = assert_raises RuntimeError do
       Adap.new({
         :ad_host => "localhost",
@@ -92,7 +92,7 @@ class ModAdapTest < Minitest::Test
     assert_equal(exception.message, 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"')
   end
 
-  def test_adap_should_be_able_to_set_ldap_suffix_ou
+  def test_adap_should_be_able_to_set_ad_suffix_dc
     r = get_general_adap_instance({ :ad_binddn => "DC=foooo,DC=example,DC=com" })
     assert_equal("DC=foooo,DC=example,DC=com", r.instance_variable_get(:@ad_binddn))
   end

@@ -2,7 +2,6 @@ require "test_helper"
 
 class ModAdapTest < Minitest::Test
   def test_do_sync_group_of_user_operation_should_return_0
-    mock = mock_ad_and_ldap_connections()
 
     adap = get_general_adap_instance()
     ret = adap.do_sync_group_of_user_operation({})
@@ -10,7 +9,6 @@ class ModAdapTest < Minitest::Test
   end
 
   def test_do_sync_group_of_user_operation_should_return_error_if_add_group_if_not_existed_returns_not_0
-    mock = mock_ad_and_ldap_connections()
 
     operation_pool = {
       "cn=Foo,#{LDAP_BASE_OF_GROUP}" => {

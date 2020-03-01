@@ -502,12 +502,13 @@ class Adap
 
   def get_primary_gidnumber_from_ad(uid)
     return nil if uid ==nil
+    primary_gid = nil
 
     @ad_client.search(:base => "CN=#{uid},CN=Users,#{@ad_basedn}") do |entry|
       primary_gid = entry[:gidnumber].first
     end
 
-    return primary_gid
+    primary_gid
   end
 
 end
