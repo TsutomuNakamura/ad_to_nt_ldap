@@ -69,7 +69,7 @@ class ModAdapTest < Minitest::Test
       #result = adap.get_password("foo")
       adap.add_user("uid=foo,ou=Users,dc=mysite,dc=example,dc=com", {:objectclass => ["top", "person"], :cn => "foo"}, nil)
     end
-    assert_eaual(
+    assert_equal(
       exception.message,
       'Password of uid=foo,ou=Users,dc=mysite,dc=example,dc=com from AD in add_user is empty or nil. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?'
     )

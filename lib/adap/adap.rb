@@ -275,7 +275,9 @@ class Adap
 
     # AD does not have password as simple ldap attribute.
     # So password will always be updated for this reason.
-    operations.push([:replace, :userpassword, password])
+    if not password.nil? and not password.empty? then
+      operations.push([:replace, :userpassword, password])
+    end
 
     operations
   end

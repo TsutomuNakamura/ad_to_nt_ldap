@@ -276,4 +276,36 @@ class ModAdapTest < Minitest::Test
       [:replace, :userpassword, "ad_secret"]
     ], ret)
   end
+
+  def test_create_modify_operations_should_create_operation_that_does_not_have_replace_password_option_if_the_password_is_nil
+    adap = get_general_adap_instance({})
+    ret = adap.create_modify_operations(
+      {:cn => "ad_cn", :sn => "ad_sn", :uid => "taro-suzuki"},
+      {:cn => "ldap_cn", :sn => "ldap_sn", :uidnumber => 1000, :gidnumber => 1000},
+      nil
+    )
+    assert_equal([
+      [:replace, :cn, "ad_cn"],
+      [:replace, :sn, "ad_sn"],
+      [:add, :uid, "taro-suzuki"],
+      [:delete, :uidnumber, nil],
+      [:delete, :gidnumber, nil]
+    ], ret)
+  end
+
+  def test_create_modify_operations_should_create_operation_that_does_not_have_replace_password_option_if_the_password_is_empty_string
+    adap = get_general_adap_instance({})
+    ret = adap.create_modify_operations(
+      {:cn => "ad_cn", :sn => "ad_sn", :uid => "taro-suzuki"},
+      {:cn => "ldap_cn", :sn => "ldap_sn", :uidnumber => 1000, :gidnumber => 1000},
+      nil
+    )
+    assert_equal([
+      [:replace, :cn, "ad_cn"],
+      [:replace, :sn, "ad_sn"],
+      [:add, :uid, "taro-suzuki"],
+      [:delete, :uidnumber, nil],
+      [:delete, :gidnumber, nil]
+    ], ret)
+  end
 end
