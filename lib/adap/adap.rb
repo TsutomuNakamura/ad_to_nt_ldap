@@ -113,14 +113,12 @@ class Adap
   end
 
   def get_password(username)
-    password = get_raw_password(username, @password_hash_algorithm)
-
-    if password == nil || password.empty?
-      raise "Failed to get password of #{username} from AD. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?"
+    result = get_raw_password(username, @password_hash_algorithm)
+    if not result.nil? then
+      result = result.chomp
     end
-    password = password.chomp
 
-    password
+    return result
   end
 
   def get_raw_password(username, algo)
@@ -184,6 +182,10 @@ class Adap
   end
 
   def add_user(ldap_user_dn, ad_entry, password)
+    if password == nil || password.empty?
+      raise "Password of #{ldap_user_dn} from AD in add_user is empty or nil. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?"
+    end
+
     attributes = create_ldap_attributes(ad_entry)
 
     @ldap_client.add(

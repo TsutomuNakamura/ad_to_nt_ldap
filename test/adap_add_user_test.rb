@@ -49,6 +49,33 @@ class ModAdapTest < Minitest::Test
     assert_equal({:code => 1, :operations => [:add_user], :message => "Failed to add a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com in add_user() - Some error"}, ret)
   end
 
+  def test_add_user_should_failed_if_ldap_add_was_failed
+    mock_ldap_get_operation_result    = mock()
+    mock                              = mock_ad_and_ldap_connections()
+
+    adap = Adap.new({
+      :ad_host   => "localhost",
+      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password => "ad_secret",
+      :ldap_host   => "ldap_server",
+      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_basedn => "dc=mysite,dc=example,dc=com",
+      :ldap_password => "ldap_secret"
+    })
+
+
+    exception = assert_raises RuntimeError do
+      #result = adap.get_password("foo")
+      adap.add_user("uid=foo,ou=Users,dc=mysite,dc=example,dc=com", {:objectclass => ["top", "person"], :cn => "foo"}, nil)
+    end
+    assert_eaual(
+      exception.message,
+      'Password of uid=foo,ou=Users,dc=mysite,dc=example,dc=com from AD in add_user is empty or nil. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?'
+    )
+  end
+
+
   def test_add_user_should_failed_if_ldap_modify_was_failed
     mock_ldap_get_operation_result    = mock()
     mock                              = mock_ad_and_ldap_connections()
