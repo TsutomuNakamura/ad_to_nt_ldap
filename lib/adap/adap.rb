@@ -125,20 +125,26 @@ class Adap
     attributes
   end
 
-  def get_password_hash(username)
-
+  def get_password_hash(username, password)
     case @password_hash_algorithm
     when :md5, :sha, :ssha then
+      if password.nil? then
+        raise "Password must not be nil when you chose the algorithm of password-hash is :md5 or :sha or :ssha. Pass password of #{user} please."
+      end
       result = create_hashed_password(password)
     else then
-      result = get_raw_password_from_ad(username, @password_hash_algorithm)
+      # Expects :virtual_crypt_sha256(virtualCryptSHA256) or :virtual_crypt_sha512(virtualCryptSHA512)
+      result = get_raw_password_from_ad(username, @supported_hash_algorithms_map[@password_hash_algorithm])
     end
 
-    if not result.nil? then
-      result = result.chomp
+    if result.nil? then
+      raise "Failed to get hashed password with algorithm #{@password_hash_algorithm} of user #{username}. " +
+        "Its result was nil. If you chose hash-algorithm :virtual_crypt_sha256 or :virtual_crypt_sha512, " +
+        "did you enabled AD to store passwords as virtualCryptSHA256 and/or virtualCryptSHA512 in your smb.conf? " +
+        "This program requires the configuration to get password from AD as virtualCryptSHA256 or virtualCryptSHA512."
     end
 
-    return result
+    result.chomp
   end
 
   def get_raw_password_from_ad(username, algo)
@@ -204,7 +210,7 @@ class Adap
 
   def add_user(ldap_user_dn, ad_entry, password)
     if password == nil || password.empty?
-      raise "Password of #{ldap_user_dn} from AD in add_user is empty or nil. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?"
+      raise "add_user() requires password. Set a hashed password of #{ad_entry} please."
     end
 
     attributes = create_ldap_attributes(ad_entry)
@@ -232,7 +238,7 @@ class Adap
     return {
       :code => ret_code,
       :operations => [:add_user],
-      :message => "Failed to modify a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
+      :message => "Failed to modify a user #{ldap_user_dn} to add userPassword in add_user() - " + @ldap_client.get_operation_result.error_message
     } if ret_code != 0
 
     return {:code => ret_code, :operations => [:add_user], :message => nil}
