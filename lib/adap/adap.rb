@@ -28,6 +28,15 @@ class Adap
     # List of attributes for user in LDAP
     @ldap_user_required_attributes = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :description, :mail, :homedirectory]
 
+    # List of supported hash algorithms keys and string values to operate
+    @supported_hash_algorithms_map = {
+      :md5                  => "{MD5}",
+      :sha                  => "{SHA}",
+      :ssha                 => "{SSHA}",
+      :virtual_crypt_sha256 => "virtualCryptSHA256",
+      :virtual_crypt_sha512 => "virtualCryptSHA512"
+    }
+
     @ad_host                  = params[:ad_host]
     @ad_port                  = (params[:ad_port] ? params[:ad_port] : 389)
     @ad_binddn                = params[:ad_binddn]
@@ -40,8 +49,12 @@ class Adap
     @ldap_basedn              = params[:ldap_basedn]
     @ldap_user_basedn         = params[:ldap_user_basedn]
     @ldap_auth                = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_binddn, :password => params[:ldap_password] } : nil )
-    # This attribute converted in generally ... :'msds-phoneticdisplayname' -> :'displayname;lang-ja;phonetic'
-    @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : 'virtualCryptSHA512')
+
+    # A password-hash algorithm to sync to the LDAP.
+    # Popular LDAP products like Open LDAP usually supports md5({MD5}) and sha1({SHA}) algorithms.
+    # If you want to use virtualCryptSHA256 or virtualCryptSHA512, you have to set additional configurations to OpenLDAP.
+    @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : @supported_hash_algorithms_map[:ssha])
+    # TODO: Check a hash algorithm is supported or not
 
     # Phonetics are listed in https://lists.samba.org/archive/samba/2017-March/207308.html
     @map_ad_msds_phonetics = {}
@@ -112,8 +125,15 @@ class Adap
     attributes
   end
 
-  def get_password(username)
-    result = get_raw_password(username, @password_hash_algorithm)
+  def get_password_hash(username)
+
+    case @password_hash_algorithm
+    when :md5, :sha, :ssha then
+      result = create_hashed_password(password)
+    else then
+      result = get_raw_password_from_ad(username, @password_hash_algorithm)
+    end
+
     if not result.nil? then
       result = result.chomp
     end
@@ -121,11 +141,12 @@ class Adap
     return result
   end
 
-  def get_raw_password(username, algo)
+  def get_raw_password_from_ad(username, algo)
     `samba-tool user getpassword #{username} --attribute #{algo} 2> /dev/null | grep -E '^virtualCrypt' -A 1 | tr -d ' \n' | cut -d ':' -f 2`
   end
 
-  def sync_user(uid)
+  # password must not be null if 
+  def sync_user(uid, password)
     ad_entry    = nil
     ldap_entry  = nil
     ad_dn       = get_ad_dn(uid)
@@ -156,11 +177,11 @@ class Adap
 
     ret = nil
     if !ad_entry.nil? and ldap_entry.nil? then
-      ret = add_user(ldap_dn, ad_entry, get_password(uid))
+      ret = add_user(ldap_dn, ad_entry, get_password_hash(uid))
     elsif ad_entry.nil? and !ldap_entry.nil? then
       ret = delete_user(ldap_dn)
     elsif !ad_entry.nil? and !ldap_entry.nil? then
-      ret = modify_user(ldap_dn, ad_entry, ldap_entry, get_password(uid))
+      ret = modify_user(ldap_dn, ad_entry, ldap_entry, get_password_hash(uid))
     else
       # ad_entry.nil? and ldap_entry.nil? then
       return {:code => 0, :operations => nil, :message => "There are not any data of #{uid} to sync."}
