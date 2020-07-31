@@ -132,7 +132,7 @@ class Adap
         raise "Password must not be nil when you chose the algorithm of password-hash is :md5 or :sha or :ssha. Pass password of #{user} please."
       end
       result = create_hashed_password(password)
-    else then
+    else
       # Expects :virtual_crypt_sha256(virtualCryptSHA256) or :virtual_crypt_sha512(virtualCryptSHA512)
       result = get_raw_password_from_ad(username, @supported_hash_algorithms_map[@password_hash_algorithm])
     end
@@ -151,8 +151,7 @@ class Adap
     `samba-tool user getpassword #{username} --attribute #{algo} 2> /dev/null | grep -E '^virtualCrypt' -A 1 | tr -d ' \n' | cut -d ':' -f 2`
   end
 
-  # password must not be null if 
-  def sync_user(uid, password)
+  def sync_user(uid, password=nil)
     ad_entry    = nil
     ldap_entry  = nil
     ad_dn       = get_ad_dn(uid)
@@ -164,6 +163,7 @@ class Adap
     end
     ret_code = @ad_client.get_operation_result.code
 
+    # Return 32 means that the object does not exist
     return {
       :code => ret_code,
       :operations => nil,
@@ -183,11 +183,11 @@ class Adap
 
     ret = nil
     if !ad_entry.nil? and ldap_entry.nil? then
-      ret = add_user(ldap_dn, ad_entry, get_password_hash(uid))
+      ret = add_user(ldap_dn, ad_entry, get_password_hash(uid, password))
     elsif ad_entry.nil? and !ldap_entry.nil? then
       ret = delete_user(ldap_dn)
     elsif !ad_entry.nil? and !ldap_entry.nil? then
-      ret = modify_user(ldap_dn, ad_entry, ldap_entry, get_password_hash(uid))
+      ret = modify_user(ldap_dn, ad_entry, ldap_entry, get_password_hash(uid, password))
     else
       # ad_entry.nil? and ldap_entry.nil? then
       return {:code => 0, :operations => nil, :message => "There are not any data of #{uid} to sync."}
