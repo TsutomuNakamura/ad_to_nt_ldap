@@ -28,6 +28,15 @@ class Adap
     # List of attributes for user in LDAP
     @ldap_user_required_attributes = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :description, :mail, :homedirectory]
 
+    # List of supported hash algorithms keys and string values to operate
+    @supported_hash_algorithms_map = {
+      :md5                  => "{MD5}",
+      :sha                  => "{SHA}",
+      :ssha                 => "{SSHA}",
+      :virtual_crypt_sha256 => "virtualCryptSHA256",
+      :virtual_crypt_sha512 => "virtualCryptSHA512"
+    }
+
     @ad_host                  = params[:ad_host]
     @ad_port                  = (params[:ad_port] ? params[:ad_port] : 389)
     @ad_binddn                = params[:ad_binddn]
@@ -40,8 +49,17 @@ class Adap
     @ldap_basedn              = params[:ldap_basedn]
     @ldap_user_basedn         = params[:ldap_user_basedn]
     @ldap_auth                = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_binddn, :password => params[:ldap_password] } : nil )
-    # This attribute converted in generally ... :'msds-phoneticdisplayname' -> :'displayname;lang-ja;phonetic'
-    @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : 'virtualCryptSHA512')
+
+    # A password-hash algorithm to sync to the LDAP.
+    # Popular LDAP products like Open LDAP usually supports md5({MD5}), sha1({SHA}) and ssha({SSHA}) algorithms.
+    # If you want to use virtualCryptSHA256 or virtualCryptSHA512, you have to set additional configurations to OpenLDAP.
+    @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : :ssha)
+    # TODO: Check a hash algorithm is supported or not
+    unless @supported_hash_algorithms_map.has_key?(@password_hash_algorithm) then
+      raise "This program only supports :md5, :sha, :ssha(default), :virtual_crypt_sha256 and :virtual_crypt_sha512 " \
+            + "as :password_hash_algorithm. " \
+            + "An algorithm you chose #{@password_hash_algorithm.is_a?(Symbol) ? ":" : ""}#{@password_hash_algorithm} was unsupported."
+    end
 
     # Phonetics are listed in https://lists.samba.org/archive/samba/2017-March/207308.html
     @map_ad_msds_phonetics = {}
@@ -112,20 +130,33 @@ class Adap
     attributes
   end
 
-  def get_password(username)
-    result = get_raw_password(username, @password_hash_algorithm)
-    if not result.nil? then
-      result = result.chomp
+  def get_password_hash(username, password)
+    case @password_hash_algorithm
+    when :md5, :sha, :ssha then
+      if password.nil? then
+        raise "Password must not be nil when you chose the algorithm of password-hash is :md5 or :sha or :ssha. Pass password of #{username} please."
+      end
+      result = Net::LDAP::Password.generate(@password_hash_algorithm, password)
+    else
+      # Expects :virtual_crypt_sha256(virtualCryptSHA256) or :virtual_crypt_sha512(virtualCryptSHA512)
+      result = get_raw_password_from_ad(username, @supported_hash_algorithms_map[@password_hash_algorithm])
     end
 
-    return result
+    if result.nil? or result.empty? then
+      raise "Failed to get hashed password with algorithm :#{@password_hash_algorithm} of user #{username}. " +
+        "Its result was nil. If you chose hash-algorithm :virtual_crypt_sha256 or :virtual_crypt_sha512, " +
+        "did you enabled AD to store passwords as virtualCryptSHA256 and/or virtualCryptSHA512 in your smb.conf? " +
+        "This program requires the configuration to get password from AD as virtualCryptSHA256 or virtualCryptSHA512."
+    end
+
+    result.chomp
   end
 
-  def get_raw_password(username, algo)
+  def get_raw_password_from_ad(username, algo)
     `samba-tool user getpassword #{username} --attribute #{algo} 2> /dev/null | grep -E '^virtualCrypt' -A 1 | tr -d ' \n' | cut -d ':' -f 2`
   end
 
-  def sync_user(uid)
+  def sync_user(uid, password=nil)
     ad_entry    = nil
     ldap_entry  = nil
     ad_dn       = get_ad_dn(uid)
@@ -137,6 +168,7 @@ class Adap
     end
     ret_code = @ad_client.get_operation_result.code
 
+    # Return 32 means that the object does not exist
     return {
       :code => ret_code,
       :operations => nil,
@@ -156,11 +188,11 @@ class Adap
 
     ret = nil
     if !ad_entry.nil? and ldap_entry.nil? then
-      ret = add_user(ldap_dn, ad_entry, get_password(uid))
+      ret = add_user(ldap_dn, ad_entry, get_password_hash(uid, password))
     elsif ad_entry.nil? and !ldap_entry.nil? then
       ret = delete_user(ldap_dn)
     elsif !ad_entry.nil? and !ldap_entry.nil? then
-      ret = modify_user(ldap_dn, ad_entry, ldap_entry, get_password(uid))
+      ret = modify_user(ldap_dn, ad_entry, ldap_entry, get_password_hash(uid, password))
     else
       # ad_entry.nil? and ldap_entry.nil? then
       return {:code => 0, :operations => nil, :message => "There are not any data of #{uid} to sync."}
@@ -183,7 +215,7 @@ class Adap
 
   def add_user(ldap_user_dn, ad_entry, password)
     if password == nil || password.empty?
-      raise "Password of #{ldap_user_dn} from AD in add_user is empty or nil. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?"
+      raise "add_user() requires password. Set a hashed password of the user #{ad_entry[:cn]} please."
     end
 
     attributes = create_ldap_attributes(ad_entry)
@@ -211,7 +243,7 @@ class Adap
     return {
       :code => ret_code,
       :operations => [:add_user],
-      :message => "Failed to modify a user #{ldap_user_dn} in add_user() - " + @ldap_client.get_operation_result.error_message
+      :message => "Failed to modify a user #{ldap_user_dn} to add userPassword in add_user() - " + @ldap_client.get_operation_result.error_message
     } if ret_code != 0
 
     return {:code => ret_code, :operations => [:add_user], :message => nil}

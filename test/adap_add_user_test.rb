@@ -68,7 +68,7 @@ class ModAdapTest < Minitest::Test
     end
     assert_equal(
       exception.message,
-      'Password of uid=foo,ou=Users,dc=mysite,dc=example,dc=com from AD in add_user is empty or nil. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?'
+      'add_user() requires password. Set a hashed password of the user foo please.'
     )
   end
 
@@ -91,7 +91,7 @@ class ModAdapTest < Minitest::Test
     end
     assert_equal(
       exception.message,
-      'Password of uid=foo,ou=Users,dc=mysite,dc=example,dc=com from AD in add_user is empty or nil. Did you enabled AD password option virtualCryptSHA512 and/or virtualCryptSHA256?'
+      'add_user() requires password. Set a hashed password of the user foo please.'
     )
   end
 
@@ -145,7 +145,11 @@ class ModAdapTest < Minitest::Test
       {:objectclass => ["top", "person"], :cn => "foo"},
       "secret"
     )
-    assert_equal({:code => 1, :operations => [:add_user], :message => "Failed to modify a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com in add_user() - Some error"}, ret)
+    assert_equal({
+      :code => 1,
+      :operations => [:add_user],
+      :message => "Failed to modify a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com to add userPassword in add_user() - Some error"
+    }, ret)
   end
 
   def test_add_user_should_success

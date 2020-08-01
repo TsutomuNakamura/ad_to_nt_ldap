@@ -1,6 +1,19 @@
 require "test_helper"
 
 class ModAdapTest < Minitest::Test
+
+  def test_adap_new_success
+    adap = Adap.new({
+        :ad_host => "localhost",
+        :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+        :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
+        :ldap_host   => "ldap_server",
+        :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+        :ldap_basedn => "dc=mysite,dc=example,dc=com"
+      })
+    assert(adap.is_a?(Adap))
+  end
+
   def test_raise_error_if_params_is_nil
     exception = assert_raises RuntimeError do
       Adap.new(nil)
@@ -14,9 +27,9 @@ class ModAdapTest < Minitest::Test
         #:ad_host => "localhost",
         :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
         :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-        :nt_host   => "ldap_server",
-        :nt_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-        :nt_basedn => "dc=mysite,dc=example,dc=com"
+        :ldap_host   => "ldap_server",
+        :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+        :ldap_basedn => "dc=mysite,dc=example,dc=com"
       })
     end
     assert_equal(exception.message, 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"')
@@ -28,9 +41,9 @@ class ModAdapTest < Minitest::Test
         :ad_host => "localhost",
         #:ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
         :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-        :nt_host   => "ldap_server",
-        :nt_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-        :nt_basedn => "dc=mysite,dc=example,dc=com"
+        :ldap_host   => "ldap_server",
+        :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+        :ldap_basedn => "dc=mysite,dc=example,dc=com"
       })
     end
     assert_equal(exception.message, 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"')
@@ -42,9 +55,9 @@ class ModAdapTest < Minitest::Test
         :ad_host => "localhost",
         :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
         #:ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-        :nt_host   => "ldap_server",
-        :nt_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-        :nt_basedn => "dc=mysite,dc=example,dc=com"
+        :ldap_host   => "ldap_server",
+        :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+        :ldap_basedn => "dc=mysite,dc=example,dc=com"
       })
     end
     assert_equal(exception.message, 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"')
@@ -56,9 +69,9 @@ class ModAdapTest < Minitest::Test
         :ad_host => "localhost",
         :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
         :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-        #:nt_host   => "ldap_server",
-        :nt_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-        :nt_basedn => "dc=mysite,dc=example,dc=com"
+        #:ldap_host   => "ldap_server",
+        :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+        :ldap_basedn => "dc=mysite,dc=example,dc=com"
       })
     end
     assert_equal(exception.message, 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"')
@@ -70,9 +83,9 @@ class ModAdapTest < Minitest::Test
         :ad_host => "localhost",
         :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
         :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-        :nt_host   => "ldap_server",
-        #:nt_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-        :nt_basedn => "dc=mysite,dc=example,dc=com"
+        :ldap_host   => "ldap_server",
+        #:ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+        :ldap_basedn => "dc=mysite,dc=example,dc=com"
       })
     end
     assert_equal(exception.message, 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"')
@@ -84,12 +97,30 @@ class ModAdapTest < Minitest::Test
         :ad_host => "localhost",
         :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
         :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-        :nt_host   => "ldap_server",
-        :nt_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-        #:nt_basedn => "dc=mysite,dc=example,dc=com"
+        :ldap_host   => "ldap_server",
+        :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+        #:ldap_basedn => "dc=mysite,dc=example,dc=com"
       })
     end
     assert_equal(exception.message, 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"')
+  end
+
+  def test_raise_error_if_unsupported_algorithm_was_specified_as_password_hash_algorithm
+    exception = assert_raises RuntimeError do
+      Adap.new({
+        :ad_host => "localhost",
+        :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+        :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
+        :ldap_host   => "ldap_server",
+        :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+        :ldap_basedn => "dc=mysite,dc=example,dc=com",
+        :password_hash_algorithm => :md4
+      })
+    end
+    assert_equal(
+      'This program only supports :md5, :sha, :ssha(default), :virtual_crypt_sha256 and :virtual_crypt_sha512 as :password_hash_algorithm. An algorithm you chose :md4 was unsupported.',
+      exception.message
+    )
   end
 
   def test_adap_should_be_able_to_set_ad_suffix_dc
