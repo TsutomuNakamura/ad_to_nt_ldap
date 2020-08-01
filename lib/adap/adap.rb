@@ -55,6 +55,11 @@ class Adap
     # If you want to use virtualCryptSHA256 or virtualCryptSHA512, you have to set additional configurations to OpenLDAP.
     @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : :ssha)
     # TODO: Check a hash algorithm is supported or not
+    unless @supported_hash_algorithms_map.has_key?(@password_hash_algorithm) then
+      raise "This program only supports :md5, :sha, :ssha(default), :virtual_crypt_sha256 and :virtual_crypt_sha512 " \
+            + "as :password_hash_algorithm. " \
+            + "An algorithm you chose #{@password_hash_algorithm.is_a?(Symbol) ? ":" : ""}#{@password_hash_algorithm} was unsupported."
+    end
 
     # Phonetics are listed in https://lists.samba.org/archive/samba/2017-March/207308.html
     @map_ad_msds_phonetics = {}
