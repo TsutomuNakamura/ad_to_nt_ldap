@@ -210,7 +210,7 @@ class Adap
 
   def add_user(ldap_user_dn, ad_entry, password)
     if password == nil || password.empty?
-      raise "add_user() requires password. Set a hashed password of #{ad_entry} please."
+      raise "add_user() requires password. Set a hashed password of the user #{ad_entry[:cn]} please."
     end
 
     attributes = create_ldap_attributes(ad_entry)
