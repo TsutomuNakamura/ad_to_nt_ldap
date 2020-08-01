@@ -18,7 +18,7 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_raw_password_from_ad).with("foo", "virtualCryptSHA512").returns("")
 
     exception = assert_raises RuntimeError do
-      result = adap.get_password_hash("foo", nil)
+      adap.get_password_hash("foo", nil)
     end
 
     assert_equal(
@@ -44,7 +44,7 @@ class ModAdapTest < Minitest::Test
     adap.expects(:get_raw_password_from_ad).with("foo", "virtualCryptSHA512").returns(nil)
 
     exception = assert_raises RuntimeError do
-      result = adap.get_password_hash("foo", nil)
+      adap.get_password_hash("foo", nil)
     end
 
     assert_equal(
@@ -68,7 +68,7 @@ class ModAdapTest < Minitest::Test
     })
 
     exception = assert_raises RuntimeError do
-      result = adap.get_password_hash("foo", nil)
+      adap.get_password_hash("foo", nil)
     end
 
     assert_equal(
