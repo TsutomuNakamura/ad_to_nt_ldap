@@ -227,6 +227,56 @@ class ModAdapTest < Minitest::Test
     assert_equal({:code => 0, :operations => [:modify_user, :some_group_of_user_operation], :message => nil}, ret)
   end
 
+  def test_sync_user_should_success_if_modify_user_is_called_and_password_hash_algorithm_is_ssha_and_password_is_nil
+    mock                                = mock_ad_and_ldap_connections()
+    mock_ad_get_operation_result        = mock()
+    mock_ldap_get_operation_result      = mock()
+
+    # @ad_client.search()
+    mock[:ad_client].expects(:search)
+      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .yields({:objectclass => ["top", "person"], :cn => "ad"})
+
+    mock[:ldap_client].expects(:search)
+      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
+      .yields({:objectclass => ["top", "person"], :cn => "ldap"})
+
+    # @ad_client.get_operation_result.code
+    mock_ad_get_operation_result.expects(:code).returns(0)
+    # @ad_client.get_operation_result
+    mock[:ad_client].expects(:get_operation_result).returns(mock_ad_get_operation_result)
+
+    # @ldap_client.get_operation_result.code
+    mock_ldap_get_operation_result.expects(:code).returns(0)
+    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result)
+
+    # Testing from here
+    adap = Adap.new({
+      :ad_host        => "localhost",
+      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password    => "ad_secret",
+      :ldap_host      => "ldap_server",
+      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
+      :ldap_password  => "ldap_secret"
+    })
+    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:modify_user)
+      .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com", {:objectclass => ["top", "person"], :cn => "ad"}, {:objectclass => ["top", "person"], :cn => "ldap"}, nil)
+      .returns({:code => 0, :operations => [:modify_user], :message => "Success add_user"})
+    adap.expects(:get_primary_gidnumber)
+      .with({:objectclass => ["top", "person"], :cn => "ad"})
+      .returns(513)
+    adap.expects(:sync_group_of_user)
+      .with("foo", 513)
+      .returns({:code => 0, :operations => [:some_group_of_user_operation], :message => nil})
+
+    ret = adap.sync_user("foo", nil)
+    assert_equal({:code => 0, :operations => [:modify_user, :some_group_of_user_operation], :message => nil}, ret)
+  end
+
   def test_sync_user_should_error_if_ad_entry_and_ldap_entry_does_not_existed
     mock                                = mock_ad_and_ldap_connections()
     mock_ad_get_operation_result        = mock()

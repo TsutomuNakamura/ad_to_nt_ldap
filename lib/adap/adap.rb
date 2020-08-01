@@ -36,6 +36,8 @@ class Adap
       :virtual_crypt_sha256 => "virtualCryptSHA256",
       :virtual_crypt_sha512 => "virtualCryptSHA512"
     }
+    # List of unsupported hash algorithms in AD but OpenLDAP support
+    @unsupported_hash_algorithms_in_ad = [:md5, :sha, :ssha]
 
     @ad_host                  = params[:ad_host]
     @ad_port                  = (params[:ad_port] ? params[:ad_port] : 389)
@@ -192,7 +194,12 @@ class Adap
     elsif ad_entry.nil? and !ldap_entry.nil? then
       ret = delete_user(ldap_dn)
     elsif !ad_entry.nil? and !ldap_entry.nil? then
-      ret = modify_user(ldap_dn, ad_entry, ldap_entry, get_password_hash(uid, password))
+      ret = modify_user(
+        ldap_dn,
+        ad_entry,
+        ldap_entry,
+        ( password.nil? and (@unsupported_hash_algorithms_in_ad.include?(@password_hash_algorithm)) ) ? nil : get_password_hash(uid, password)
+      )
     else
       # ad_entry.nil? and ldap_entry.nil? then
       return {:code => 0, :operations => nil, :message => "There are not any data of #{uid} to sync."}
