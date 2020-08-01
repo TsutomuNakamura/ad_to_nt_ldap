@@ -152,54 +152,54 @@ class ModAdapTest < Minitest::Test
     }, ret)
   end
 
-#  def test_add_user_should_success
-#    mock_ldap_get_operation_result    = mock()
-#    mock                              = mock_ad_and_ldap_connections()
-#
-#    # @ldap_client.add
-#    mock[:ldap_client].expects(:add)
-#      .with({
-#        :dn => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com",
-#        :attributes => {
-#          :objectclass => ["top", "person"],
-#          :cn => "foo"
-#        }
-#      })
-#      .returns(true)
-#
-#    # @ldap_client.modify
-#    mock[:ldap_client].expects(:modify)
-#      .with({
-#        :dn => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com",
-#        :operations => [
-#          [:add, :userPassword, "secret"]
-#        ]
-#      })
-#      .returns(true)
-#
-#    # @ldap_client.get_operation_result.code of @ldap_client.modify
-#    mock_ldap_get_operation_result.expects(:code).returns(0, 0).times(2)
-#    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
-#
-#    adap = Adap.new({
-#      :ad_host => "localhost",
-#      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-#      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-#      :ad_password => "ad_secret",
-#      :ldap_host   => "ldap_server",
-#      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-#      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-#      :ldap_password => "ldap_secret"
-#    })
-#    adap.expects(:create_ldap_attributes)
-#      .with({:objectclass => ["top", "person"], :cn => "foo"})
-#      .returns({:objectclass => ["top", "person"], :cn => "foo"})
-#
-#    ret = adap.add_user(
-#      "uid=foo,ou=Users,dc=mysite,dc=example,dc=com",
-#      {:objectclass => ["top", "person"], :cn => "foo"},
-#      "secret"
-#    )
-#    assert_equal({:code => 0, :operations => [:add_user], :message => nil}, ret)
-#  end
+  def test_add_user_should_success
+    mock_ldap_get_operation_result    = mock()
+    mock                              = mock_ad_and_ldap_connections()
+
+    # @ldap_client.add
+    mock[:ldap_client].expects(:add)
+      .with({
+        :dn => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com",
+        :attributes => {
+          :objectclass => ["top", "person"],
+          :cn => "foo"
+        }
+      })
+      .returns(true)
+
+    # @ldap_client.modify
+    mock[:ldap_client].expects(:modify)
+      .with({
+        :dn => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com",
+        :operations => [
+          [:add, :userPassword, "secret"]
+        ]
+      })
+      .returns(true)
+
+    # @ldap_client.get_operation_result.code of @ldap_client.modify
+    mock_ldap_get_operation_result.expects(:code).returns(0, 0).times(2)
+    mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
+
+    adap = Adap.new({
+      :ad_host => "localhost",
+      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password => "ad_secret",
+      :ldap_host   => "ldap_server",
+      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_basedn => "dc=mysite,dc=example,dc=com",
+      :ldap_password => "ldap_secret"
+    })
+    adap.expects(:create_ldap_attributes)
+      .with({:objectclass => ["top", "person"], :cn => "foo"})
+      .returns({:objectclass => ["top", "person"], :cn => "foo"})
+
+    ret = adap.add_user(
+      "uid=foo,ou=Users,dc=mysite,dc=example,dc=com",
+      {:objectclass => ["top", "person"], :cn => "foo"},
+      "secret"
+    )
+    assert_equal({:code => 0, :operations => [:add_user], :message => nil}, ret)
+  end
 end
