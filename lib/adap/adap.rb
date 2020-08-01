@@ -51,9 +51,9 @@ class Adap
     @ldap_auth                = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_binddn, :password => params[:ldap_password] } : nil )
 
     # A password-hash algorithm to sync to the LDAP.
-    # Popular LDAP products like Open LDAP usually supports md5({MD5}) and sha1({SHA}) algorithms.
+    # Popular LDAP products like Open LDAP usually supports md5({MD5}), sha1({SHA}) and ssha({SSHA}) algorithms.
     # If you want to use virtualCryptSHA256 or virtualCryptSHA512, you have to set additional configurations to OpenLDAP.
-    @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : @supported_hash_algorithms_map[:ssha])
+    @password_hash_algorithm  = (params[:password_hash_algorithm] ? params[:password_hash_algorithm] : :ssha)
     # TODO: Check a hash algorithm is supported or not
 
     # Phonetics are listed in https://lists.samba.org/archive/samba/2017-March/207308.html
@@ -129,16 +129,16 @@ class Adap
     case @password_hash_algorithm
     when :md5, :sha, :ssha then
       if password.nil? then
-        raise "Password must not be nil when you chose the algorithm of password-hash is :md5 or :sha or :ssha. Pass password of #{user} please."
+        raise "Password must not be nil when you chose the algorithm of password-hash is :md5 or :sha or :ssha. Pass password of #{username} please."
       end
-      result = create_hashed_password(password)
+      result = Net::LDAP::Password.generate(@password_hash_algorithm, password)
     else
       # Expects :virtual_crypt_sha256(virtualCryptSHA256) or :virtual_crypt_sha512(virtualCryptSHA512)
       result = get_raw_password_from_ad(username, @supported_hash_algorithms_map[@password_hash_algorithm])
     end
 
-    if result.nil? then
-      raise "Failed to get hashed password with algorithm #{@password_hash_algorithm} of user #{username}. " +
+    if result.nil? or result.empty? then
+      raise "Failed to get hashed password with algorithm :#{@password_hash_algorithm} of user #{username}. " +
         "Its result was nil. If you chose hash-algorithm :virtual_crypt_sha256 or :virtual_crypt_sha512, " +
         "did you enabled AD to store passwords as virtualCryptSHA256 and/or virtualCryptSHA512 in your smb.conf? " +
         "This program requires the configuration to get password from AD as virtualCryptSHA256 or virtualCryptSHA512."
