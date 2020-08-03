@@ -11,6 +11,6 @@ jobs:
       - checkout
       - run: bundle check || bundle install
       - run:
-        command: bundle exec rake test
-        when: always
+          command: bundle exec rake test
+          when: always
 
