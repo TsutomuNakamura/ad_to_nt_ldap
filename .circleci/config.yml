@@ -9,7 +9,8 @@ jobs:
     executor: ruby/default
     steps:
       - checkout
+      - run: bundle check || bundle install
       - run:
-          name: test
-          command: rake test
+        command: bundle exec rake test
+        when: always
 
