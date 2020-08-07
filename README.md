@@ -58,7 +58,8 @@ adap = Adap.new({
 ```
 
 But please be careful, even if you choose any method, you will encounter some limitations.
-[AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you chose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512](/#AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you chose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512)
+
+[AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you chose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512](/#ad-must-allow-cryptsha256-or-cryptsha512-to-store-password-and-they-have-to-be-same-as-a-storing-method-in-ldap)
 
 ## Requirements and limitations
 
