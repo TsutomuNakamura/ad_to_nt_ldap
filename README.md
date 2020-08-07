@@ -45,6 +45,21 @@ adap = Adap.new({
 adap.sync_user("taro-suzuki")
 ```
 
+## Other options
+### Options of password hash algorithms
+There are some supported password hash algorithms like `:md5(MD5)`, `:sha(SHA1)`, `:ssha(SSHA)`, `:virtual_crypt_sha256(virtualCryptSHA256)`, `:virtual_crypt_sha512(virtualCryptSHA512)`.
+`:ssha(SSHA)` will be chosen if you didn't specify any method.
+
+```
+adap = Adap.new({
+  # Abbreviate other necessary attributes...
+  :password_hash_algorithm => :sha
+})
+```
+
+But please be careful, even if you choose any method, you will encounter some limitations.
+[AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you chose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512](/#AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you chose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512)
+
 ## Requirements and limitations
 
 This program has some requirements and limitations like below.
@@ -65,12 +80,14 @@ ldap server require strong auth = no
 
 This program will fail to get user data from AD if you did not allow this setting.
 
-### AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP
+### AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you chose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512
 
 AD must allow storing password as CryptSHA256 or CryptSHA512 by setting smb.conf like below.
 
 * your AD's smb.conf
 ```
+[global]
+    # ......
     password hash userPassword schemes = CryptSHA256 CryptSHA512
 ```
 
