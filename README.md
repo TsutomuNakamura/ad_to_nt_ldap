@@ -82,8 +82,18 @@ ldap server require strong auth = no
 
 This program will fail to get user data from AD if you did not allow this setting.
 
-### You have to give plain password if you choose password hash algorithm as :md5, :sha or :ssha
-TODO:
+### You have to give a plain password of the user that will be synched if you choose password hash algorithm as :md5, :sha or :ssha
+AD never be able to have passwords as :md5(MD5), :sha(SHA1) or :ssha(SSHA) that same as LDAP(OpenLDAP).
+So this program can not sync user password from only parameters in AD to LDAP.
+You have to pass the plain password to sync passwords to LDAP.
+
+```
+adap = Adap.new({
+  # Abbreviate other necessary attributes...
+})
+
+adap.sync_user("john", "secret")    # You have to give a plain password as a second parameter of the sync_user().
+```
 
 ### AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you choose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512
 
@@ -123,6 +133,17 @@ olcPasswordHash: {CRYPT}
 add: olcPasswordCryptSaltFormat
 olcPasswordCryptSaltFormat: $6$%.16s
 EOF
+```
+
+After you have set them, you can sync a user and password between AD and LDAP like below.
+
+```
+adap = Adap.new({
+  # Abbreviate other necessary attributes...
+  :password_hash_algorithm => :virtual_crypt_sha512
+})
+
+adap.sync_user("john")    # You don't have to give a plain password.
 ```
 
 ### This program must be located in AD server
