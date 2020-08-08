@@ -59,6 +59,7 @@ adap = Adap.new({
 
 But please be careful, even if you choose any method, you will encounter some limitations.
 
+* [You have to give plain password if you choose password hash algorithm as :md5, :sha or :ssha](https://github.com/TsutomuNakamura/adap/#you-have-to-give-plain-password-if-you-choose-password-hash-algorithm-as-md5-sha-or-ssha)
 * [AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you chose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512](https://github.com/TsutomuNakamura/adap/#ad-must-allow-cryptsha256-or-cryptsha512-to-store-password-and-they-have-to-be-same-as-a-storing-method-in-ldap)
 
 ## Requirements and limitations
