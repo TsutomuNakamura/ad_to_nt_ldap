@@ -59,7 +59,7 @@ adap = Adap.new({
 
 But please be careful, even if you choose any method, you will encounter some limitations.
 
-[AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you chose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512](/#ad-must-allow-cryptsha256-or-cryptsha512-to-store-password-and-they-have-to-be-same-as-a-storing-method-in-ldap)
+* [AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you chose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512](https://github.com/TsutomuNakamura/adap/#ad-must-allow-cryptsha256-or-cryptsha512-to-store-password-and-they-have-to-be-same-as-a-storing-method-in-ldap)
 
 ## Requirements and limitations
 
@@ -81,7 +81,10 @@ ldap server require strong auth = no
 
 This program will fail to get user data from AD if you did not allow this setting.
 
-### AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you chose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512
+### You have to give plain password if you choose password hash algorithm as :md5, :sha or :ssha
+TODO:
+
+### AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you choose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512
 
 AD must allow storing password as CryptSHA256 or CryptSHA512 by setting smb.conf like below.
 
