@@ -50,7 +50,7 @@ adap.sync_user("taro-suzuki")
 There are some supported password hash algorithms like `:md5(MD5)`, `:sha(SHA1)`, `:ssha(SSHA)`, `:virtual_crypt_sha256(virtualCryptSHA256)`, `:virtual_crypt_sha512(virtualCryptSHA512)`.
 `:ssha(SSHA)` will be chosen if you didn't specify any method.
 
-```
+```ruby
 adap = Adap.new({
   # Abbreviate other necessary attributes...
   :password_hash_algorithm => :sha
@@ -87,7 +87,7 @@ AD never be able to have passwords as :md5(MD5), :sha(SHA1) or :ssha(SSHA) that 
 So this program can not sync user password from only parameters in AD to LDAP.
 You have to pass the plain password to sync passwords to LDAP.
 
-```
+```ruby
 adap = Adap.new({
   # Abbreviate other necessary attributes...
 })
@@ -137,7 +137,7 @@ EOF
 
 After you have set them, you can sync a user and password between AD and LDAP like below.
 
-```
+```ruby
 adap = Adap.new({
   # Abbreviate other necessary attributes...
   :password_hash_algorithm => :virtual_crypt_sha512
