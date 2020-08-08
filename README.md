@@ -193,7 +193,7 @@ adap = Adap.new({
 adap.sync_user("john")    # You don't have to give a plain password.
 ```
 
-### This program must be located in AD server
+### This program must be located in AD server if you chose a password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512
 
 This program must be located in AD server because samba-tool on AD only support getting hashed password only from `ldapi://` or `tdb://`.
 
