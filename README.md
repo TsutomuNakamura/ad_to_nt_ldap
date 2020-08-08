@@ -46,7 +46,7 @@ adap.sync_user("taro-suzuki")
 ```
 
 ## Other options
-### Options of password hash algorithms
+### Password hash algorithm
 There are some supported password hash algorithms like `:md5(MD5)`, `:sha(SHA1)`, `:ssha(SSHA)`, `:virtual_crypt_sha256(virtualCryptSHA256)`, `:virtual_crypt_sha512(virtualCryptSHA512)`.
 `:ssha(SSHA)` will be chosen if you didn't specify any method.
 
@@ -61,6 +61,31 @@ But please be careful, even if you choose any method, you will encounter some li
 
 * [You have to give plain password if you choose password hash algorithm as :md5, :sha or :ssha](https://github.com/TsutomuNakamura/adap/#you-have-to-give-plain-password-if-you-choose-password-hash-algorithm-as-md5-sha-or-ssha)
 * [AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you chose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512](https://github.com/TsutomuNakamura/adap/#ad-must-allow-cryptsha256-or-cryptsha512-to-store-password-and-they-have-to-be-same-as-a-storing-method-in-ldap)
+
+### Phonetics
+adap can sync phonetics from AD to LDAP if you specify attribute names.
+
+```ruby
+adap = Adap.new({
+  # Abbreviate other necessary attributes...
+  :map_msds_phonetics => {
+    # This will sync the value of :'msds-phoneticdisplayname'(msDS-PhoneticDisplayName) in AD to the value of "displayname;lang-ja;phonetic" in LDAP
+    :'msds-phoneticdisplayname' => :'displayname;lang-ja;phonetic'
+  }
+})
+```
+
+All supported phonetics in AD are like below.
+
+| Symbol                      | Name of attribute        | General name of attribute in LDAP(ex:ja) |
+| --------------------------- | ------------------------ | ---------------------------------------- |
+| :'msds-phoneticcompanyname' | msDS-PhoneticCompanyName | companyName;lang-ja;phonetic             |
+| :'msds-phoneticdepartment'  | msDS-PhoneticDepartment  | department;lang-ja;phonetic              |
+| :'msds-phoneticfirstname'   | msDS-PhoneticFirstName   | firstname;lang-ja;phonetic               |
+| :'msds-phoneticlastname'    | msDS-PhoneticLastName    | lastname;lang-ja;phonetic                |
+| :'msds-phoneticdisplayname' | msDS-PhoneticDisplayName | displayname;lang-ja;phonetic             |
+
+Ofcourse, you can change the name of attributes that will be synced in LDAP(General name of attribute in LDAP) depends on your environment.
 
 ## Requirements and limitations
 
