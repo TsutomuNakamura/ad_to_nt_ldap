@@ -42,8 +42,30 @@ adap = Adap.new({
 })
 
 # This operation will synchronize a user taro-suzuki to LDAP from AD
-adap.sync_user("taro-suzuki")
+adap.sync_user("john", "secret")
 ```
+
+## Attributes to be synched by default
+Attributes to be synched by default are like below.
+
+| Name of attribute in AD |    | Name of attribute in LDAP | Note |
+| ----------------------- | -- | ------------------------- | ---- |
+| cn                      | -> | cn                        |      |
+| sn                      | -> | sn                        |      |
+| uid                     | -> | uid                       |      |
+| uidNumber               | -> | uidNumber                 |      |
+| gidNumber               | -> | gidNumber                 |      |
+| displayName             | -> | displayName               |      |
+| loginShell              | -> | loginShell                |      |
+| gecos                   | -> | gecos                     |      |
+| givenName               | -> | givenName                 |      |
+| description             | -> | description               |      |
+| mail                    | -> | mail                      |      |
+| employeeNumber          | -> | employeeNumber            |      |
+| unixHomeDirectory       | -> | homeDirectory             | Synched by different names of attributes between AD and LDAP |
+| -                       | -> | userPassword              | Password of users also will be synched with some limitations |
+
+Some attributes will be added as synched parameters if you add some options, for example options of phonetics.
 
 ## Other options
 ### Password hash algorithm
