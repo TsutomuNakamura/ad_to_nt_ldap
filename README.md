@@ -42,8 +42,72 @@ adap = Adap.new({
 })
 
 # This operation will synchronize a user taro-suzuki to LDAP from AD
-adap.sync_user("taro-suzuki")
+adap.sync_user("john", "secret")
 ```
+
+## Attributes to be synched by default
+Attributes to be synched by default are like below.
+
+| Name of attribute in AD |         | Name of attribute in LDAP | Note |
+| ----------------------- | ------- | ------------------------- | ---- |
+| cn                      | &#8594; | cn                        |      |
+| sn                      | &#8594; | sn                        |      |
+| uid                     | &#8594; | uid                       |      |
+| uidNumber               | &#8594; | uidNumber                 |      |
+| gidNumber               | &#8594; | gidNumber                 |      |
+| displayName             | &#8594; | displayName               |      |
+| loginShell              | &#8594; | loginShell                |      |
+| gecos                   | &#8594; | gecos                     |      |
+| givenName               | &#8594; | givenName                 |      |
+| description             | &#8594; | description               |      |
+| mail                    | &#8594; | mail                      |      |
+| employeeNumber          | &#8594; | employeeNumber            |      |
+| unixHomeDirectory       | &#8594; | homeDirectory             | Synched by different names of attributes between AD and LDAP |
+| -                       | &#8594; | userPassword              | Password of users also will be synched with some limitations |
+
+Some attributes will be added as synched parameters if you add some options, for example options of phonetics.
+
+## Other options
+### Password hash algorithm
+There are some supported password hash algorithms like `:md5(MD5)`, `:sha(SHA1)`, `:ssha(SSHA)`, `:virtual_crypt_sha256(virtualCryptSHA256)`, `:virtual_crypt_sha512(virtualCryptSHA512)`.
+`:ssha(SSHA)` will be chosen if you didn't specify any method.
+
+```ruby
+adap = Adap.new({
+  # Abbreviate other necessary attributes...
+  :password_hash_algorithm => :sha
+})
+```
+
+But please be careful, even if you choose any method, you will encounter some limitations.
+
+* [You have to give plain password if you choose password hash algorithm as :md5, :sha or :ssha](https://github.com/TsutomuNakamura/adap/#you-have-to-give-plain-password-if-you-choose-password-hash-algorithm-as-md5-sha-or-ssha)
+* [AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you chose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512](https://github.com/TsutomuNakamura/adap/#ad-must-allow-cryptsha256-or-cryptsha512-to-store-password-and-they-have-to-be-same-as-a-storing-method-in-ldap)
+
+### Phonetics
+adap can sync phonetics from AD to LDAP if you specify attribute names.
+
+```ruby
+adap = Adap.new({
+  # Abbreviate other necessary attributes...
+  :map_msds_phonetics => {
+    # This will sync the value of :'msds-phoneticdisplayname'(msDS-PhoneticDisplayName) in AD to the value of "displayname;lang-ja;phonetic" in LDAP
+    :'msds-phoneticdisplayname' => :'displayname;lang-ja;phonetic'
+  }
+})
+```
+
+All supported phonetics in AD are like below.
+
+| Symbol                      | Name of attribute        | General name of attribute in LDAP(ex:ja) |
+| --------------------------- | ------------------------ | ---------------------------------------- |
+| :'msds-phoneticcompanyname' | msDS-PhoneticCompanyName | companyName;lang-ja;phonetic             |
+| :'msds-phoneticdepartment'  | msDS-PhoneticDepartment  | department;lang-ja;phonetic              |
+| :'msds-phoneticfirstname'   | msDS-PhoneticFirstName   | firstname;lang-ja;phonetic               |
+| :'msds-phoneticlastname'    | msDS-PhoneticLastName    | lastname;lang-ja;phonetic                |
+| :'msds-phoneticdisplayname' | msDS-PhoneticDisplayName | displayname;lang-ja;phonetic             |
+
+Ofcourse, you can change the name of attributes that will be synced in LDAP(General name of attribute in LDAP) depends on your environment.
 
 ## Requirements and limitations
 
@@ -65,12 +129,27 @@ ldap server require strong auth = no
 
 This program will fail to get user data from AD if you did not allow this setting.
 
-### AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP
+### You have to give a plain password of the user that will be synched if you choose password hash algorithm as :md5, :sha or :ssha
+AD never be able to have passwords as :md5(MD5), :sha(SHA1) or :ssha(SSHA) that same as LDAP(OpenLDAP).
+So this program can not sync user password from only parameters in AD to LDAP.
+You have to pass the plain password to sync passwords to LDAP.
+
+```ruby
+adap = Adap.new({
+  # Abbreviate other necessary attributes...
+})
+
+adap.sync_user("john", "secret")    # You have to give a plain password as a second parameter of the sync_user().
+```
+
+### AD must allow CryptSHA256 or CryptSHA512 to store password and they have to be same as a storing method in LDAP if you choose password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512
 
 AD must allow storing password as CryptSHA256 or CryptSHA512 by setting smb.conf like below.
 
 * your AD's smb.conf
 ```
+[global]
+    # ......
     password hash userPassword schemes = CryptSHA256 CryptSHA512
 ```
 
@@ -103,7 +182,18 @@ olcPasswordCryptSaltFormat: $6$%.16s
 EOF
 ```
 
-### This program must be located in AD server
+After you have set them, you can sync a user and password between AD and LDAP like below.
+
+```ruby
+adap = Adap.new({
+  # Abbreviate other necessary attributes...
+  :password_hash_algorithm => :virtual_crypt_sha512
+})
+
+adap.sync_user("john")    # You don't have to give a plain password.
+```
+
+### This program must be located in AD server if you chose a password hash algorithm as :virtual_crypt_sha256 or :virtual_crypt_sha512
 
 This program must be located in AD server because samba-tool on AD only support getting hashed password only from `ldapi://` or `tdb://`.
 
