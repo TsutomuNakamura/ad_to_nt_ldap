@@ -24,9 +24,9 @@ class Adap
     }
 
     # List of attributes for user in AD
-    @ad_user_required_attributes   = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :description, :mail, :employeenumber, :unixhomedirectory]
+    @ad_user_required_attributes   = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :description, :mail, :employeenumber, :businesscategory, :employeeType, :unixhomedirectory]
     # List of attributes for user in LDAP
-    @ldap_user_required_attributes = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :description, :mail, :employeenumber, :homedirectory]
+    @ldap_user_required_attributes = [:cn, :sn, :uid, :uidnumber, :gidnumber, :displayname, :loginshell, :gecos, :givenname, :description, :mail, :employeenumber, :businesscategory, :employeeType, :homedirectory]
 
     # List of supported hash algorithms keys and string values to operate
     @supported_hash_algorithms_map = {
