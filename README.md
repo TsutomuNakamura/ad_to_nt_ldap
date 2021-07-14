@@ -61,6 +61,8 @@ Attributes to be synched by default are like below.
 | givenName               | &#8594; | givenName                 |      |
 | description             | &#8594; | description               |      |
 | mail                    | &#8594; | mail                      |      |
+| businessCategory        | &#8594; | businessCategory          |      |
+| employeeType            | &#8594; | employeeType              |      |
 | employeeNumber          | &#8594; | employeeNumber            |      |
 | unixHomeDirectory       | &#8594; | homeDirectory             | Synched by different names of attributes between AD and LDAP |
 | -                       | &#8594; | userPassword              | Password of users also will be synched with some limitations |
