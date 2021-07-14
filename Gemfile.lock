@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    adap (0.0.16)
+    adap (0.1.3)
 
 GEM
   remote: https://rubygems.org/
@@ -9,7 +9,6 @@ GEM
     minitest (5.14.0)
     mocha (1.11.2)
     net-ldap (0.16.2)
-    rake (13.0.1)
     unix-crypt (1.3.0)
 
 PLATFORMS
@@ -21,8 +20,7 @@ DEPENDENCIES
   minitest (~> 5.0)
   mocha (~> 1.10)
   net-ldap (~> 0.16.2)
-  rake (~> 13.0)
   unix-crypt (~> 1.3)
 
 BUNDLED WITH
-   2.1.4
+   2.2.23
