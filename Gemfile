@@ -11,3 +11,7 @@ gem "net-ldap", "~> 0.19.0"
 gem "mocha", "~> 2.7"
 
 gem "rake", "~> 13.2"
+
+gem "base64", "~> 0.2.0"
+
+gem "minitest", "~> 5.25"
