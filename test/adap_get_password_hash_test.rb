@@ -5,15 +5,17 @@ class ModAdapTest < Minitest::Test
     mock_ad_and_ldap_connections()
 
     adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password => "ad_secret",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-      :ldap_password => "ldap_secret",
-      :password_hash_algorithm => :virtual_crypt_sha512
+      :ad_host                  => "localhost",
+      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password              => "ad_secret",
+      :ldap_host                => "ldap_server",
+      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password            => "ldap_secret",
+      :password_hash_algorithm  => :virtual_crypt_sha512
     })
     adap.expects(:get_raw_password_from_ad).with("foo", "virtualCryptSHA512").returns("")
 
@@ -31,15 +33,17 @@ class ModAdapTest < Minitest::Test
     mock_ad_and_ldap_connections()
 
     adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password => "ad_secret",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-      :ldap_password => "ldap_secret",
-      :password_hash_algorithm => :virtual_crypt_sha512
+      :ad_host                  => "localhost",
+      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password              => "ad_secret",
+      :ldap_host                => "ldap_server",
+      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password            => "ldap_secret",
+      :password_hash_algorithm  => :virtual_crypt_sha512
     })
     adap.expects(:get_raw_password_from_ad).with("foo", "virtualCryptSHA512").returns(nil)
 
@@ -57,14 +61,17 @@ class ModAdapTest < Minitest::Test
     mock_ad_and_ldap_connections()
 
     adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password => "ad_secret",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-      :ldap_password => "ldap_secret"
+      :ad_host                  => "localhost",
+      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password              => "ad_secret",
+      :ldap_host                => "ldap_server",
+      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password            => "ldap_secret",
+      #:password_hash_algorithm  => :virtual_crypt_sha512
     })
 
     exception = assert_raises RuntimeError do
@@ -81,15 +88,17 @@ class ModAdapTest < Minitest::Test
     mock_ad_and_ldap_connections()
 
     adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password => "ad_secret",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-      :ldap_password => "ldap_secret",
-      :password_hash_algorithm => :virtual_crypt_sha256
+      :ad_host                  => "localhost",
+      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password              => "ad_secret",
+      :ldap_host                => "ldap_server",
+      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password            => "ldap_secret",
+      :password_hash_algorithm  => :virtual_crypt_sha256
     })
     # get_raw_password_from_ad should be called with a parameter 'virtualCryptSHA256'
     adap.expects(:get_raw_password_from_ad).with("foo", "virtualCryptSHA256").returns("secret_sha256")
@@ -102,15 +111,17 @@ class ModAdapTest < Minitest::Test
     mock_ad_and_ldap_connections()
 
     adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password => "ad_secret",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-      :ldap_password => "ldap_secret",
-      :password_hash_algorithm => :virtual_crypt_sha512
+      :ad_host                  => "localhost",
+      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password              => "ad_secret",
+      :ldap_host                => "ldap_server",
+      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password            => "ldap_secret",
+      :password_hash_algorithm  => :virtual_crypt_sha512
     })
     # get_raw_password_from_ad should be called with a parameter 'virtualCryptSHA256'
     adap.expects(:get_raw_password_from_ad).with("foo", "virtualCryptSHA512").returns("secret_sha512")
@@ -124,14 +135,17 @@ class ModAdapTest < Minitest::Test
 
     # Adap chose ssha hash algorithm by default
     adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password => "ad_secret",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-      :ldap_password => "ldap_secret"
+      :ad_host                  => "localhost",
+      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password              => "ad_secret",
+      :ldap_host                => "ldap_server",
+      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password            => "ldap_secret",
+      #:password_hash_algorithm  => :virtual_crypt_sha512
     })
     # get_raw_password_from_ad should be called with a parameter 'virtualCryptSHA256'
     #adap.expects(:create_hashed_password).with("secret").returns("secret_sha512")
@@ -145,15 +159,17 @@ class ModAdapTest < Minitest::Test
 
     # Adap chose ssha hash algorithm by default
     adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password => "ad_secret",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-      :ldap_password => "ldap_secret",
-      :password_hash_algorithm => :md5
+      :ad_host                  => "localhost",
+      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password              => "ad_secret",
+      :ldap_host                => "ldap_server",
+      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password            => "ldap_secret",
+      :password_hash_algorithm  => :md5
     })
     # get_raw_password_from_ad should be called with a parameter 'virtualCryptSHA256'
     #adap.expects(:create_hashed_password).with("secret").returns("secret_sha512")
@@ -167,15 +183,17 @@ class ModAdapTest < Minitest::Test
 
     # Adap chose ssha hash algorithm by default
     adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password => "ad_secret",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-      :ldap_password => "ldap_secret",
-      :password_hash_algorithm => :sha
+      :ad_host                  => "localhost",
+      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password              => "ad_secret",
+      :ldap_host                => "ldap_server",
+      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password            => "ldap_secret",
+      :password_hash_algorithm  => :sha
     })
     # get_raw_password_from_ad should be called with a parameter 'virtualCryptSHA256'
     #adap.expects(:create_hashed_password).with("secret").returns("secret_sha512")
@@ -188,15 +206,17 @@ class ModAdapTest < Minitest::Test
     mock_ad_and_ldap_connections()
 
     adap = Adap.new({
-      :ad_host => "localhost",
-      :ad_binddn => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password => "ad_secret",
-      :ldap_host   => "ldap_server",
-      :ldap_binddn => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn => "dc=mysite,dc=example,dc=com",
-      :ldap_password => "ldap_secret",
-      :password_hash_algorithm => :virtual_crypt_sha512
+      :ad_host                  => "localhost",
+      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password              => "ad_secret",
+      :ldap_host                => "ldap_server",
+      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password            => "ldap_secret",
+      :password_hash_algorithm  => :virtual_crypt_sha512
     })
     adap.expects(:get_raw_password_from_ad).with("foo", "virtualCryptSHA512").returns("secret_sha512\n")
     result = adap.get_password_hash("foo", nil)
