@@ -19,12 +19,13 @@ permissions:
 jobs:
   test:
 
-    runs-on: ubuntu-latest
-    container:
-      image: ruby:3.3
     strategy:
+      fail-fast: false
       matrix:
-        ruby-version: ['3.2']
+        os: [ubuntu-latest, macos-latest]
+        # Due to https://github.com/actions/runner/issues/849, we have to use quotes for '3.0'
+        ruby: ['3.3']
+    runs-on: ${{ matrix.os }}
 
     steps:
     - name: Print variables that will be used
