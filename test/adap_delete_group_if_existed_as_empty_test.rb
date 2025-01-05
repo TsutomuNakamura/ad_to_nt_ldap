@@ -6,7 +6,7 @@ class ModAdapTest < Minitest::Test
     mock_ldap_get_operation_result  = mock()
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "cn=Foo,#{LDAP_GROUP_BASE}", :filter => "(!(memberUid=*))"})  # Yields nothing if the group has memberuids
+      .with(:base => "cn=Foo,#{LDAP_GROUP_BASE}", :filter => "(!(memberUid=*))")  # Yields nothing if the group has memberuids
     mock_ldap_get_operation_result.expects(:code).returns(0)
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result)
 
@@ -20,7 +20,7 @@ class ModAdapTest < Minitest::Test
     mock_ldap_get_operation_result  = mock()
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "cn=Foo,#{LDAP_GROUP_BASE}", :filter => "(!(memberUid=*))"})
+      .with(:base => "cn=Foo,#{LDAP_GROUP_BASE}", :filter => "(!(memberUid=*))")
     mock_ldap_get_operation_result.expects(:code).returns(32)  # Return 32 if the group has already deleted
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result)
 
@@ -34,7 +34,7 @@ class ModAdapTest < Minitest::Test
     mock_ldap_get_operation_result  = mock()
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "cn=Foo,#{LDAP_GROUP_BASE}", :filter => "(!(memberUid=*))"})
+      .with(:base => "cn=Foo,#{LDAP_GROUP_BASE}", :filter => "(!(memberUid=*))")
     mock_ldap_get_operation_result.expects(:code).returns(1)  # Some error
     mock_ldap_get_operation_result.expects(:error_message).returns("Some error")
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
@@ -49,12 +49,12 @@ class ModAdapTest < Minitest::Test
     mock_ldap_get_operation_result  = mock()
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "cn=Foo,#{LDAP_GROUP_BASE}", :filter => "(!(memberUid=*))"})
+      .with(:base => "cn=Foo,#{LDAP_GROUP_BASE}", :filter => "(!(memberUid=*))")
       .yields("Some entry")
     mock_ldap_get_operation_result.expects(:code).returns(0, 1).times(2)  # Failed
     mock_ldap_get_operation_result.expects(:error_message).returns("Some error")
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(3)
-    mock[:ldap_client].expects(:delete).with({:dn => "cn=Foo,#{LDAP_GROUP_BASE}"})
+    mock[:ldap_client].expects(:delete).with(:dn => "cn=Foo,#{LDAP_GROUP_BASE}")
 
     adap = get_general_adap_instance()
     ret = adap.delete_group_if_existed_as_empty("cn=Foo,#{LDAP_GROUP_BASE}")
@@ -66,11 +66,11 @@ class ModAdapTest < Minitest::Test
     mock_ldap_get_operation_result  = mock()
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "cn=Foo,#{LDAP_GROUP_BASE}", :filter => "(!(memberUid=*))"})
+      .with(:base => "cn=Foo,#{LDAP_GROUP_BASE}", :filter => "(!(memberUid=*))")
       .yields("Some entry")
     mock_ldap_get_operation_result.expects(:code).returns(0, 0).times(2)  # Failed
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
-    mock[:ldap_client].expects(:delete).with({:dn => "cn=Foo,#{LDAP_GROUP_BASE}"})
+    mock[:ldap_client].expects(:delete).with(:dn => "cn=Foo,#{LDAP_GROUP_BASE}")
 
     adap = get_general_adap_instance()
     ret = adap.delete_group_if_existed_as_empty("cn=Foo,#{LDAP_GROUP_BASE}")

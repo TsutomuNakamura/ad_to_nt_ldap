@@ -8,11 +8,11 @@ class ModAdapTest < Minitest::Test
     entry = {:cn => "Foo", :gidnumber => 1000, :operations => [[:add, :memberuid, "taro"]]}
 
     adap = get_general_adap_instance()
-    mock[:ldap_client].expects(:search).with({:base => "cn=Foo,#{LDAP_BASE_OF_GROUP}"})
+    mock[:ldap_client].expects(:search).with(:base => "cn=Foo,#{LDAP_GROUP_BASE}")
     mock_ldap_get_operation_result.expects(:code).returns(0)
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result)
 
-    ret = adap.add_group_if_not_existed("cn=Foo,#{LDAP_BASE_OF_GROUP}", entry)
+    ret = adap.add_group_if_not_existed("cn=Foo,#{LDAP_GROUP_BASE}", entry)
     assert_equal({:code => 0, :operations => nil, :message => nil}, ret)
   end
 
@@ -23,12 +23,12 @@ class ModAdapTest < Minitest::Test
     entry = {:cn => "Foo", :gidnumber => 1000, :operations => [[:add, :memberuid, "taro"]]}
 
     adap = get_general_adap_instance()
-    mock[:ldap_client].expects(:search).with({:base => "cn=Foo,#{LDAP_BASE_OF_GROUP}"})
+    mock[:ldap_client].expects(:search).with(:base => "cn=Foo,#{LDAP_GROUP_BASE}")
     mock_ldap_get_operation_result.expects(:code).returns(1)    # Fail
     mock_ldap_get_operation_result.expects(:error_message).returns("Some error")
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
 
-    ret = adap.add_group_if_not_existed("cn=Foo,#{LDAP_BASE_OF_GROUP}", entry)
+    ret = adap.add_group_if_not_existed("cn=Foo,#{LDAP_GROUP_BASE}", entry)
     assert_equal({:code => 1, :operations => nil, :message => "Failed to search LDAP in add_group_if_not_existed(). Some error"}, ret)
   end
 
@@ -39,15 +39,15 @@ class ModAdapTest < Minitest::Test
     entry = {:cn => "Foo", :gidnumber => 1000, :operations => [[:add, :memberuid, "taro"]]}
 
     adap = get_general_adap_instance()
-    mock[:ldap_client].expects(:search).with({:base => "cn=Foo,#{LDAP_BASE_OF_GROUP}"})
+    mock[:ldap_client].expects(:search).with(:base => "cn=Foo,#{LDAP_GROUP_BASE}")
     mock_ldap_get_operation_result.expects(:code).returns(32, 1).times(2)
     mock_ldap_get_operation_result.expects(:error_message).returns("Some error")
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(3)
 
     mock[:ldap_client].expects(:add)
-      .with({:dn => "cn=Foo,#{LDAP_BASE_OF_GROUP}", :attributes => {:objectclass => ["top", "posixGroup"], :gidnumber => 1000, :cn => "Foo"}})
+      .with(:dn => "cn=Foo,#{LDAP_GROUP_BASE}", :attributes => {:objectclass => ["top", "posixGroup"], :gidnumber => 1000, :cn => "Foo"})
 
-    ret = adap.add_group_if_not_existed("cn=Foo,#{LDAP_BASE_OF_GROUP}", entry)
+    ret = adap.add_group_if_not_existed("cn=Foo,#{LDAP_GROUP_BASE}", entry)
     assert_equal({:code => 1, :operations => [:add_group], :message => "Failed to add a group in add_group_if_not_existed(). Some error"}, ret)
   end
 
@@ -58,14 +58,14 @@ class ModAdapTest < Minitest::Test
     entry = {:cn => "Foo", :gidnumber => 1000, :operations => [[:add, :memberuid, "taro"]]}
 
     adap = get_general_adap_instance()
-    mock[:ldap_client].expects(:search).with({:base => "cn=Foo,#{LDAP_BASE_OF_GROUP}"})
+    mock[:ldap_client].expects(:search).with(:base => "cn=Foo,#{LDAP_GROUP_BASE}")
     mock_ldap_get_operation_result.expects(:code).returns(32, 0).times(2)
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
 
     mock[:ldap_client].expects(:add)
-      .with({:dn => "cn=Foo,#{LDAP_BASE_OF_GROUP}", :attributes => {:objectclass => ["top", "posixGroup"], :gidnumber => 1000, :cn => "Foo"}})
+      .with(:dn => "cn=Foo,#{LDAP_GROUP_BASE}", :attributes => {:objectclass => ["top", "posixGroup"], :gidnumber => 1000, :cn => "Foo"})
 
-    ret = adap.add_group_if_not_existed("cn=Foo,#{LDAP_BASE_OF_GROUP}", entry)
+    ret = adap.add_group_if_not_existed("cn=Foo,#{LDAP_GROUP_BASE}", entry)
     assert_equal({:code => 0, :operations => [:add_group], :message => nil}, ret)
   end
 
@@ -76,14 +76,14 @@ class ModAdapTest < Minitest::Test
     entry = {:cn => "Foo", :operations => [[:add, :memberuid, "taro"]]}    # :gidnumber is missing
 
     adap = get_general_adap_instance()
-    mock[:ldap_client].expects(:search).with({:base => "cn=Foo,#{LDAP_BASE_OF_GROUP}"})
+    mock[:ldap_client].expects(:search).with(:base => "cn=Foo,#{LDAP_GROUP_BASE}")
     mock_ldap_get_operation_result.expects(:code).returns(32, 0).times(2)
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
 
     mock[:ldap_client].expects(:add)
-      .with({:dn => "cn=Foo,#{LDAP_BASE_OF_GROUP}", :attributes => {:objectclass => ["top", "posixGroup"], :cn => "Foo"}})  # :gidnumber is missing
+      .with(:dn => "cn=Foo,#{LDAP_GROUP_BASE}", :attributes => {:objectclass => ["top", "posixGroup"], :cn => "Foo"})  # :gidnumber is missing
 
-    ret = adap.add_group_if_not_existed("cn=Foo,#{LDAP_BASE_OF_GROUP}", entry)
+    ret = adap.add_group_if_not_existed("cn=Foo,#{LDAP_GROUP_BASE}", entry)
     assert_equal({:code => 0, :operations => [:add_group], :message => nil}, ret)
   end
 
@@ -94,14 +94,14 @@ class ModAdapTest < Minitest::Test
     entry = {:gidnumber => 1000, :operations => [[:add, :memberuid, "taro"]]}
 
     adap = get_general_adap_instance()
-    mock[:ldap_client].expects(:search).with({:base => "cn=Foo,#{LDAP_BASE_OF_GROUP}"})
+    mock[:ldap_client].expects(:search).with(:base => "cn=Foo,#{LDAP_GROUP_BASE}")
     mock_ldap_get_operation_result.expects(:code).returns(32, 0).times(2)
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
 
     mock[:ldap_client].expects(:add)
-      .with({:dn => "cn=Foo,#{LDAP_BASE_OF_GROUP}", :attributes => {:objectclass => ["top", "posixGroup"], :gidnumber => 1000}})
+      .with(:dn => "cn=Foo,#{LDAP_GROUP_BASE}", :attributes => {:objectclass => ["top", "posixGroup"], :gidnumber => 1000})
 
-    ret = adap.add_group_if_not_existed("cn=Foo,#{LDAP_BASE_OF_GROUP}", entry)
+    ret = adap.add_group_if_not_existed("cn=Foo,#{LDAP_GROUP_BASE}", entry)
     assert_equal({:code => 0, :operations => [:add_group], :message => nil}, ret)
   end
 end
