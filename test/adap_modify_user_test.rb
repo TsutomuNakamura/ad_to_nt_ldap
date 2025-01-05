@@ -6,12 +6,12 @@ class ModAdapTest < Minitest::Test
     mock_ldap_get_operation_result  = mock()
 
     # @ldap_client.modify
-    mock[:ldap_client].expects(:modify).with({
+    mock[:ldap_client].expects(:modify).with(
       :dn => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com",
       :operations => [
         [:replace, :cn, "cn_ad"]
       ]
-    }).returns(true)
+    ).returns(true)
 
     # @ldap_client.get_operation_result.code of @ldap_client.modify
     mock_ldap_get_operation_result.expects(:code).returns(1)
@@ -44,12 +44,12 @@ class ModAdapTest < Minitest::Test
     mock_ldap_get_operation_result  = mock()
 
     # @ldap_client.modify
-    mock[:ldap_client].expects(:modify).with({
+    mock[:ldap_client].expects(:modify).with(
       :dn => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com",
       :operations => [
         [:replace, :cn, "cn_ad"]
       ]
-    }).returns(true)
+    ).returns(true)
 
     # @ldap_client.get_operation_result.code
     mock_ldap_get_operation_result.expects(:code).returns(0)

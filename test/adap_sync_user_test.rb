@@ -8,7 +8,7 @@ class ModAdapTest < Minitest::Test
 
     # @ad_client.search()
     mock[:ad_client].expects(:search)
-      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .with(:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
       .yields({:objectclass => ["top", "person"], :cn => "ad"})
 
     # @ad_client.get_operation_result.code
@@ -19,17 +19,19 @@ class ModAdapTest < Minitest::Test
 
     # Testing from here
     adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
-    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
-    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_user_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     ret = adap.sync_user("foo", nil)
     assert_equal({:code => 1, :operations => nil, :message => "Failed to get a user CN=foo,CN=Users,DC=mysite,DC=example,DC=com from AD - Some error"}, ret)
   end
@@ -41,11 +43,11 @@ class ModAdapTest < Minitest::Test
 
     # @ad_client.search()
     mock[:ad_client].expects(:search)
-      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .with(:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
       .yields({:objectclass => ["top", "person"], :cn => "ad"})
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
+      .with(:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
       .yields({:objectclass => ["top", "person"], :cn => "ldap"})
 
     # @ad_client.get_operation_result.code
@@ -60,17 +62,19 @@ class ModAdapTest < Minitest::Test
 
     # Testing from here
     adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
-    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
-    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_user_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     ret = adap.sync_user("foo", nil)
     assert_equal({:code => 1, :operations => nil, :message => "Failed to get a user uid=foo,ou=Users,dc=mysite,dc=example,dc=com from LDAP - Some error"}, ret)
   end
@@ -82,11 +86,11 @@ class ModAdapTest < Minitest::Test
 
     # @ad_client.search()
     mock[:ad_client].expects(:search)
-      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .with(:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
       .yields({:objectclass => ["top", "person"], :cn => "ad"})
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
+      .with(:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
       .yields(nil)
 
     # @ad_client.get_operation_result.code
@@ -100,17 +104,19 @@ class ModAdapTest < Minitest::Test
 
     # Testing from here
     adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
-    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
-    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_user_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     adap.expects(:get_password_hash).with("foo", "secret").returns("{SSHA}secret")
     adap.expects(:add_user)
       .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com", {:objectclass => ["top", "person"], :cn => "ad"}, "{SSHA}secret")
@@ -133,11 +139,11 @@ class ModAdapTest < Minitest::Test
 
     # @ad_client.search()
     mock[:ad_client].expects(:search)
-      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .with(:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
       .yields(nil)
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
+      .with(:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
       .yields({:objectclass => ["top", "person"], :cn => "ad"})
 
     ## ad_client == nil and ldap_client != nil -> delete_user
@@ -153,17 +159,19 @@ class ModAdapTest < Minitest::Test
 
     # Testing from here
     adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
-    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
-    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_user_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     adap.expects(:delete_user)
       .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
       .returns({:code => 0, :operations => [:delete_user], :message => "Success delete_user"})
@@ -183,11 +191,11 @@ class ModAdapTest < Minitest::Test
 
     # @ad_client.search()
     mock[:ad_client].expects(:search)
-      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .with(:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
       .yields({:objectclass => ["top", "person"], :cn => "ad"})
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
+      .with(:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
       .yields({:objectclass => ["top", "person"], :cn => "ldap"})
 
     # @ad_client.get_operation_result.code
@@ -201,17 +209,19 @@ class ModAdapTest < Minitest::Test
 
     # Testing from here
     adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
-    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
-    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_user_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     adap.expects(:get_password_hash).with("foo", "secret").returns("{SSHA}secret")
     adap.expects(:modify_user)
       .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com", {:objectclass => ["top", "person"], :cn => "ad"}, {:objectclass => ["top", "person"], :cn => "ldap"}, "{SSHA}secret")
@@ -234,11 +244,11 @@ class ModAdapTest < Minitest::Test
 
     # @ad_client.search()
     mock[:ad_client].expects(:search)
-      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .with(:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
       .yields({:objectclass => ["top", "person"], :cn => "ad"})
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
+      .with(:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
       .yields({:objectclass => ["top", "person"], :cn => "ldap"})
 
     # @ad_client.get_operation_result.code
@@ -252,17 +262,19 @@ class ModAdapTest < Minitest::Test
 
     # Testing from here
     adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
-    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
-    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_user_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     adap.expects(:modify_user)
       .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com", {:objectclass => ["top", "person"], :cn => "ad"}, {:objectclass => ["top", "person"], :cn => "ldap"}, nil)
       .returns({:code => 0, :operations => [:modify_user], :message => "Success add_user"})
@@ -284,11 +296,11 @@ class ModAdapTest < Minitest::Test
 
     # @ad_client.search()
     mock[:ad_client].expects(:search)
-      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .with(:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
       .yields(nil)
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
+      .with(:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
       .yields(nil)
 
     # @ad_client.get_operation_result.code
@@ -302,17 +314,19 @@ class ModAdapTest < Minitest::Test
 
     # Testing from here
     adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
-    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
-    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_user_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
 
     ret = adap.sync_user("foo", "secret")
     assert_equal({:code => 0, :operations => nil, :message => "There are not any data of foo to sync."}, ret)
@@ -325,11 +339,11 @@ class ModAdapTest < Minitest::Test
 
     # @ad_client.search()
     mock[:ad_client].expects(:search)
-      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .with(:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
       .yields(nil)
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
+      .with(:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
       .yields(nil)
 
     ## ad_client == nil and ldap_client != nil -> delete_user
@@ -345,17 +359,19 @@ class ModAdapTest < Minitest::Test
 
     # Testing from here
     adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
-    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
-    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_user_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
 
     ret = adap.sync_user("foo", "secret")
     assert_equal({:code => 0, :operations => nil, :message => "There are not any data of foo to sync."}, ret)
@@ -368,11 +384,11 @@ class ModAdapTest < Minitest::Test
 
     # @ad_client.search()
     mock[:ad_client].expects(:search)
-      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .with(:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
       .yields(nil)
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
+      .with(:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
       .yields(nil)
 
     ## ad_client == nil and ldap_client != nil -> delete_user
@@ -388,17 +404,19 @@ class ModAdapTest < Minitest::Test
 
     # Testing from here
     adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
-    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
-    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_user_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
 
     ret = adap.sync_user("foo", "secret")
     assert_equal({:code => 0, :operations => nil, :message => "There are not any data of foo to sync."}, ret)
@@ -411,11 +429,11 @@ class ModAdapTest < Minitest::Test
 
     # @ad_client.search()
     mock[:ad_client].expects(:search)
-      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .with(:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
       .yields(nil)
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
+      .with(:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
       .yields(nil)
 
     # @ad_client.get_operation_result.code
@@ -429,17 +447,19 @@ class ModAdapTest < Minitest::Test
 
     # Testing from here
     adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
-    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
-    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_user_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
 
     ret = adap.sync_user("foo", "secret")
     assert_equal({:code => 0, :operations => nil, :message => "There are not any data of foo to sync."}, ret)
@@ -452,11 +472,11 @@ class ModAdapTest < Minitest::Test
 
     # @ad_client.search()
     mock[:ad_client].expects(:search)
-      .with({:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com"})
+      .with(:base => "CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
       .yields({:objectclass => ["top", "person"], :cn => "ad"})
 
     mock[:ldap_client].expects(:search)
-      .with({:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com"})
+      .with(:base => "uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
       .yields({:objectclass => ["top", "person"], :cn => "ldap"})
 
     # @ad_client.get_operation_result.code
@@ -471,17 +491,19 @@ class ModAdapTest < Minitest::Test
 
     # Testing from here
     adap = Adap.new({
-      :ad_host        => "localhost",
-      :ad_binddn      => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password    => "ad_secret",
-      :ldap_host      => "ldap_server",
-      :ldap_binddn    => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_basedn    => "dc=mysite,dc=example,dc=com",
-      :ldap_password  => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
-    adap.expects(:get_ad_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
-    adap.expects(:get_ldap_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
+    adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
+    adap.expects(:get_ldap_user_dn).returns("uid=foo,ou=Users,dc=mysite,dc=example,dc=com")
     adap.expects(:get_password_hash).with("foo", "secret").returns("{SSHA}secret")
     adap.expects(:modify_user)
       .with("uid=foo,ou=Users,dc=mysite,dc=example,dc=com", {:objectclass => ["top", "person"], :cn => "ad"}, {:objectclass => ["top", "person"], :cn => "ldap"}, "{SSHA}secret")

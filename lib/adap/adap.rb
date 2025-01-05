@@ -19,8 +19,8 @@ class Adap
   def initialize(params)
     raise "Initialize Adap was failed. params must not be nil" if params == nil
 
-    [:ad_host, :ad_binddn, :ad_basedn, :ldap_host, :ldap_binddn, :ldap_basedn].each { |k|
-      raise 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_basedn", ":ldap_host", ":ldap_binddn", ":ldap_basedn"' if !params.key?(k)
+    [:ad_host, :ad_binddn, :ad_user_basedn, :ad_group_basedn, :ldap_host, :ldap_binddn, :ldap_user_basedn, :ldap_group_basedn].each { |k|
+      raise 'Adap requires keys in params ":ad_host", ":ad_binddn", ":ad_user_basedn", ":ad_group_basedn", ":ldap_host", ":ldap_binddn", ":ldap_user_basedn", ":ldap_group_basedn"' if !params.key?(k)
     }
 
     # List of attributes for user in AD
@@ -42,14 +42,15 @@ class Adap
     @ad_host                  = params[:ad_host]
     @ad_port                  = (params[:ad_port] ? params[:ad_port] : 389)
     @ad_binddn                = params[:ad_binddn]
-    @ad_basedn                = params[:ad_basedn]
+    @ad_user_basedn           = params[:ad_user_basedn]
+    @ad_group_basedn          = params[:ad_group_basedn]
     @ad_auth                  = (params.has_key?(:ad_password) ? { :method => :simple, :username => @ad_binddn, :password => params[:ad_password] } : nil)
     @ldap_host                = params[:ldap_host]
     @ldap_port                = (params[:ldap_port] ? params[:ldap_port] : 389)
     @ldap_binddn              = params[:ldap_binddn]
-    @ldap_suffix_ou           = (params[:ldap_suffix_ou] ? params[:ldap_suffix_ou] : "ou=Users")
     @ldap_basedn              = params[:ldap_basedn]
     @ldap_user_basedn         = params[:ldap_user_basedn]
+    @ldap_group_basedn        = params[:ldap_group_basedn]
     @ldap_auth                = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_binddn, :password => params[:ldap_password] } : nil )
 
     # A password-hash algorithm to sync to the LDAP.
@@ -99,12 +100,12 @@ class Adap
     Net::LDAP.new(:host => ldap_host, :port => ldap_port, :auth => ldap_auth)
   end
 
-  def get_ad_dn(username)
-    "CN=#{username},CN=Users,#{@ad_basedn}"
+  def get_ad_user_dn(username)
+    "CN=#{username},#{@ad_user_basedn}"
   end
 
-  def get_ldap_dn(username)
-    "uid=#{username},#{@ldap_suffix_ou},#{@ldap_basedn}"
+  def get_ldap_user_dn(username)
+    "uid=#{username},#{@ldap_user_basedn}"
   end
 
   def create_ldap_attributes(ad_entry)
@@ -159,13 +160,13 @@ class Adap
   end
 
   def sync_user(uid, password=nil)
-    ad_entry    = nil
-    ldap_entry  = nil
-    ad_dn       = get_ad_dn(uid)
-    ldap_dn     = get_ldap_dn(uid)
+    ad_entry        = nil
+    ldap_entry      = nil
+    ad_user_dn      = get_ad_user_dn(uid)
+    ldap_user_dn    = get_ldap_user_dn(uid)
 
     # dn: CN=user-name,CN=Users,DC=mysite,DC=example,DC=com
-    @ad_client.search(:base => ad_dn) do |entry|
+    @ad_client.search(:base => ad_user_dn) do |entry|
       ad_entry = entry
     end
     ret_code = @ad_client.get_operation_result.code
@@ -174,10 +175,10 @@ class Adap
     return {
       :code => ret_code,
       :operations => nil,
-      :message => "Failed to get a user #{ad_dn} from AD - " + @ad_client.get_operation_result.error_message
+      :message => "Failed to get a user #{ad_user_dn} from AD - " + @ad_client.get_operation_result.error_message
     } if ret_code != 0 && ret_code != 32
 
-    @ldap_client.search(:base => ldap_dn) do |entry|
+    @ldap_client.search(:base => ldap_user_dn) do |entry|
       ldap_entry = entry
     end
     ret_code = @ldap_client.get_operation_result.code
@@ -185,17 +186,17 @@ class Adap
     return {
       :code => ret_code,
       :operations => nil,
-      :message => "Failed to get a user #{ldap_dn} from LDAP - " + @ldap_client.get_operation_result.error_message
+      :message => "Failed to get a user #{ldap_user_dn} from LDAP - " + @ldap_client.get_operation_result.error_message
     } if ret_code != 0 && ret_code != 32
 
     ret = nil
     if !ad_entry.nil? and ldap_entry.nil? then
-      ret = add_user(ldap_dn, ad_entry, get_password_hash(uid, password))
+      ret = add_user(ldap_user_dn, ad_entry, get_password_hash(uid, password))
     elsif ad_entry.nil? and !ldap_entry.nil? then
-      ret = delete_user(ldap_dn)
+      ret = delete_user(ldap_user_dn)
     elsif !ad_entry.nil? and !ldap_entry.nil? then
       ret = modify_user(
-        ldap_dn,
+        ldap_user_dn,
         ad_entry,
         ldap_entry,
         ( password.nil? and (@unsupported_hash_algorithms_in_ad.include?(@password_hash_algorithm)) ) ? nil : get_password_hash(uid, password)
@@ -341,21 +342,28 @@ class Adap
     # Creating AD ldapsearch filter
 
     ad_filter = if primary_gid_number == nil then
+      # TODO: Searching with filter `objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn}` is more accureate.
+      #Net::LDAP::Filter.construct(
+      #    "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(member=CN=#{uid},CN=Users,#{@ad_basedn}))")
+
       Net::LDAP::Filter.construct(
-          "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(member=CN=#{uid},CN=Users,#{@ad_basedn}))")
+          "(&(objectClass=group)(member=CN=#{uid},#{@ad_user_basedn}))")
     else
+      # TODO: Searching with filter `objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn}` is more accureate.
+      #Net::LDAP::Filter.construct(
+      #    "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(|(member=CN=#{uid},CN=Users,#{@ad_basedn})(gidNumber=#{primary_gid_number})))")
+
       Net::LDAP::Filter.construct(
-          "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(|(member=CN=#{uid},CN=Users,#{@ad_basedn})(gidNumber=#{primary_gid_number})))")
+          "(&(objectClass=group)(|(member=CN=#{uid},#{@ad_user_basedn})(gidNumber=#{primary_gid_number})))")
     end
 
     # Get groups from AD
     # entry = {
     #   :gidnumber => xxx,
     # }
-    #
-    @ad_client.search(:base => @ad_basedn, :filter => ad_filter) do |entry|
-      ad_group_map[entry[:name].first] = {:gidnumber => entry[:gidnumber]}
-      #ad_group_map[entry[:name]] = nil
+    @ad_client.search(:base => @ad_group_basedn, :filter => ad_filter, :attributes => [:cn, :gidnumber]) do |entry|
+      ad_group_map[entry[:cn].first] = {:gidnumber => entry[:gidnumber]}
+      #ad_group_map[entry[:cn]] = nil
     end
     ret_code = @ad_client.get_operation_result.code
 
@@ -369,8 +377,8 @@ class Adap
     ldap_filter = Net::LDAP::Filter.construct("(memberUid=#{uid})")
 
     # Get groups from LDAP
-    @ldap_client.search(:base => "ou=Groups," + @ldap_basedn, :filter => ldap_filter) do |entry|
-      # gidnumber is not necessary for LDAP entry
+    @ldap_client.search(:base => @ldap_group_basedn, :filter => ldap_filter, :attributes => [:cn]) do |entry|
+      # Capture common name of groups. gidnumber is not necessary for LDAP entry
       ldap_group_map[entry[:cn].first] = nil
     end
     ret_code = @ldap_client.get_operation_result.code
@@ -408,7 +416,7 @@ class Adap
     operation_pool = {}
 
     ad_group_map.each_key do |key|
-      dn = "cn=#{key},ou=Groups,#{@ldap_basedn}"
+      dn = "cn=#{key},#{@ldap_group_basedn}"
       # Convert AD entries to LDAP entries to create operation to update LDAP data.
       operation_pool[dn] = {
         :cn => key,
@@ -418,7 +426,7 @@ class Adap
     end
 
     ldap_group_map.each_key do |key|
-      operation_pool["cn=#{key},ou=Groups,#{@ldap_basedn}"] = {
+      operation_pool["cn=#{key},#{@ldap_group_basedn}"] = {
         # :cn and :gidnumber are not necessary
         :operations => [[:delete, :memberuid, uid]]
       } if !ad_group_map.has_key?(key)
