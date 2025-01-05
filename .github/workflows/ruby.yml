@@ -9,6 +9,7 @@ name: Ruby
 
 on:
   push:
+    tags: ["v*"]
     branches: [ "master", "develop" ]
   pull_request:
     branches: [ "master" ]
@@ -57,3 +58,9 @@ jobs:
         cd ${GITHUB_WORKSPACE}/${{ github.event.repository.name }}
         bundle install --retry 3
         bundle exec rake
+
+    - name: Push to rubygems.org
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        echo "DEMO: Push to rubygems.org"
+
