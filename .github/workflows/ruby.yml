@@ -20,12 +20,24 @@ jobs:
   test:
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ruby-version: ['3.3']
+    container:
+      image: ruby:3.3
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Print variables that will be used
+      run: |
+        # You can list GitHub Actionses variables with a command below.
+        # $ grep -oP '\$\{\{.*?\}\}' .github/workflows/docker-image.yml | sort | uniq
+        echo env.dest_repository_name=${{ env.dest_repository_name }}
+        echo env.dest_repository_owner_name=${{ env.dest_repository_owner_name }}
+        echo github.event.repository.name=${{ github.event.repository.name }}
+        echo github.event.repository.owner.name=${{ github.event.repository.owner.name }}
+
+    - name: Check out ${{ github.event.repository.owner.name }}/${{ github.event.repository.name }}
+      uses: actions/checkout@v4
+      with:
+        path: ${{ github.event.repository.name }}
+
     - name: Set up Ruby
     # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
     # change this to (see https://github.com/ruby/setup-ruby#versioning):
@@ -34,5 +46,9 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        cd ${GITHUB_WORKSPACE}/${{ github.event.repository.name }}
+        bundle install --retry 3
+        bundle exec rake
