@@ -101,7 +101,7 @@ class Adap
   end
 
   def get_ad_user_dn(username)
-    "CN=#{username},CN=Users,#{@ad_basedn}"
+    "CN=#{username},#{@ad_user_basedn}"
   end
 
   def get_ldap_user_dn(username)
@@ -342,21 +342,28 @@ class Adap
     # Creating AD ldapsearch filter
 
     ad_filter = if primary_gid_number == nil then
+      # TODO: Searching with filter `objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn}` is more accureate.
+      #Net::LDAP::Filter.construct(
+      #    "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(member=CN=#{uid},CN=Users,#{@ad_basedn}))")
+
       Net::LDAP::Filter.construct(
-          "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(member=CN=#{uid},CN=Users,#{@ad_basedn}))")
+          "(&(objectClass=group)(member=CN=#{uid},#{@ad_user_basedn}))")
     else
+      # TODO: Searching with filter `objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn}` is more accureate.
+      #Net::LDAP::Filter.construct(
+      #    "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(|(member=CN=#{uid},CN=Users,#{@ad_basedn})(gidNumber=#{primary_gid_number})))")
+
       Net::LDAP::Filter.construct(
-          "(&(objectCategory=CN=Group,CN=Schema,CN=Configuration,#{@ad_basedn})(|(member=CN=#{uid},CN=Users,#{@ad_basedn})(gidNumber=#{primary_gid_number})))")
+          "(&(objectClass=group)(|(member=CN=#{uid},#{@ad_user_basedn})(gidNumber=#{primary_gid_number})))")
     end
 
     # Get groups from AD
     # entry = {
     #   :gidnumber => xxx,
     # }
-    #
-    @ad_client.search(:base => @ad_basedn, :filter => ad_filter) do |entry|
-      ad_group_map[entry[:name].first] = {:gidnumber => entry[:gidnumber]}
-      #ad_group_map[entry[:name]] = nil
+    @ad_client.search(:base => @ad_group_basedn, :filter => ad_filter, :attributes => [:cn, :gidnumber]) do |entry|
+      ad_group_map[entry[:cn].first] = {:gidnumber => entry[:gidnumber]}
+      #ad_group_map[entry[:cn]] = nil
     end
     ret_code = @ad_client.get_operation_result.code
 
@@ -370,8 +377,8 @@ class Adap
     ldap_filter = Net::LDAP::Filter.construct("(memberUid=#{uid})")
 
     # Get groups from LDAP
-    @ldap_client.search(:base => @ldap_group_basedn, :filter => ldap_filter) do |entry|
-      # gidnumber is not necessary for LDAP entry
+    @ldap_client.search(:base => @ldap_group_basedn, :filter => ldap_filter, :attributes => [:cn]) do |entry|
+      # Capture common name of groups. gidnumber is not necessary for LDAP entry
       ldap_group_map[entry[:cn].first] = nil
     end
     ret_code = @ldap_client.get_operation_result.code
