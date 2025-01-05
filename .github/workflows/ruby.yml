@@ -60,7 +60,7 @@ jobs:
         bundle exec rake
 
     - name: Push to rubygems.org
-      if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+      if: startsWith(github.ref, 'refs/tags/v')
       run: |
         echo "DEMO: Push to rubygems.org"
 
