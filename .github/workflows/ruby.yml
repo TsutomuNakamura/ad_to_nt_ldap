@@ -8,6 +8,11 @@
 name: Ruby
 
 on:
+  workflow_dispatch:    # Allows you to run this workflow manually from the Actions tab or GitHub CLI(gh workflow run)
+    inputs:
+      otp:
+        description: "One-time password for RubyGems.org"
+        required: true
   push:
     tags: ["v*"]
     branches: [ "master", "develop" ]
