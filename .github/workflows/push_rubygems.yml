@@ -1,0 +1,51 @@
+
+
+name: Ruby
+
+on:
+  workflow_dispatch:    # Allows you to run this workflow manually from the Actions tab or GitHub CLI(gh workflow run)
+    inputs:
+      otp:
+        description: "One-time password for RubyGems.org"
+        required: true
+
+permissions:
+  contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        #os: [ubuntu-latest]
+        os: [ubuntu-24.04]
+        # Due to https://github.com/actions/runner/issues/849, we have to use quotes for '3.0'
+        ruby: ['3.3']
+    runs-on: ${{ matrix.os }}
+    env:
+      GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+      GEM_HOST_OTP_CODE: ${{ github.event.inputs.rubygems-otp-code }}
+
+    - name: Check out ${{ github.event.repository.owner.name }}/${{ github.event.repository.name }}
+      uses: actions/checkout@v4
+      with:
+        path: ${{ github.event.repository.name }}
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
+    - name: Run tests
+      run: |
+        cd ${GITHUB_WORKSPACE}/${{ github.event.repository.name }}
+        bundle install --retry 3
+        bundle exec rake
+
+    - name: Push to rubygems.org
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        echo "Pushing to rubygems.org. You need update the version in lib/adap/version.rb before pushing it."
+        echo "Detected version is \"$(grep VERSION lib/adap/version.rb)\""
+        cd ${GITHUB_WORKSPACE}/${{ github.event.repository.name }}
+        bundle exec rake release
+

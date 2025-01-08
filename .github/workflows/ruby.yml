@@ -8,11 +8,6 @@
 name: Ruby
 
 on:
-  workflow_dispatch:    # Allows you to run this workflow manually from the Actions tab or GitHub CLI(gh workflow run)
-    inputs:
-      otp:
-        description: "One-time password for RubyGems.org"
-        required: true
   push:
     tags: ["v*"]
     branches: [ "master", "develop" ]
@@ -33,9 +28,6 @@ jobs:
         # Due to https://github.com/actions/runner/issues/849, we have to use quotes for '3.0'
         ruby: ['3.3']
     runs-on: ${{ matrix.os }}
-    env:
-      GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
-      GEM_HOST_OTP_CODE: ${{ github.event.inputs.rubygems-otp-code }}
 
     steps:
     - name: Print variables that will be used
