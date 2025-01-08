@@ -35,6 +35,11 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
+      - name: Configure Git to be able to push git tag to GitHub
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+
       - name: Run tests
         run: |
           cd ${GITHUB_WORKSPACE}/${{ github.event.repository.name }}
