@@ -14,7 +14,12 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        os: [ubuntu-24.04]
+        ruby: ['3.3']
+
+    runs-on: ${{ matrix.os }}
     env:
       GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
       GEM_HOST_OTP_CODE: ${{ github.event.inputs.rubygems-otp-code }}
