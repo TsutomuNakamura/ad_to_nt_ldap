@@ -59,11 +59,3 @@ jobs:
         bundle install --retry 3
         bundle exec rake
 
-    - name: Push to rubygems.org
-      if: startsWith(github.ref, 'refs/tags/v')
-      run: |
-        echo "Pushing to rubygems.org. You need update the version in lib/adap/version.rb before pushing it."
-        echo "Detected version is \"$(grep VERSION lib/adap/version.rb)\""
-        cd ${GITHUB_WORKSPACE}/${{ github.event.repository.name }}
-        bundle exec rake release
-
