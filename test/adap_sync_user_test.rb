@@ -20,14 +20,14 @@ class ModAdapTest < Minitest::Test
     # Testing from here
     adap = Adap.new({
       :ad_host              => "localhost",
-      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password          => "ad_secret",
       :ldap_host            => "ldap_server",
-      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password        => "ldap_secret"
     })
     adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
@@ -63,14 +63,14 @@ class ModAdapTest < Minitest::Test
     # Testing from here
     adap = Adap.new({
       :ad_host              => "localhost",
-      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password          => "ad_secret",
       :ldap_host            => "ldap_server",
-      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password        => "ldap_secret"
     })
     adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
@@ -105,14 +105,14 @@ class ModAdapTest < Minitest::Test
     # Testing from here
     adap = Adap.new({
       :ad_host              => "localhost",
-      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password          => "ad_secret",
       :ldap_host            => "ldap_server",
-      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password        => "ldap_secret"
     })
     adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
@@ -160,14 +160,14 @@ class ModAdapTest < Minitest::Test
     # Testing from here
     adap = Adap.new({
       :ad_host              => "localhost",
-      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password          => "ad_secret",
       :ldap_host            => "ldap_server",
-      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password        => "ldap_secret"
     })
     adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
@@ -210,14 +210,14 @@ class ModAdapTest < Minitest::Test
     # Testing from here
     adap = Adap.new({
       :ad_host              => "localhost",
-      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password          => "ad_secret",
       :ldap_host            => "ldap_server",
-      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password        => "ldap_secret"
     })
     adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
@@ -263,14 +263,14 @@ class ModAdapTest < Minitest::Test
     # Testing from here
     adap = Adap.new({
       :ad_host              => "localhost",
-      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password          => "ad_secret",
       :ldap_host            => "ldap_server",
-      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password        => "ldap_secret"
     })
     adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
@@ -315,14 +315,14 @@ class ModAdapTest < Minitest::Test
     # Testing from here
     adap = Adap.new({
       :ad_host              => "localhost",
-      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password          => "ad_secret",
       :ldap_host            => "ldap_server",
-      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password        => "ldap_secret"
     })
     adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
@@ -360,14 +360,14 @@ class ModAdapTest < Minitest::Test
     # Testing from here
     adap = Adap.new({
       :ad_host              => "localhost",
-      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password          => "ad_secret",
       :ldap_host            => "ldap_server",
-      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password        => "ldap_secret"
     })
     adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
@@ -405,14 +405,14 @@ class ModAdapTest < Minitest::Test
     # Testing from here
     adap = Adap.new({
       :ad_host              => "localhost",
-      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password          => "ad_secret",
       :ldap_host            => "ldap_server",
-      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password        => "ldap_secret"
     })
     adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
@@ -448,14 +448,14 @@ class ModAdapTest < Minitest::Test
     # Testing from here
     adap = Adap.new({
       :ad_host              => "localhost",
-      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password          => "ad_secret",
       :ldap_host            => "ldap_server",
-      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password        => "ldap_secret"
     })
     adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
@@ -492,14 +492,14 @@ class ModAdapTest < Minitest::Test
     # Testing from here
     adap = Adap.new({
       :ad_host              => "localhost",
-      :ad_binddn            => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn       => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password          => "ad_secret",
       :ldap_host            => "ldap_server",
-      :ldap_binddn          => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn     => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn    => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password        => "ldap_secret"
     })
     adap.expects(:get_ad_user_dn).returns("CN=foo,CN=Users,DC=mysite,DC=example,DC=com")
