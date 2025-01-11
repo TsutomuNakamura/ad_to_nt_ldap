@@ -28,14 +28,11 @@ $ gh workflow run
 ? otp (required)                                           // <- Input the OTP code
 ```
 
-
-
 ```
 $ gh run list --workflow=release.yml
 STATUS  TITLE  WORKFLOW  BRANCH  EVENT              ID           ELAPSED  AGE
 *       Ruby   Ruby      master  workflow_dispatch  12673039585  10s      less than a minute ago
 ```
-
 
 ## For release (non-interactively)
 You can also trigger the release workflow non-interactively.
