@@ -27,16 +27,16 @@ class ModAdapTest < Minitest::Test
     mock[:ldap_client].expects(:get_operation_result).returns(mock_get_operation_result).times(2)
 
     adap = Adap.new({
-      :ad_host            => "localhost",
-      :ad_binddn          => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn     => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn    => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password        => "ad_secret",
-      :ldap_host          => "ldap_server",
-      :ldap_binddn        => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn   => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn  => "ou=Groups,dc=mysite,dc=example,dc=com",
-      :ldap_password      => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
     adap.expects(:create_ldap_attributes)
       .with({:objectclass => ["top", "person"], :cn => "foo"})
@@ -53,16 +53,16 @@ class ModAdapTest < Minitest::Test
 
   def test_add_user_should_failed_if_the_argument_of_password_was_nil
     adap = Adap.new({
-      :ad_host            => "localhost",
-      :ad_binddn          => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn     => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn    => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password        => "ad_secret",
-      :ldap_host          => "ldap_server",
-      :ldap_binddn        => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn   => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn  => "ou=Groups,dc=mysite,dc=example,dc=com",
-      :ldap_password      => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
 
 
@@ -78,16 +78,16 @@ class ModAdapTest < Minitest::Test
 
   def test_add_user_should_failed_if_the_argument_of_password_was_empty_string
     adap = Adap.new({
-      :ad_host            => "localhost",
-      :ad_binddn          => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn     => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn    => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password        => "ad_secret",
-      :ldap_host          => "ldap_server",
-      :ldap_binddn        => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn   => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn  => "ou=Groups,dc=mysite,dc=example,dc=com",
-      :ldap_password      => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
 
     exception = assert_raises RuntimeError do
@@ -132,14 +132,14 @@ class ModAdapTest < Minitest::Test
 
     adap = Adap.new({
       :ad_host            => "localhost",
-      :ad_binddn          => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn     => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn    => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn          => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn    => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password        => "ad_secret",
       :ldap_host          => "ldap_server",
-      :ldap_binddn        => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn   => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn  => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn        => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn   => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn  => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password      => "ldap_secret"
     })
 
@@ -189,16 +189,16 @@ class ModAdapTest < Minitest::Test
     mock[:ldap_client].expects(:get_operation_result).returns(mock_ldap_get_operation_result).times(2)
 
     adap = Adap.new({
-      :ad_host            => "localhost",
-      :ad_binddn          => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn     => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn    => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password        => "ad_secret",
-      :ldap_host          => "ldap_server",
-      :ldap_binddn        => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn   => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn  => "ou=Groups,dc=mysite,dc=example,dc=com",
-      :ldap_password      => "ldap_secret"
+      :ad_host              => "localhost",
+      :ad_bind_dn           => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn      => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn     => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password          => "ad_secret",
+      :ldap_host            => "ldap_server",
+      :ldap_bind_dn         => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn    => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn   => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password        => "ldap_secret"
     })
     adap.expects(:create_ldap_attributes)
       .with({:objectclass => ["top", "person"], :cn => "foo"})
