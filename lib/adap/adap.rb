@@ -48,7 +48,6 @@ class Adap
     @ldap_host                = params[:ldap_host]
     @ldap_port                = (params[:ldap_port] ? params[:ldap_port] : 389)
     @ldap_bind_dn             = params[:ldap_bind_dn]
-    @ldap_base_dn             = params[:ldap_base_dn]
     @ldap_user_base_dn        = params[:ldap_user_base_dn]
     @ldap_group_base_dn       = params[:ldap_group_base_dn]
     @ldap_auth                = (params.has_key?(:ldap_password) ? { :method => :simple, :username => @ldap_bind_dn, :password => params[:ldap_password] } : nil )
