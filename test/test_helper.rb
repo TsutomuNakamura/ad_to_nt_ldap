@@ -46,14 +46,14 @@ end
 def get_general_adap_instance(ex_options = nil)
   options = {
     :ad_host            => "localhost",
-    :ad_binddn          => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-    :ad_user_basedn     => "CN=Users,DC=mysite,DC=example,DC=com",
-    :ad_group_basedn    => "CN=Users,DC=mysite,DC=example,DC=com",
+    :ad_bind_dn         => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+    :ad_user_base_dn    => "CN=Users,DC=mysite,DC=example,DC=com",
+    :ad_group_base_dn   => "CN=Users,DC=mysite,DC=example,DC=com",
     :ad_password        => "ad_secret",
     :ldap_host          => "ldap_server",
-    :ldap_binddn        => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-    :ldap_user_basedn   => "ou=Users,dc=mysite,dc=example,dc=com",
-    :ldap_group_basedn  => "ou=Groups,dc=mysite,dc=example,dc=com",
+    :ldap_bind_dn       => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+    :ldap_user_base_dn  => "ou=Users,dc=mysite,dc=example,dc=com",
+    :ldap_group_base_dn => "ou=Groups,dc=mysite,dc=example,dc=com",
     :ldap_password      => "ldap_secret"
   }
   if ex_options != nil && ex_options.class == Hash
