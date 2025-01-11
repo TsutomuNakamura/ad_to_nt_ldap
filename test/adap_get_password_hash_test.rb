@@ -6,14 +6,14 @@ class ModAdapTest < Minitest::Test
 
     adap = Adap.new({
       :ad_host                  => "localhost",
-      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn               => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn         => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password              => "ad_secret",
       :ldap_host                => "ldap_server",
-      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn             => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn        => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn       => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password            => "ldap_secret",
       :password_hash_algorithm  => :virtual_crypt_sha512
     })
@@ -34,14 +34,14 @@ class ModAdapTest < Minitest::Test
 
     adap = Adap.new({
       :ad_host                  => "localhost",
-      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn               => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn         => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password              => "ad_secret",
       :ldap_host                => "ldap_server",
-      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn             => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn        => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn       => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password            => "ldap_secret",
       :password_hash_algorithm  => :virtual_crypt_sha512
     })
@@ -61,17 +61,17 @@ class ModAdapTest < Minitest::Test
     mock_ad_and_ldap_connections()
 
     adap = Adap.new({
-      :ad_host                  => "localhost",
-      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_password              => "ad_secret",
-      :ldap_host                => "ldap_server",
-      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
-      :ldap_password            => "ldap_secret",
-      #:password_hash_algorithm  => :virtual_crypt_sha512
+      :ad_host                      => "localhost",
+      :ad_bind_dn                   => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn              => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn             => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_password                  => "ad_secret",
+      :ldap_host                    => "ldap_server",
+      :ldap_bind_dn                 => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn            => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn           => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_password                => "ldap_secret",
+      #:password_hash_algorithm      => :virtual_crypt_sha512
     })
 
     exception = assert_raises RuntimeError do
@@ -89,14 +89,14 @@ class ModAdapTest < Minitest::Test
 
     adap = Adap.new({
       :ad_host                  => "localhost",
-      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn               => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn         => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password              => "ad_secret",
       :ldap_host                => "ldap_server",
-      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn             => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn        => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn       => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password            => "ldap_secret",
       :password_hash_algorithm  => :virtual_crypt_sha256
     })
@@ -112,14 +112,14 @@ class ModAdapTest < Minitest::Test
 
     adap = Adap.new({
       :ad_host                  => "localhost",
-      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn               => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn         => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password              => "ad_secret",
       :ldap_host                => "ldap_server",
-      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn             => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn        => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn       => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password            => "ldap_secret",
       :password_hash_algorithm  => :virtual_crypt_sha512
     })
@@ -136,14 +136,14 @@ class ModAdapTest < Minitest::Test
     # Adap chose ssha hash algorithm by default
     adap = Adap.new({
       :ad_host                  => "localhost",
-      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn               => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn         => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password              => "ad_secret",
       :ldap_host                => "ldap_server",
-      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn             => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn        => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn       => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password            => "ldap_secret",
       #:password_hash_algorithm  => :virtual_crypt_sha512
     })
@@ -160,14 +160,14 @@ class ModAdapTest < Minitest::Test
     # Adap chose ssha hash algorithm by default
     adap = Adap.new({
       :ad_host                  => "localhost",
-      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn               => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn         => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password              => "ad_secret",
       :ldap_host                => "ldap_server",
-      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn             => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn        => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn       => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password            => "ldap_secret",
       :password_hash_algorithm  => :md5
     })
@@ -184,14 +184,14 @@ class ModAdapTest < Minitest::Test
     # Adap chose ssha hash algorithm by default
     adap = Adap.new({
       :ad_host                  => "localhost",
-      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn               => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn         => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password              => "ad_secret",
       :ldap_host                => "ldap_server",
-      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn             => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn        => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn       => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password            => "ldap_secret",
       :password_hash_algorithm  => :sha
     })
@@ -207,14 +207,14 @@ class ModAdapTest < Minitest::Test
 
     adap = Adap.new({
       :ad_host                  => "localhost",
-      :ad_binddn                => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_user_basedn           => "CN=Users,DC=mysite,DC=example,DC=com",
-      :ad_group_basedn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_bind_dn               => "CN=Administrator,CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_user_base_dn          => "CN=Users,DC=mysite,DC=example,DC=com",
+      :ad_group_base_dn         => "CN=Users,DC=mysite,DC=example,DC=com",
       :ad_password              => "ad_secret",
       :ldap_host                => "ldap_server",
-      :ldap_binddn              => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_user_basedn         => "ou=Users,dc=mysite,dc=example,dc=com",
-      :ldap_group_basedn        => "ou=Groups,dc=mysite,dc=example,dc=com",
+      :ldap_bind_dn             => "uid=Administrator,ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_user_base_dn        => "ou=Users,dc=mysite,dc=example,dc=com",
+      :ldap_group_base_dn       => "ou=Groups,dc=mysite,dc=example,dc=com",
       :ldap_password            => "ldap_secret",
       :password_hash_algorithm  => :virtual_crypt_sha512
     })
